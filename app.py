@@ -937,16 +937,26 @@ try:
                             related_data['최소연봉'] = related_data['최소연봉'].astype(int)
                             related_data['평균연봉'] = related_data['평균연봉'].astype(int)
                             related_data['최대연봉'] = related_data['최대연봉'].astype(int)
+                            # 빈 컬럼 추가
+                            related_data[''] = ''
                             st.dataframe(
-                                related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
+                                related_data[['연차', '최소연봉', '평균연봉', '최대연봉', '']].rename(
                                     columns={
                                         '연차': '인정경력',
                                         '최소연봉': '최소연봉(만원)',
                                         '평균연봉': '평균연봉(만원)',
-                                        '최대연봉': '최대연봉(만원)'
+                                        '최대연봉': '최대연봉(만원)',
+                                        '': ''
                                     }
                                 ),
-                                hide_index=True
+                                hide_index=True,
+                                column_config={
+                                    '': st.column_config.Column(width=200),
+                                    '인정경력': st.column_config.Column(width=80),
+                                    '최소연봉(만원)': st.column_config.Column(width=100),
+                                    '평균연봉(만원)': st.column_config.Column(width=100),
+                                    '최대연봉(만원)': st.column_config.Column(width=100)
+                                }
                             )
                         else:
                             st.info("해당 직군의 임금테이블 데이터가 없습니다.")
@@ -1051,16 +1061,26 @@ try:
                                 related_data['최소연봉'] = related_data['최소연봉'].astype(int)
                                 related_data['평균연봉'] = related_data['평균연봉'].astype(int)
                                 related_data['최대연봉'] = related_data['최대연봉'].astype(int)
+                                # 빈 컬럼 추가
+                                related_data[''] = ''
                                 st.dataframe(
-                                    related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
+                                    related_data[['연차', '최소연봉', '평균연봉', '최대연봉', '']].rename(
                                         columns={
                                             '연차': '인정경력',
                                             '최소연봉': '최소연봉(만원)',
                                             '평균연봉': '평균연봉(만원)',
-                                            '최대연봉': '최대연봉(만원)'
+                                            '최대연봉': '최대연봉(만원)',
+                                            '': ''
                                         }
                                     ),
-                                    hide_index=True
+                                    hide_index=True,
+                                    column_config={
+                                        '': st.column_config.Column(width=200),
+                                        '인정경력': st.column_config.Column(width=80),
+                                        '최소연봉(만원)': st.column_config.Column(width=100),
+                                        '평균연봉(만원)': st.column_config.Column(width=100),
+                                        '최대연봉(만원)': st.column_config.Column(width=100)
+                                    }
                                 )
                             else:
                                 st.info("해당 직군의 임금테이블 데이터가 없습니다.")
