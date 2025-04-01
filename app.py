@@ -822,7 +822,7 @@ try:
                 else:
                     st.info(f"{birth_month}월 재직자 중 생일자가 없습니다.")
 
-        elif menu == "📋 처우협상":
+        elif menu == "📋 채용_처우협상":
             st.markdown("##### 🔎 처우 기본정보")
             
             # 직군 매핑 정의
