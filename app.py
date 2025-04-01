@@ -222,7 +222,7 @@ st.sidebar.markdown("---")
 # 네비게이션 메뉴
 menu = st.sidebar.radio(
     " ",
-    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색", "📋 처우협상"],
+    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색", "📋 채용_처우협상"],
     index=0,
     format_func=lambda x: f"📊 {x}" if x == "현재 인원현황" else (f"📈 {x}" if x == "연도별 인원 통계" else f"{x}")
 )
