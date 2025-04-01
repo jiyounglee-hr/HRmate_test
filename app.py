@@ -1045,45 +1045,6 @@ try:
                             4. 희망 연봉: {desired_salary:,.0f}만원
                             5. 특이사항: {education_notes}
                             """)
-                            
-                            # salary_table 관련 데이터 표시
-                            st.markdown("##### 📊 임금테이블 상세 데이터")
-                            related_years = [years_exp-1, years_exp, years_exp+1]
-                            related_data = salary_table[
-                                (salary_table['직군'] == selected_job_category) & 
-                                (salary_table['연차'].isin(related_years))
-                            ].sort_values('연차')
-                            
-                            if not related_data.empty:
-                                # 평균연봉 계산
-                                related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
-                                # 모든 연봉 컬럼을 정수로 변환
-                                related_data['최소연봉'] = related_data['최소연봉'].astype(int)
-                                related_data['평균연봉'] = related_data['평균연봉'].astype(int)
-                                related_data['최대연봉'] = related_data['최대연봉'].astype(int)
-                                # 빈 컬럼 추가
-                                related_data[''] = ''
-                                st.dataframe(
-                                    related_data[['연차', '최소연봉', '평균연봉', '최대연봉', '']].rename(
-                                        columns={
-                                            '연차': '인정경력',
-                                            '최소연봉': '최소연봉(만원)',
-                                            '평균연봉': '평균연봉(만원)',
-                                            '최대연봉': '최대연봉(만원)',
-                                            '': ''
-                                        }
-                                    ),
-                                    hide_index=True,
-                                    column_config={
-                                        '': st.column_config.Column(width=200),
-                                        '인정경력': st.column_config.Column(width=80),
-                                        '최소연봉(만원)': st.column_config.Column(width=100),
-                                        '평균연봉(만원)': st.column_config.Column(width=100),
-                                        '최대연봉(만원)': st.column_config.Column(width=100)
-                                    }
-                                )
-                            else:
-                                st.info("해당 직군의 임금테이블 데이터가 없습니다.")
                     except Exception as e:
                         st.error(f"임금 테이블 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
