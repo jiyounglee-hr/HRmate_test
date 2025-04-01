@@ -229,7 +229,7 @@ menu = st.sidebar.radio(
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
 st.sidebar.markdown("##### 참고 사이트")
-st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용서포트</a>', unsafe_allow_html=True)
+st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용(이력서 분석)</a>', unsafe_allow_html=True)
 st.sidebar.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📰 PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 try:
     # 데이터 로드
@@ -933,6 +933,10 @@ try:
                         if not related_data.empty:
                             # 평균연봉 계산
                             related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
+                            # 모든 연봉 컬럼을 정수로 변환
+                            related_data['최소연봉'] = related_data['최소연봉'].astype(int)
+                            related_data['평균연봉'] = related_data['평균연봉'].astype(int)
+                            related_data['최대연봉'] = related_data['최대연봉'].astype(int)
                             st.dataframe(
                                 related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
                                     columns={
@@ -1043,6 +1047,10 @@ try:
                             if not related_data.empty:
                                 # 평균연봉 계산
                                 related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
+                                # 모든 연봉 컬럼을 정수로 변환
+                                related_data['최소연봉'] = related_data['최소연봉'].astype(int)
+                                related_data['평균연봉'] = related_data['평균연봉'].astype(int)
+                                related_data['최대연봉'] = related_data['최대연봉'].astype(int)
                                 st.dataframe(
                                     related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
                                         columns={
