@@ -922,25 +922,25 @@ try:
                         <strong>최대 연봉 : {int(max_salary):,}만원</strong>
                         </div>
                         """, unsafe_allow_html=True)
-                        # salary_table 관련 데이터 표시
-                        st.sidebar.markdown("---")
-                        related_years = [years_exp-1, years_exp, years_exp+1]
-                        related_data = salary_table[
-                            (salary_table['직군'] == selected_job_category) & 
-                            (salary_table['연차'].isin(related_years))
-                        ].sort_values('연차')
                         
-                        if not related_data.empty:
-                            # 평균연봉 계산
-                            related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
-                            # 모든 연봉 컬럼을 정수로 변환
-                            related_data['최소연봉'] = related_data['최소연봉'].astype(int)
-                            related_data['평균연봉'] = related_data['평균연봉'].astype(int)
-                            related_data['최대연봉'] = related_data['최대연봉'].astype(int)
+                        # 컬럼으로 공간 분리
+                        col1, col2 = st.columns([0.6, 0.4])
+                        with col1:
+                            # salary_table 관련 데이터 표시
+                            related_years = [years_exp-1, years_exp, years_exp+1]
+                            related_data = salary_table[
+                                (salary_table['직군'] == selected_job_category) & 
+                                (salary_table['연차'].isin(related_years))
+                            ].sort_values('연차')
                             
-                            # 컬럼으로 공간 분리
-                            col1, col2 = st.columns([0.6, 0.4])
-                            with col1:
+                            if not related_data.empty:
+                                # 평균연봉 계산
+                                related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
+                                # 모든 연봉 컬럼을 정수로 변환
+                                related_data['최소연봉'] = related_data['최소연봉'].astype(int)
+                                related_data['평균연봉'] = related_data['평균연봉'].astype(int)
+                                related_data['최대연봉'] = related_data['최대연봉'].astype(int)
+                                
                                 st.dataframe(
                                     related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
                                         columns={
@@ -958,13 +958,12 @@ try:
                                         '최대연봉(만원)': st.column_config.Column(width=100)
                                     }
                                 )
-                            with col2:
-                                st.write("")  # 빈 공간
-                        else:
-                            st.info("해당 직군의 임금테이블 데이터가 없습니다.")
+                            else:
+                                st.info("해당 직군의 임금테이블 데이터가 없습니다.")
                         
+                        with col2:
+                            st.write("")  # 빈 공간
 
-                        
                         st.markdown("<br>", unsafe_allow_html=True)
                         # 2. 상세 분석 결과
                         st.markdown("##### 💡 연봉 책정 가이드")
