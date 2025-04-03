@@ -825,9 +825,125 @@ try:
         elif menu == "🏦 기관제출용 인원현황":
             st.markdown("## 🏦 기관제출용 인원현황")
             
+            # 데이터 로드
+            df = load_data()
+            if df is not None:
+                # 날짜 컬럼 변환
+                df['입사일'] = pd.to_datetime(df['입사일'])
+                df['퇴사일'] = pd.to_datetime(df['퇴사일'])
                 
-
-            
+                # 조회 기준일 설정
+                available_years = sorted(df['입사일'].dt.year.unique(), reverse=True)
+                selected_year = st.selectbox("조회년도", available_years, index=0)
+                
+                months = list(range(1, 13))
+                selected_month = st.selectbox("조회월", months, index=0)
+                
+                # 선택된 연월의 말일 계산
+                last_day = pd.Timestamp(selected_year, selected_month, 1) + pd.offsets.MonthEnd(0)
+                
+                # 해당 연월 말일 기준 재직자 필터링
+                current_employees = df[
+                    (df['입사일'] <= last_day) & 
+                    ((df['퇴사일'].isna()) | (df['퇴사일'] >= last_day))
+                ].copy()
+                
+                if not current_employees.empty:
+                    st.markdown("### 📈 인원현황")
+                    
+                    # 구분별 인원 현황 계산 및 표시
+                    col1, col2 = st.columns([0.6, 0.4])
+                    
+                    with col1:
+                        # 구분1: 주주간담회 등 IR팀 자료
+                        st.markdown("#### 구분1: 주주간담회 등 IR팀 자료 작성용")
+                        group1_stats = current_employees['구분1'].value_counts().reset_index()
+                        group1_stats.columns = ['구분', '인원수']
+                        st.dataframe(
+                            group1_stats,
+                            hide_index=True,
+                            column_config={
+                                "구분": st.column_config.TextColumn("구분", width=200),
+                                "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            }
+                        )
+                        
+                        # 구분2: 투자자 사업현황 보고1
+                        st.markdown("#### 구분2: 투자자 사업현황 보고1")
+                        group2_stats = current_employees['구분2'].value_counts().reset_index()
+                        group2_stats.columns = ['구분', '인원수']
+                        st.dataframe(
+                            group2_stats,
+                            hide_index=True,
+                            column_config={
+                                "구분": st.column_config.TextColumn("구분", width=200),
+                                "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            }
+                        )
+                    
+                    with col2:
+                        # 구분3: 투자자 사업현황 보고2
+                        st.markdown("#### 구분3: 투자자 사업현황 보고2")
+                        group3_stats = current_employees['구분3'].value_counts().reset_index()
+                        group3_stats.columns = ['구분', '인원수']
+                        st.dataframe(
+                            group3_stats,
+                            hide_index=True,
+                            column_config={
+                                "구분": st.column_config.TextColumn("구분", width=200),
+                                "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            }
+                        )
+                        
+                        # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
+                        st.markdown("#### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
+                        group4_stats = current_employees['구분4'].value_counts().reset_index()
+                        group4_stats.columns = ['구분', '인원수']
+                        st.dataframe(
+                            group4_stats,
+                            hide_index=True,
+                            column_config={
+                                "구분": st.column_config.TextColumn("구분", width=200),
+                                "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            }
+                        )
+                    
+                    # 인원상세 목록
+                    st.markdown("### 🧑 인원상세")
+                    detail_columns = ['성명', '본부', '실', '팀', '고용구분', '입사일', '재직상태', '구분1', '구분2', '구분3', '구분4']
+                    detail_df = current_employees[detail_columns].copy()
+                    detail_df['입사일'] = detail_df['입사일'].dt.strftime('%Y-%m-%d')
+                    
+                    st.dataframe(
+                        detail_df,
+                        hide_index=True,
+                        column_config={
+                            "성명": st.column_config.TextColumn("성명", width=80),
+                            "본부": st.column_config.TextColumn("본부", width=120),
+                            "실": st.column_config.TextColumn("실", width=120),
+                            "팀": st.column_config.TextColumn("팀", width=120),
+                            "고용구분": st.column_config.TextColumn("고용구분", width=80),
+                            "입사일": st.column_config.TextColumn("입사일", width=100),
+                            "재직상태": st.column_config.TextColumn("재직상태", width=80),
+                            "구분1": st.column_config.TextColumn("구분1", width=120),
+                            "구분2": st.column_config.TextColumn("구분2", width=120),
+                            "구분3": st.column_config.TextColumn("구분3", width=120),
+                            "구분4": st.column_config.TextColumn("구분4", width=120)
+                        }
+                    )
+                    
+                    # 엑셀 다운로드 버튼
+                    excel_data = detail_df.to_excel(index=False)
+                    st.download_button(
+                        label="📥 엑셀 다운로드",
+                        data=excel_data,
+                        file_name=f"기관제출용_인원현황_{selected_year}{selected_month:02d}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                else:
+                    st.warning(f"{selected_year}년 {selected_month}월 데이터가 없습니다.")
+            else:
+                st.error("데이터를 불러오는 중 오류가 발생했습니다.")
 
         elif menu == "📋 채용_처우협상":
             st.markdown("##### 🔎 처우 기본정보")
