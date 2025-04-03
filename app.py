@@ -893,12 +893,12 @@ try:
                     st.markdown("###### 구분1: 주주간담회 등 IR팀 자료 작성용")
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
+                    group1_stats = group1_stats.T  # 행과 열을 바꿈
                     st.dataframe(
                         group1_stats,
-                        hide_index=True,
                         column_config={
-                            "구분": st.column_config.TextColumn("구분", width=200),
-                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            "0": st.column_config.TextColumn("구분", width=200),
+                            "1": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -906,12 +906,12 @@ try:
                     st.markdown("###### 구분2: 투자자 사업현황 보고1")
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
+                    group2_stats = group2_stats.T  # 행과 열을 바꿈
                     st.dataframe(
                         group2_stats,
-                        hide_index=True,
                         column_config={
-                            "구분": st.column_config.TextColumn("구분", width=200),
-                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            "0": st.column_config.TextColumn("구분", width=200),
+                            "1": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -919,12 +919,12 @@ try:
                     st.markdown("###### 구분3: 투자자 사업현황 보고2")
                     group3_stats = current_employees['구분3'].value_counts().reset_index()
                     group3_stats.columns = ['구분', '인원수']
+                    group3_stats = group3_stats.T  # 행과 열을 바꿈
                     st.dataframe(
                         group3_stats,
-                        hide_index=True,
                         column_config={
-                            "구분": st.column_config.TextColumn("구분", width=200),
-                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            "0": st.column_config.TextColumn("구분", width=200),
+                            "1": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -932,12 +932,12 @@ try:
                     st.markdown("###### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
                     group4_stats = current_employees['구분4'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
+                    group4_stats = group4_stats.T  # 행과 열을 바꿈
                     st.dataframe(
                         group4_stats,
-                        hide_index=True,
                         column_config={
-                            "구분": st.column_config.TextColumn("구분", width=200),
-                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                            "0": st.column_config.TextColumn("구분", width=200),
+                            "1": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
