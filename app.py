@@ -850,7 +850,10 @@ try:
                 st.write("전체 직원 수:", len(df))
                 
                 # 입사일이 기준일 이전인 직원 수 계산
-                입사일_이전_직원 = df[df['입사일'].notna() & (df['입사일'] <= last_day)]
+                입사일_이전_직원 = df[
+                    (df['입사일'].notna()) & 
+                    (df['입사일'] <= last_day)
+                ]
                 st.write("입사일이 기준일 이전인 직원 수:", len(입사일_이전_직원))
                 
                 # 퇴사일이 기준일 이후인 직원 수 계산
@@ -865,6 +868,8 @@ try:
                 st.write("입사일 데이터 타입:", df['입사일'].dtype)
                 st.write("기준일 데이터 타입:", type(last_day))
                 st.write("입사일 샘플:", df['입사일'].head())
+                st.write("입사일 최소값:", df['입사일'].min())
+                st.write("입사일 최대값:", df['입사일'].max())
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
