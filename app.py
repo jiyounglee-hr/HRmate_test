@@ -916,6 +916,12 @@ try:
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
                     total_count2 = group2_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group2_stats[group2_stats['구분'] == '임원']
+                    other_rows = group2_stats[group2_stats['구분'] != '임원']
+                    group2_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
                     group2_stats = group2_stats.T  # 행과 열을 바꿈
                     group2_stats.columns = group2_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group2_stats = group2_stats.iloc[1:]  # 첫 번째 행 제외
@@ -932,6 +938,12 @@ try:
                     group4_stats = current_employees['구분3'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
                     total_count4 = group4_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group4_stats[group4_stats['구분'] == '임원']
+                    other_rows = group4_stats[group4_stats['구분'] != '임원']
+                    group4_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
                     group4_stats = group4_stats.T  # 행과 열을 바꿈
                     group4_stats.columns = group4_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group4_stats = group4_stats.iloc[1:]  # 첫 번째 행 제외
