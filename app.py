@@ -901,8 +901,8 @@ try:
                     st.dataframe(
                         group1_stats,
                         use_container_width=False,
-                        width=900,
-                        column_config={col: st.column_config.NumberColumn(col, width=30) for col in group1_stats.columns}
+                        width=630,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
