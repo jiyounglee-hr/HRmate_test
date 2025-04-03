@@ -908,21 +908,22 @@ try:
                         avg_salary = (min_salary + max_salary) / 2
 
                         # 분석 결과 표시
-                        st.markdown("<br><br>", unsafe_allow_html=True)
+                        st.markdown("<br>", unsafe_allow_html=True)
                         st.markdown("#### 📊 연봉 분석 결과")
                         
                         # 직군 정보 표시
                         st.markdown(f"**선택된 직군 정보:** {selected_job_category} - {job_role}")
                         # 연봉 정보 표시
                         st.markdown(f"""
-                        <div style="font-size: 0.9rem;">
+                        <div style="font-size: 1rem;">
                         <strong>현재 연봉 : {int(current_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp; </strong>
                         <strong>최소 연봉 : {int(min_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
                         <strong style="color: red;">평균 연봉 : {int(avg_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
                         <strong>최대 연봉 : {int(max_salary):,}만원</strong>
                         </div>
                         """, unsafe_allow_html=True)
-                        
+                        st.markdown("<br>", unsafe_allow_html=True)
+
                         # 컬럼으로 공간 분리
                         col1, col2 = st.columns([0.6, 0.4])
                         with col1:
@@ -934,8 +935,6 @@ try:
                             ].sort_values('연차')
                             
                             if not related_data.empty:
-                                # 평균연봉 계산
-                                related_data['평균연봉'] = (related_data['최소연봉'] + related_data['최대연봉']) / 2
                                 # 모든 연봉 컬럼을 정수로 변환
                                 related_data['최소연봉'] = related_data['최소연봉'].astype(int)
                                 related_data['평균연봉'] = related_data['평균연봉'].astype(int)
@@ -980,12 +979,9 @@ try:
                         else:
                             analysis_text += "✅ 현재 연봉(기본연봉)이 시장 범위 내에 있습니다.\n"
                             recommended_salary = current_salary
-                        
-                        # 연봉 보존율 계산
-                        preservation_rate = (recommended_salary / current_salary) * 100
-                        
-                        # 총보상 계산
-                        total_compensation = current_salary + other_salary
+                                                
+                        # 최종보상 계산
+                        final_compensation = current_salary + other_salary
                         
                         # 제시금액 계산 로직
                         def calculate_suggested_salary(total_comp, min_salary, avg_salary, max_salary):
@@ -1003,23 +999,36 @@ try:
                                 return int(increase_2)
                             else:
                                 return "[별도 계산 필요]"
-                        
+
                         # 제시금액 계산
                         suggested_salary = calculate_suggested_salary(
-                            total_compensation, 
+                            final_compensation, 
                             min_salary, 
                             avg_salary, 
                             max_salary
                         )
+                        # 연봉 보존율 계산
+                        preservation_rate = (suggested_salary / final_compensation) * 100
 
-                        # 협상(안) 보고서
+                        # 현재 상황에 맞는 제시금액 계산 로직 결정
+                        if final_compensation * 1.1 < avg_salary:
+                            calculation_logic = "제시금액 계산 로직 : 최종보상 * 1.1 (10% 증액)으로 제안"
+                        elif final_compensation * 1.05 < avg_salary:
+                            calculation_logic = "제시금액 계산 로직 : 평균연봉으로 제안"
+                        elif final_compensation * 1.05 >= avg_salary and final_compensation <= avg_salary:
+                            calculation_logic = "제시금액 계산 로직 : 최종보상 * 1.05까지 제안 (5% 증액)"
+                        elif final_compensation > avg_salary and final_compensation <= max_salary:
+                            calculation_logic = "제시금액 계산 로직 : 최종보상 * 1.02까지 제안 (2% 증액)"
+                        else:
+                            calculation_logic = "제시금액 계산 로직 : 별도 계산 필요"
+
                         st.info(f"""
                         {position} 합격자 {candidate_name}님 처우 협상(안) 보고 드립니다.
 
                         {candidate_name}님의 경력은 {years:.1f}년으로 {selected_job_category} 임금테이블 기준으로는 
                         기준연봉 {avg_salary:,.0f}만원 ~ 상위10% {max_salary:,.0f}만원까지 고려할 수 있습니다.
                         
-                        최종보상 {total_compensation:,.0f}만원, 기준(평균)연봉 {avg_salary:,.0f}만원을 고려했을 때 
+                        최종보상 {final_compensation:,.0f}만원, 기준(평균)연봉 {avg_salary:,.0f}만원을 고려했을 때 
                         제시금액은 {suggested_salary if isinstance(suggested_salary, str) else f'{suggested_salary:,.0f}만원'}이 어떨지 의견 드립니다.
 
                         [연봉산정]
@@ -1028,23 +1037,20 @@ try:
                         - 희망연봉: {desired_salary:,.0f}만원
                         - 기준(임금테이블) 연봉: {avg_salary:,.0f}만원 (최소 연봉: {min_salary:,.0f}만원, 최대 연봉: {max_salary:,.0f}만원)
                         - 특이사항: {education_notes}
+
+                        [참고]
+                        - {calculation_logic}
+                        - 기존 보상총액 보존율: {preservation_rate:.1f}%
                         """)
-                        
                         # 상세 분석 결과 expander
-                        with st.expander("분석 기준 보기"):
+                        with st.expander("📌 분석 기준 보기"):
                             st.info(f"""
-                            💰 추천 연봉 범위: {recommended_salary:,.0f}만원 
-                            (현재 연봉 대비 {preservation_rate:.1f}% 수준)
-                            
-                            📌 판단 근거:
-                            {analysis_text}
-                            
-                            🔍 고려사항:
-                            1. 임금 테이블 기준: {min_salary:,.0f}만원 ~ {max_salary:,.0f}만원
-                            2. 현재 연봉: {current_salary:,.0f}만원
-                            3. 기타 보상: {other_salary:,.0f}만원
-                            4. 희망 연봉: {desired_salary:,.0f}만원
-                            5. 특이사항: {education_notes}
+                             제시금액 계산                 
+                                - 최종보상 * 1.1 < 평균연봉 : 최종보상 * 1.1 정도 제안 (10% 증액) 
+                                - 최종보상 * 1.05 < 평균연봉 : 평균연봉 정도 제안 (5% 증액) 
+                                - 최종보상 * 1.05 >= 평균연봉 & 최종보상 <= 평균연봉 : 최종보상 * 1.05까지 제안 (5% 증액) 
+                                - 최종보상 > 평균연봉 & 최종보상 <= 최대연봉 : 최종보상 * 1.02까지 제안 (2% 증액) 
+                                - 최종보상 > 최대연봉 : 별도 계산 필요
                             """)
                     except Exception as e:
                         st.error(f"임금 테이블 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
