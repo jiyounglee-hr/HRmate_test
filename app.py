@@ -894,6 +894,12 @@ try:
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
                     total_count1 = group1_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group1_stats[group1_stats['구분'] == '임원']
+                    other_rows = group1_stats[group1_stats['구분'] != '임원']
+                    group1_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
                     group1_stats = group1_stats.T  # 행과 열을 바꿈
                     group1_stats.columns = group1_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group1_stats = group1_stats.iloc[1:]  # 첫 번째 행 제외
@@ -922,7 +928,7 @@ try:
                     )
                     
                     # 구분3: 의료기기 생산 및 수출·수입·수리실적보고
-                    st.markdown("4. 의료기기 생산 및 수출·수입·수리실적보고")
+                    st.markdown("3. 의료기기 생산 및 수출·수입·수리실적보고")
                     group4_stats = current_employees['구분3'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
                     total_count4 = group4_stats['인원수'].sum()
