@@ -900,7 +900,7 @@ try:
                     group1_stats['총인원'] = total_count1  # 총인원 열 추가
                     st.dataframe(
                         group1_stats,
-                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group1_stats.columns}
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
