@@ -834,12 +834,13 @@ try:
                 
                 # 조회 기준일 설정
                 current_year = datetime.now().year
+                current_month = datetime.now().month
                 years = list(range(2016, current_year + 1))
                 years.sort(reverse=True)  # 내림차순 정렬
                 selected_year = st.selectbox("조회년도", years, index=0)
                 
                 months = list(range(1, 13))
-                selected_month = st.selectbox("조회월", months, index=0)
+                selected_month = st.selectbox("조회월", months, index=current_month-1)
                 
                 # 선택된 연월의 말일 계산
                 last_day = pd.Timestamp(selected_year, selected_month, 1) + pd.offsets.MonthEnd(0)
