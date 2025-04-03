@@ -857,9 +857,6 @@ try:
                 df['입사일'] = df['입사일'].apply(convert_date)
                 df['퇴사일'] = df['퇴사일'].apply(convert_date)
                 
-                # 디버깅을 위한 전체 직원 정보 출력
-                st.write("전체 직원 목록:")
-                st.write(df[['성명', '입사일', '퇴사일']])
                 
                 # 조회 기준일 설정
                 current_year = datetime.now().year
@@ -893,12 +890,17 @@ try:
                 ]
                 st.write("퇴사일이 기준일 이후인 직원 수:", len(퇴사일_이후_직원))
                 
-                # 입사일과 퇴사일 기준 디버깅 정보
-                st.write("입사일이 기준일 이전인 직원 목록:")
-                st.write(입사일_이전_직원[['성명', '입사일', '퇴사일']])
+                # 기준일에 재직중인 직원 필터링
+                current_employees = df[
+                    (df['입사일'].notna()) & 
+                    (df['입사일'] <= last_day) & 
+                    ((df['퇴사일'].isna()) | 
+                     (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
+                     (df['퇴사일'] >= last_day))
+                ]
                 
-                st.write("퇴사일이 기준일 이후인 직원 목록:")
-                st.write(퇴사일_이후_직원[['성명', '입사일', '퇴사일']])
+                st.write("기준일 기준 재직중인 직원 목록:")
+                st.write(current_employees[['성명', '입사일', '퇴사일']])
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
