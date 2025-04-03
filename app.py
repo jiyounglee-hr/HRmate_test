@@ -906,7 +906,7 @@ try:
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
-                    st.markdown("2. 투자자 사업현황 보고 (생산직 별도)")
+                    st.markdown("2. 투자자 사업현황 보고")
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
                     total_count2 = group2_stats['인원수'].sum()
@@ -921,25 +921,9 @@ try:
                         column_config={col: st.column_config.NumberColumn(col, width=50) for col in group2_stats.columns}
                     )
                     
-                    # 구분3: 투자자 사업현황 보고2
-                    st.markdown("3. 투자자 사업현황 보고 (생산직을 연구직에 포함)")
-                    group3_stats = current_employees['구분3'].value_counts().reset_index()
-                    group3_stats.columns = ['구분', '인원수']
-                    total_count3 = group3_stats['인원수'].sum()
-                    group3_stats = group3_stats.T  # 행과 열을 바꿈
-                    group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
-                    group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
-                    group3_stats['총인원'] = total_count3  # 총인원 열 추가
-                    st.dataframe(
-                        group3_stats,
-                        use_container_width=False,
-                        width=500,
-                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group3_stats.columns}
-                    )
-                    
-                    # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
+                    # 구분3: 의료기기 생산 및 수출·수입·수리실적보고
                     st.markdown("4. 의료기기 생산 및 수출·수입·수리실적보고")
-                    group4_stats = current_employees['구분4'].value_counts().reset_index()
+                    group4_stats = current_employees['구분3'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
                     total_count4 = group4_stats['인원수'].sum()
                     group4_stats = group4_stats.T  # 행과 열을 바꿈
