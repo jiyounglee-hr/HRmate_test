@@ -828,9 +828,32 @@ try:
             # 데이터 로드
             df = load_data()
             if df is not None:
+                # 날짜 컬럼 변환 함수
+                def convert_date(date_value):
+                    if pd.isna(date_value):
+                        return pd.NaT
+                    try:
+                        # 문자열로 변환
+                        date_str = str(date_value)
+                        # 여러 날짜 형식 시도
+                        formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
+                        for fmt in formats:
+                            try:
+                                return pd.to_datetime(date_str, format=fmt)
+                            except:
+                                continue
+                        # 모든 형식이 실패하면 기본 변환 시도
+                        return pd.to_datetime(date_str)
+                    except:
+                        return pd.NaT
+
                 # 날짜 컬럼 변환
-                df['입사일'] = pd.to_datetime(df['입사일'], format='%Y-%m-%d', errors='coerce')
-                df['퇴사일'] = pd.to_datetime(df['퇴사일'], format='%Y-%m-%d', errors='coerce')
+                df['입사일'] = df['입사일'].apply(convert_date)
+                df['퇴사일'] = df['퇴사일'].apply(convert_date)
+                
+                # 디버깅을 위한 전체 직원 정보 출력
+                st.write("전체 직원 목록:")
+                st.write(df[['성명', '입사일', '퇴사일']])
                 
                 # 조회 기준일 설정
                 current_year = datetime.now().year
@@ -863,13 +886,6 @@ try:
                     (df['퇴사일'] >= last_day)
                 ]
                 st.write("퇴사일이 기준일 이후인 직원 수:", len(퇴사일_이후_직원))
-                
-                # 디버깅을 위한 추가 정보
-                st.write("입사일 데이터 타입:", df['입사일'].dtype)
-                st.write("기준일 데이터 타입:", type(last_day))
-                st.write("입사일 샘플:", df['입사일'].head())
-                st.write("입사일 최소값:", df['입사일'].min().strftime('%Y-%m-%d'))
-                st.write("입사일 최대값:", df['입사일'].max().strftime('%Y-%m-%d'))
                 
                 # 입사일과 퇴사일 기준 디버깅 정보
                 st.write("입사일이 기준일 이전인 직원 목록:")
