@@ -898,7 +898,11 @@ try:
                         group1_stats,
                         column_config={
                             "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100)
+                            "1": st.column_config.NumberColumn("인원수", width=100),
+                            "2": st.column_config.NumberColumn("인원수", width=100),
+                            "3": st.column_config.NumberColumn("인원수", width=100),
+                            "4": st.column_config.NumberColumn("인원수", width=100),
+                            "5": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -911,7 +915,9 @@ try:
                         group2_stats,
                         column_config={
                             "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100)
+                            "1": st.column_config.NumberColumn("인원수", width=100),
+                            "2": st.column_config.NumberColumn("인원수", width=100),
+                            "3": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -924,7 +930,9 @@ try:
                         group3_stats,
                         column_config={
                             "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100)
+                            "1": st.column_config.NumberColumn("인원수", width=100),
+                            "2": st.column_config.NumberColumn("인원수", width=100),
+                            "3": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
@@ -937,7 +945,8 @@ try:
                         group4_stats,
                         column_config={
                             "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100)
+                            "1": st.column_config.NumberColumn("인원수", width=100),
+                            "2": st.column_config.NumberColumn("인원수", width=100)
                         }
                     )
                     
