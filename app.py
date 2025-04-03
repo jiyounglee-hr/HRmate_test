@@ -847,22 +847,12 @@ try:
                 
                 # 디버깅을 위한 정보 출력
                 st.write("기준일:", last_day.strftime('%Y-%m-%d'))
-                
-                # 해당 연월 말일 기준 재직자 필터링
-                current_employees = df[
-                    (df['입사일'].notna()) &  # 입사일이 있는 경우만
-                    (df['입사일'] <= last_day) & 
-                    ((df['퇴사일'].isna()) | (df['퇴사일'] == pd.Timestamp('2050-12-31')) | (df['퇴사일'] >= last_day))  # 재직중(2050-12-31) 또는 퇴사일이 기준일 이후
-                ].copy()
-                
-                # 디버깅을 위한 정보 출력
                 st.write("전체 직원 수:", len(df))
-                st.write("필터링된 직원 수:", len(current_employees))
-                st.write("입사일이 기준일 이전인 직원 수:", len(df[df['입사일'] <= last_day]))
+                st.write("필터링된 직원 수:", len(df[df['입사일'] <= last_day]))  # 기준일 이전에 입사한 직원 수
                 st.write("재직중(2050-12-31) 또는 퇴사일이 기준일 이후인 직원 수:", 
-                        len(df[(df['퇴사일'].isna()) | (df['퇴사일'] == pd.Timestamp('2050-12-31')) | (df['퇴사일'] >= last_day)]))
+                        len(df[(df['퇴사일'].isna()) | (df['퇴사일'] == pd.Timestamp('2050-12-31')) | (df['퇴사일'] >= last_day)]))  # 기준일 이후에 퇴사한 직원 수
                 
-                if not current_employees.empty:
+                if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
                     
                     # 구분별 인원 현황 계산 및 표시
