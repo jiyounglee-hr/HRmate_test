@@ -823,7 +823,7 @@ try:
                     st.info(f"{birth_month}월 재직자 중 생일자가 없습니다.")
 
         elif menu == "🏦 기관제출용 인원현황":
-            st.markdown("## 🏦 기관제출용 인원현황")
+            st.markdown("##### 🏦 기관제출용 인원현황")
             
             # 데이터 로드
             df = load_data()
@@ -863,12 +863,17 @@ try:
                 current_month = datetime.now().month
                 years = list(range(2016, current_year + 1))
                 years.sort(reverse=True)  # 내림차순 정렬
-                selected_year = st.selectbox("조회년도", years, index=0)
                 
-                months = list(range(1, 13))
-                selected_month = st.selectbox("조회월", months, index=current_month-1)
+                col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+                with col1:
+                    selected_year = st.selectbox("조회년도", years, index=0)
+                with col2:
+                    months = list(range(1, 13))
+                    selected_month = st.selectbox("조회월", months, index=current_month-1)
+                with col3:
+                    st.write("")  # 공백 컬럼
                 
-                # 선택된 연월의 말일 계산
+                # 선택된 년월의 마지막 날짜 계산
                 last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
                 
                 # 디버깅을 위한 정보 출력
@@ -885,11 +890,11 @@ try:
                 
                 
                 if not df[df['입사일'] <= last_day].empty:
-                    st.markdown("### 📈 인원현황")
+                    st.markdown("##### 📈 인원현황")
                     
                     # 구분별 인원 현황 계산 및 표시
                     # 구분1: 주주간담회 등 IR팀 자료
-                    st.markdown("#### 구분1: 주주간담회 등 IR팀 자료 작성용")
+                    st.markdown("##### 구분1: 주주간담회 등 IR팀 자료 작성용")
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
                     st.dataframe(
