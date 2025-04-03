@@ -871,6 +871,13 @@ try:
                 st.write("입사일 최소값:", df['입사일'].min().strftime('%Y-%m-%d'))
                 st.write("입사일 최대값:", df['입사일'].max().strftime('%Y-%m-%d'))
                 
+                # 데이터 다시 로드
+                df = load_data()
+                if df is not None:
+                    # 날짜 컬럼 변환
+                    df['입사일'] = pd.to_datetime(df['입사일'], format='%Y-%m-%d', errors='coerce')
+                    df['퇴사일'] = pd.to_datetime(df['퇴사일'], format='%Y-%m-%d', errors='coerce')
+                
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
                     
