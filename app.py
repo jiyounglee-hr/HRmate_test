@@ -825,51 +825,6 @@ try:
         elif menu == "🏦 기관제출용 인원현황":
             st.markdown("## 🏦 기관제출용 인원현황")
             
-            # 데이터 로드
-            df = load_data()
-            if df is not None:
-                # 현재 날짜 기준으로 재직자만 필터링
-                current_date = pd.Timestamp.now()
-                
-                # 날짜 컬럼 변환
-                df['입사일'] = pd.to_datetime(df['입사일'], errors='coerce')
-                df['퇴사일'] = pd.to_datetime(df['퇴사일'], errors='coerce')
-                df['생년월일'] = pd.to_datetime(df['생년월일'], errors='coerce')
-                
-                df_current = df[
-                    (df['입사일'] <= current_date) & 
-                    ((df['퇴사일'].isna()) | (df['퇴사일'] > current_date))
-                ].copy()
-                
-                # 기관제출용 데이터 가공
-                df_report = df_current[['이름', '직위', '직군', '입사일', '생년월일', '성별']].copy()
-                
-                # 나이 계산
-                df_report['나이'] = ((current_date - df_report['생년월일']).dt.days / 365.25).astype(int)
-                
-                # 재직기간 계산 (년)
-                df_report['재직기간'] = ((current_date - df_report['입사일']).dt.days / 365.25).round(1)
-                
-                # 컬럼 순서 변경
-                df_report = df_report[['이름', '직위', '직군', '성별', '나이', '재직기간']]
-                
-                # 직군별 정렬
-                df_report = df_report.sort_values(['직군', '직위'])
-                
-                # 데이터 표시
-                st.dataframe(
-                    df_report,
-                    use_container_width=True,
-                    hide_index=True,
-                    column_config={
-                        "이름": st.column_config.TextColumn("이름", width="medium"),
-                        "직위": st.column_config.TextColumn("직위", width="medium"),
-                        "직군": st.column_config.TextColumn("직군", width="medium"),
-                        "성별": st.column_config.TextColumn("성별", width="small"),
-                        "나이": st.column_config.NumberColumn("나이", width="small"),
-                        "재직기간": st.column_config.NumberColumn("재직기간(년)", width="medium", format="%.1f")
-                    }
-                )
                 
                 # 엑셀 다운로드 버튼
                 excel_data = df_report.to_excel(index=False)
@@ -878,9 +833,7 @@ try:
                     data=excel_data,
                     file_name="기관제출용_인원현황.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-            else:
-                st.error("데이터를 불러오는 중 오류가 발생했습니다.")
+            
 
         elif menu == "📋 채용_처우협상":
             st.markdown("##### 🔎 처우 기본정보")
