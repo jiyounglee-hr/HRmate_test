@@ -829,8 +829,8 @@ try:
             df = load_data()
             if df is not None:
                 # 날짜 컬럼 변환
-                df['입사일'] = pd.to_datetime(df['입사일'], errors='coerce')
-                df['퇴사일'] = pd.to_datetime(df['퇴사일'], errors='coerce')
+                df['입사일'] = pd.to_datetime(df['입사일'], format='%Y-%m-%d', errors='coerce')
+                df['퇴사일'] = pd.to_datetime(df['퇴사일'], format='%Y-%m-%d', errors='coerce')
                 
                 # 조회 기준일 설정
                 current_year = datetime.now().year
@@ -852,7 +852,7 @@ try:
                 current_employees = df[
                     (df['입사일'].notna()) &  # 입사일이 있는 경우만
                     (df['입사일'] <= last_day) & 
-                    ((df['퇴사일'].dt.strftime('%Y-%m-%d') == '2050-12-31') | (df['퇴사일'] >= last_day))  # 재직중(2050-12-31) 또는 퇴사일이 기준일 이후
+                    ((df['퇴사일'].astype(str) == '2050-12-31') | (df['퇴사일'] >= last_day))  # 재직중(2050-12-31) 또는 퇴사일이 기준일 이후
                 ].copy()
                 
                 # 디버깅을 위한 정보 출력
@@ -860,7 +860,7 @@ try:
                 st.write("필터링된 직원 수:", len(current_employees))
                 st.write("입사일이 기준일 이전인 직원 수:", len(df[df['입사일'] <= last_day]))
                 st.write("재직중(2050-12-31) 또는 퇴사일이 기준일 이후인 직원 수:", 
-                        len(df[(df['퇴사일'].dt.strftime('%Y-%m-%d') == '2050-12-31') | (df['퇴사일'] >= last_day)]))
+                        len(df[(df['퇴사일'].astype(str) == '2050-12-31') | (df['퇴사일'] >= last_day)]))
                 
                 if not current_employees.empty:
                     st.markdown("### 📈 인원현황")
