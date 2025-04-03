@@ -868,8 +868,8 @@ try:
                 st.write("입사일 데이터 타입:", df['입사일'].dtype)
                 st.write("기준일 데이터 타입:", type(last_day))
                 st.write("입사일 샘플:", df['입사일'].head())
-                st.write("입사일 최소값:", df['입사일'].min())
-                st.write("입사일 최대값:", df['입사일'].max())
+                st.write("입사일 최소값:", df['입사일'].min().strftime('%Y-%m-%d'))
+                st.write("입사일 최대값:", df['입사일'].max().strftime('%Y-%m-%d'))
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
