@@ -885,6 +885,7 @@ try:
                      (df['퇴사일'] >= last_day))
                 ]
                 
+                st.markdown("---")
                 
                 if not df[df['입사일'] <= last_day].empty:
                     # 구분별 인원 현황 계산 및 표시
@@ -902,7 +903,7 @@ try:
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
-                    st.markdown("#### 구분2: 투자자 사업현황 보고1")
+                    st.markdown("###### 구분2: 투자자 사업현황 보고1")
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
                     st.dataframe(
@@ -915,7 +916,7 @@ try:
                     )
                     
                     # 구분3: 투자자 사업현황 보고2
-                    st.markdown("#### 구분3: 투자자 사업현황 보고2")
+                    st.markdown("###### 구분3: 투자자 사업현황 보고2")
                     group3_stats = current_employees['구분3'].value_counts().reset_index()
                     group3_stats.columns = ['구분', '인원수']
                     st.dataframe(
@@ -928,7 +929,7 @@ try:
                     )
                     
                     # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
-                    st.markdown("#### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
+                    st.markdown("###### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
                     group4_stats = current_employees['구분4'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
                     st.dataframe(
