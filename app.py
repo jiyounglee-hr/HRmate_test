@@ -875,10 +875,7 @@ try:
                 
                 # 선택된 년월의 마지막 날짜 계산
                 last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
-                
-                # 디버깅을 위한 정보 출력
-                st.write("기준일:", last_day.strftime('%Y-%m-%d'))
-                                
+                               
                 # 기준일에 재직중인 직원 필터링
                 current_employees = df[
                     (df['입사일'].notna()) & 
@@ -890,11 +887,9 @@ try:
                 
                 
                 if not df[df['입사일'] <= last_day].empty:
-                    st.markdown("##### 📈 인원현황")
-                    
                     # 구분별 인원 현황 계산 및 표시
                     # 구분1: 주주간담회 등 IR팀 자료
-                    st.markdown("##### 구분1: 주주간담회 등 IR팀 자료 작성용")
+                    st.markdown("###### 구분1: 주주간담회 등 IR팀 자료 작성용")
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
                     st.dataframe(
