@@ -270,7 +270,7 @@ try:
                 
                 # 퇴사율 계산 (소수점 첫째자리까지)
                 재직_정규직_수 = len(df[(df['고용구분'] == '정규직') & (df['재직상태'] == '재직')])
-                퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
+                퇴사율 = round((정규직_퇴사자 / 재직_정규직_ * 100), 1) if 재직_정규직_수 > 0 else 0
                 
                  # 기본통계 분석
                 st.markdown("##### ㆍ현재 인원 현황")
@@ -829,8 +829,8 @@ try:
             df = load_data()
             if df is not None:
                 # 날짜 컬럼 변환
-                df['입사일'] = pd.to_datetime(df['입사일'])
-                df['퇴사일'] = pd.to_datetime(df['퇴사일'])
+                df['입사일'] = pd.to_datetime(df['입사일'], errors='coerce')
+                df['퇴사일'] = pd.to_datetime(df['퇴사일'], errors='coerce')
                 
                 # 조회 기준일 설정
                 current_year = datetime.now().year
@@ -843,13 +843,23 @@ try:
                 selected_month = st.selectbox("조회월", months, index=current_month-1)
                 
                 # 선택된 연월의 말일 계산
-                last_day = pd.Timestamp(selected_year, selected_month, 1) + pd.offsets.MonthEnd(0)
+                last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
+                
+                # 디버깅을 위한 정보 출력
+                st.write("기준일:", last_day.strftime('%Y-%m-%d'))
                 
                 # 해당 연월 말일 기준 재직자 필터링
                 current_employees = df[
+                    (df['입사일'].notna()) &  # 입사일이 있는 경우만
                     (df['입사일'] <= last_day) & 
                     ((df['퇴사일'].isna()) | (df['퇴사일'] >= last_day))
                 ].copy()
+                
+                # 디버깅을 위한 정보 출력
+                st.write("전체 직원 수:", len(df))
+                st.write("필터링된 직원 수:", len(current_employees))
+                st.write("입사일이 기준일 이전인 직원 수:", len(df[df['입사일'] <= last_day]))
+                st.write("퇴사일이 없거나 기준일 이후인 직원 수:", len(df[(df['퇴사일'].isna()) | (df['퇴사일'] >= last_day)]))
                 
                 if not current_employees.empty:
                     st.markdown("### 📈 인원현황")
