@@ -961,10 +961,17 @@ try:
                     detail_df = current_employees[detail_columns].copy()
                     detail_df['입사일'] = detail_df['입사일'].dt.strftime('%Y-%m-%d')
                     
+                    # 인덱스를 1부터 시작하는 번호로 리셋
+                    detail_df = detail_df.reset_index(drop=True)
+                    detail_df.index = detail_df.index + 1
+                    detail_df.index.name = 'No'
+                    detail_df = detail_df.reset_index()
+                    
                     st.dataframe(
                         detail_df,
                         hide_index=True,
                         column_config={
+                            "No": st.column_config.NumberColumn("No", width=50),
                             "성명": st.column_config.TextColumn("성명", width=80),
                             "본부": st.column_config.TextColumn("본부", width=120),
                             "실": st.column_config.TextColumn("실", width=120),
