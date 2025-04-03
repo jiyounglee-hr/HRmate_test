@@ -894,16 +894,11 @@ try:
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
                     group1_stats = group1_stats.T  # 행과 열을 바꿈
+                    group1_stats.columns = group1_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group1_stats = group1_stats.iloc[1:]  # 첫 번째 행 제외
                     st.dataframe(
                         group1_stats,
-                        column_config={
-                            "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100),
-                            "2": st.column_config.NumberColumn("인원수", width=100),
-                            "3": st.column_config.NumberColumn("인원수", width=100),
-                            "4": st.column_config.NumberColumn("인원수", width=100),
-                            "5": st.column_config.NumberColumn("인원수", width=100)
-                        }
+                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group1_stats.columns}
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
@@ -911,14 +906,11 @@ try:
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
                     group2_stats = group2_stats.T  # 행과 열을 바꿈
+                    group2_stats.columns = group2_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group2_stats = group2_stats.iloc[1:]  # 첫 번째 행 제외
                     st.dataframe(
                         group2_stats,
-                        column_config={
-                            "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100),
-                            "2": st.column_config.NumberColumn("인원수", width=100),
-                            "3": st.column_config.NumberColumn("인원수", width=100)
-                        }
+                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group2_stats.columns}
                     )
                     
                     # 구분3: 투자자 사업현황 보고2
@@ -926,14 +918,11 @@ try:
                     group3_stats = current_employees['구분3'].value_counts().reset_index()
                     group3_stats.columns = ['구분', '인원수']
                     group3_stats = group3_stats.T  # 행과 열을 바꿈
+                    group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
                     st.dataframe(
                         group3_stats,
-                        column_config={
-                            "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100),
-                            "2": st.column_config.NumberColumn("인원수", width=100),
-                            "3": st.column_config.NumberColumn("인원수", width=100)
-                        }
+                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group3_stats.columns}
                     )
                     
                     # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
@@ -941,13 +930,11 @@ try:
                     group4_stats = current_employees['구분4'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
                     group4_stats = group4_stats.T  # 행과 열을 바꿈
+                    group4_stats.columns = group4_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group4_stats = group4_stats.iloc[1:]  # 첫 번째 행 제외
                     st.dataframe(
                         group4_stats,
-                        column_config={
-                            "0": st.column_config.TextColumn("구분", width=200),
-                            "1": st.column_config.NumberColumn("인원수", width=100),
-                            "2": st.column_config.NumberColumn("인원수", width=100)
-                        }
+                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group4_stats.columns}
                     )
                     
                     # 인원상세 목록
