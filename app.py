@@ -848,9 +848,9 @@ try:
                 # 디버깅을 위한 정보 출력
                 st.write("기준일:", last_day.strftime('%Y-%m-%d'))
                 st.write("전체 직원 수:", len(df))
-                st.write("필터링된 직원 수:", len(df[df['입사일'] <= last_day]))  # 기준일 이전에 입사한 직원 수
-                st.write("재직중(2050-12-31) 또는 퇴사일이 기준일 이후인 직원 수:", 
-                        len(df[(df['퇴사일'].isna()) | (df['퇴사일'] == pd.Timestamp('2050-12-31')) | (df['퇴사일'] >= last_day)]))  # 기준일 이후에 퇴사한 직원 수
+                st.write("입사일이 기준일 이전인 직원 수:", len(df[df['입사일'] <= last_day]))  # 기준일 이전에 입사한 직원 수
+                st.write("퇴사일이 기준일 이후인 직원 수:", 
+                        len(df[(df['퇴사일'].isna()) |  (df['퇴사일'] >= last_day)]))  # 기준일 이후에 퇴사한 직원 수
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
