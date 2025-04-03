@@ -893,9 +893,11 @@ try:
                     st.markdown("###### 구분1: 주주간담회 등 IR팀 자료 작성용")
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
+                    total_count1 = group1_stats['인원수'].sum()
                     group1_stats = group1_stats.T  # 행과 열을 바꿈
                     group1_stats.columns = group1_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group1_stats = group1_stats.iloc[1:]  # 첫 번째 행 제외
+                    group1_stats['총인원'] = total_count1  # 총인원 열 추가
                     st.dataframe(
                         group1_stats,
                         column_config={col: st.column_config.NumberColumn(col, width=100) for col in group1_stats.columns}
@@ -905,9 +907,11 @@ try:
                     st.markdown("###### 구분2: 투자자 사업현황 보고1")
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
+                    total_count2 = group2_stats['인원수'].sum()
                     group2_stats = group2_stats.T  # 행과 열을 바꿈
                     group2_stats.columns = group2_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group2_stats = group2_stats.iloc[1:]  # 첫 번째 행 제외
+                    group2_stats['총인원'] = total_count2  # 총인원 열 추가
                     st.dataframe(
                         group2_stats,
                         column_config={col: st.column_config.NumberColumn(col, width=100) for col in group2_stats.columns}
@@ -917,9 +921,11 @@ try:
                     st.markdown("###### 구분3: 투자자 사업현황 보고2")
                     group3_stats = current_employees['구분3'].value_counts().reset_index()
                     group3_stats.columns = ['구분', '인원수']
+                    total_count3 = group3_stats['인원수'].sum()
                     group3_stats = group3_stats.T  # 행과 열을 바꿈
                     group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
+                    group3_stats['총인원'] = total_count3  # 총인원 열 추가
                     st.dataframe(
                         group3_stats,
                         column_config={col: st.column_config.NumberColumn(col, width=100) for col in group3_stats.columns}
@@ -929,9 +935,11 @@ try:
                     st.markdown("###### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
                     group4_stats = current_employees['구분4'].value_counts().reset_index()
                     group4_stats.columns = ['구분', '인원수']
+                    total_count4 = group4_stats['인원수'].sum()
                     group4_stats = group4_stats.T  # 행과 열을 바꿈
                     group4_stats.columns = group4_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
                     group4_stats = group4_stats.iloc[1:]  # 첫 번째 행 제외
+                    group4_stats['총인원'] = total_count4  # 총인원 열 추가
                     st.dataframe(
                         group4_stats,
                         column_config={col: st.column_config.NumberColumn(col, width=100) for col in group4_stats.columns}
