@@ -873,23 +873,7 @@ try:
                 
                 # 디버깅을 위한 정보 출력
                 st.write("기준일:", last_day.strftime('%Y-%m-%d'))
-                st.write("전체 직원 수:", len(df))
-                
-                # 입사일이 기준일 이전인 직원 수 계산
-                입사일_이전_직원 = df[
-                    (df['입사일'].notna()) & 
-                    (df['입사일'] <= last_day)
-                ]
-                st.write("입사일이 기준일 이전인 직원 수:", len(입사일_이전_직원))
-                
-                # 퇴사일이 기준일 이후인 직원 수 계산
-                퇴사일_이후_직원 = df[
-                    (df['퇴사일'].isna()) | 
-                    (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
-                    (df['퇴사일'] >= last_day)
-                ]
-                st.write("퇴사일이 기준일 이후인 직원 수:", len(퇴사일_이후_직원))
-                
+                                
                 # 기준일에 재직중인 직원 필터링
                 current_employees = df[
                     (df['입사일'].notna()) & 
@@ -899,68 +883,62 @@ try:
                      (df['퇴사일'] >= last_day))
                 ]
                 
-                st.write("기준일 기준 재직중인 직원 목록:")
-                st.write(current_employees[['성명', '입사일', '퇴사일']])
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
                     
                     # 구분별 인원 현황 계산 및 표시
-                    col1, col2 = st.columns([0.6, 0.4])
+                    # 구분1: 주주간담회 등 IR팀 자료
+                    st.markdown("#### 구분1: 주주간담회 등 IR팀 자료 작성용")
+                    group1_stats = current_employees['구분1'].value_counts().reset_index()
+                    group1_stats.columns = ['구분', '인원수']
+                    st.dataframe(
+                        group1_stats,
+                        hide_index=True,
+                        column_config={
+                            "구분": st.column_config.TextColumn("구분", width=200),
+                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                        }
+                    )
                     
-                    with col1:
-                        # 구분1: 주주간담회 등 IR팀 자료
-                        st.markdown("#### 구분1: 주주간담회 등 IR팀 자료 작성용")
-                        group1_stats = current_employees['구분1'].value_counts().reset_index()
-                        group1_stats.columns = ['구분', '인원수']
-                        st.dataframe(
-                            group1_stats,
-                            hide_index=True,
-                            column_config={
-                                "구분": st.column_config.TextColumn("구분", width=200),
-                                "인원수": st.column_config.NumberColumn("인원수", width=100)
-                            }
-                        )
-                        
-                        # 구분2: 투자자 사업현황 보고1
-                        st.markdown("#### 구분2: 투자자 사업현황 보고1")
-                        group2_stats = current_employees['구분2'].value_counts().reset_index()
-                        group2_stats.columns = ['구분', '인원수']
-                        st.dataframe(
-                            group2_stats,
-                            hide_index=True,
-                            column_config={
-                                "구분": st.column_config.TextColumn("구분", width=200),
-                                "인원수": st.column_config.NumberColumn("인원수", width=100)
-                            }
-                        )
+                    # 구분2: 투자자 사업현황 보고1
+                    st.markdown("#### 구분2: 투자자 사업현황 보고1")
+                    group2_stats = current_employees['구분2'].value_counts().reset_index()
+                    group2_stats.columns = ['구분', '인원수']
+                    st.dataframe(
+                        group2_stats,
+                        hide_index=True,
+                        column_config={
+                            "구분": st.column_config.TextColumn("구분", width=200),
+                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                        }
+                    )
                     
-                    with col2:
-                        # 구분3: 투자자 사업현황 보고2
-                        st.markdown("#### 구분3: 투자자 사업현황 보고2")
-                        group3_stats = current_employees['구분3'].value_counts().reset_index()
-                        group3_stats.columns = ['구분', '인원수']
-                        st.dataframe(
-                            group3_stats,
-                            hide_index=True,
-                            column_config={
-                                "구분": st.column_config.TextColumn("구분", width=200),
-                                "인원수": st.column_config.NumberColumn("인원수", width=100)
-                            }
-                        )
-                        
-                        # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
-                        st.markdown("#### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
-                        group4_stats = current_employees['구분4'].value_counts().reset_index()
-                        group4_stats.columns = ['구분', '인원수']
-                        st.dataframe(
-                            group4_stats,
-                            hide_index=True,
-                            column_config={
-                                "구분": st.column_config.TextColumn("구분", width=200),
-                                "인원수": st.column_config.NumberColumn("인원수", width=100)
-                            }
-                        )
+                    # 구분3: 투자자 사업현황 보고2
+                    st.markdown("#### 구분3: 투자자 사업현황 보고2")
+                    group3_stats = current_employees['구분3'].value_counts().reset_index()
+                    group3_stats.columns = ['구분', '인원수']
+                    st.dataframe(
+                        group3_stats,
+                        hide_index=True,
+                        column_config={
+                            "구분": st.column_config.TextColumn("구분", width=200),
+                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                        }
+                    )
+                    
+                    # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
+                    st.markdown("#### 구분4: 의료기기 생산 및 수출·수입·수리실적보고")
+                    group4_stats = current_employees['구분4'].value_counts().reset_index()
+                    group4_stats.columns = ['구분', '인원수']
+                    st.dataframe(
+                        group4_stats,
+                        hide_index=True,
+                        column_config={
+                            "구분": st.column_config.TextColumn("구분", width=200),
+                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                        }
+                    )
                     
                     # 인원상세 목록
                     st.markdown("### 🧑 인원상세")
