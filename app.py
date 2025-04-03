@@ -902,7 +902,7 @@ try:
                         group1_stats,
                         use_container_width=False,
                         width=900,
-                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
+                        column_config={col: st.column_config.NumberColumn(col, width=30) for col in group1_stats.columns}
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
@@ -954,7 +954,7 @@ try:
                     )
                     
                     # 인원상세 목록
-                    st.markdown("### 🧑 인원상세")
+                    st.markdown("###### 🧑 인원상세")
                     detail_columns = ['성명', '본부', '실', '팀', '고용구분', '입사일', '재직상태', '구분1', '구분2', '구분3', '구분4']
                     detail_df = current_employees[detail_columns].copy()
                     detail_df['입사일'] = detail_df['입사일'].dt.strftime('%Y-%m-%d')
