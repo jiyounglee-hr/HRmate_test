@@ -826,13 +826,7 @@ try:
             st.markdown("## 🏦 기관제출용 인원현황")
             
                 
-                # 엑셀 다운로드 버튼
-                excel_data = df_report.to_excel(index=False)
-                st.download_button(
-                    label="📥 엑셀 다운로드",
-                    data=excel_data,
-                    file_name="기관제출용_인원현황.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
             
 
         elif menu == "📋 채용_처우협상":
