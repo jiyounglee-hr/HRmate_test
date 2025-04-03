@@ -848,9 +848,23 @@ try:
                 # 디버깅을 위한 정보 출력
                 st.write("기준일:", last_day.strftime('%Y-%m-%d'))
                 st.write("전체 직원 수:", len(df))
-                st.write("입사일이 기준일 이전인 직원 수:", len(df[df['입사일'] <= last_day]))  # 기준일 이전에 입사한 직원 수
-                st.write("퇴사일이 기준일 이후인 직원 수:", 
-                        len(df[(df['퇴사일'].isna()) |  (df['퇴사일'] >= last_day)]))  # 기준일 이후에 퇴사한 직원 수
+                
+                # 입사일이 기준일 이전인 직원 수 계산
+                입사일_이전_직원 = df[df['입사일'].notna() & (df['입사일'] <= last_day)]
+                st.write("입사일이 기준일 이전인 직원 수:", len(입사일_이전_직원))
+                
+                # 퇴사일이 기준일 이후인 직원 수 계산
+                퇴사일_이후_직원 = df[
+                    (df['퇴사일'].isna()) | 
+                    (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
+                    (df['퇴사일'] >= last_day)
+                ]
+                st.write("퇴사일이 기준일 이후인 직원 수:", len(퇴사일_이후_직원))
+                
+                # 디버깅을 위한 추가 정보
+                st.write("입사일 데이터 타입:", df['입사일'].dtype)
+                st.write("기준일 데이터 타입:", type(last_day))
+                st.write("입사일 샘플:", df['입사일'].head())
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
