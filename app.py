@@ -900,6 +900,8 @@ try:
                     group1_stats['총인원'] = total_count1  # 총인원 열 추가
                     st.dataframe(
                         group1_stats,
+                        use_container_width=False,
+                        width=800,
                         column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
                     )
                     
@@ -914,7 +916,9 @@ try:
                     group2_stats['총인원'] = total_count2  # 총인원 열 추가
                     st.dataframe(
                         group2_stats,
-                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group2_stats.columns}
+                        use_container_width=False,
+                        width=800,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group2_stats.columns}
                     )
                     
                     # 구분3: 투자자 사업현황 보고2
@@ -928,7 +932,9 @@ try:
                     group3_stats['총인원'] = total_count3  # 총인원 열 추가
                     st.dataframe(
                         group3_stats,
-                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group3_stats.columns}
+                        use_container_width=False,
+                        width=800,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group3_stats.columns}
                     )
                     
                     # 구분4: 의료기기 생산 및 수출·수입·수리실적보고
@@ -942,7 +948,9 @@ try:
                     group4_stats['총인원'] = total_count4  # 총인원 열 추가
                     st.dataframe(
                         group4_stats,
-                        column_config={col: st.column_config.NumberColumn(col, width=100) for col in group4_stats.columns}
+                        use_container_width=False,
+                        width=800,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group4_stats.columns}
                     )
                     
                     # 인원상세 목록
