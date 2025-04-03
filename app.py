@@ -871,12 +871,12 @@ try:
                 st.write("입사일 최소값:", df['입사일'].min().strftime('%Y-%m-%d'))
                 st.write("입사일 최대값:", df['입사일'].max().strftime('%Y-%m-%d'))
                 
-                # 데이터 다시 로드
-                df = load_data()
-                if df is not None:
-                    # 날짜 컬럼 변환
-                    df['입사일'] = pd.to_datetime(df['입사일'], format='%Y-%m-%d', errors='coerce')
-                    df['퇴사일'] = pd.to_datetime(df['퇴사일'], format='%Y-%m-%d', errors='coerce')
+                # 입사일과 퇴사일 기준 디버깅 정보
+                st.write("입사일이 기준일 이전인 직원 목록:")
+                st.write(입사일_이전_직원[['성명', '입사일', '퇴사일']])
+                
+                st.write("퇴사일이 기준일 이후인 직원 목록:")
+                st.write(퇴사일_이후_직원[['성명', '입사일', '퇴사일']])
                 
                 if not df[df['입사일'] <= last_day].empty:
                     st.markdown("### 📈 인원현황")
