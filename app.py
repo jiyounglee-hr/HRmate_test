@@ -890,7 +890,7 @@ try:
                 if not df[df['입사일'] <= last_day].empty:
                     # 구분별 인원 현황 계산 및 표시
                     # 구분1: 주주간담회 등 IR팀 자료
-                    st.markdown("####### 1) 주주간담회 등 IR팀 자료 작성용")
+                    st.markdown("1) 주주간담회 등 IR팀 자료 작성용")
                     group1_stats = current_employees['구분1'].value_counts().reset_index()
                     group1_stats.columns = ['구분', '인원수']
                     total_count1 = group1_stats['인원수'].sum()
