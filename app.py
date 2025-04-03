@@ -833,8 +833,13 @@ try:
                     if pd.isna(date_value):
                         return pd.NaT
                     try:
+                        # 엑셀 숫자 형식의 날짜 처리
+                        if isinstance(date_value, (int, float)):
+                            return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(date_value))
+                        
                         # 문자열로 변환
                         date_str = str(date_value)
+                        
                         # 여러 날짜 형식 시도
                         formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
                         for fmt in formats:
@@ -842,6 +847,7 @@ try:
                                 return pd.to_datetime(date_str, format=fmt)
                             except:
                                 continue
+                        
                         # 모든 형식이 실패하면 기본 변환 시도
                         return pd.to_datetime(date_str)
                     except:
