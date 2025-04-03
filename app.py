@@ -922,7 +922,7 @@ try:
                     )
                     
                     # 구분3: 투자자 사업현황 보고2
-                    st.markdown("3. 투자자 사업현황 보고2")
+                    st.markdown("3. 투자자 사업현황 보고 (생산직을 연구직에 포함)")
                     group3_stats = current_employees['구분3'].value_counts().reset_index()
                     group3_stats.columns = ['구분', '인원수']
                     total_count3 = group3_stats['인원수'].sum()
@@ -978,7 +978,10 @@ try:
                     )
                     
                     # 엑셀 다운로드 버튼
-                    excel_data = detail_df.to_excel(index=False)
+                    output = BytesIO()
+                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                        detail_df.to_excel(writer, index=False)
+                    excel_data = output.getvalue()
                     st.download_button(
                         label="📥 엑셀 다운로드",
                         data=excel_data,
