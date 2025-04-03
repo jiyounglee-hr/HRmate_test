@@ -906,7 +906,7 @@ try:
                     )
                     
                     # 구분2: 투자자 사업현황 보고1
-                    st.markdown("2. 투자자 사업현황 보고1")
+                    st.markdown("2. 투자자 사업현황 보고 (생산직 별도)")
                     group2_stats = current_employees['구분2'].value_counts().reset_index()
                     group2_stats.columns = ['구분', '인원수']
                     total_count2 = group2_stats['인원수'].sum()
