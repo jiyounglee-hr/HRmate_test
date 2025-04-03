@@ -830,6 +830,12 @@ try:
             if df is not None:
                 # 현재 날짜 기준으로 재직자만 필터링
                 current_date = pd.Timestamp.now()
+                
+                # 날짜 컬럼 변환
+                df['입사일'] = pd.to_datetime(df['입사일'], errors='coerce')
+                df['퇴사일'] = pd.to_datetime(df['퇴사일'], errors='coerce')
+                df['생년월일'] = pd.to_datetime(df['생년월일'], errors='coerce')
+                
                 df_current = df[
                     (df['입사일'] <= current_date) & 
                     ((df['퇴사일'].isna()) | (df['퇴사일'] > current_date))
@@ -839,11 +845,9 @@ try:
                 df_report = df_current[['이름', '직위', '직군', '입사일', '생년월일', '성별']].copy()
                 
                 # 나이 계산
-                df_report['생년월일'] = pd.to_datetime(df_report['생년월일'])
                 df_report['나이'] = ((current_date - df_report['생년월일']).dt.days / 365.25).astype(int)
                 
                 # 재직기간 계산 (년)
-                df_report['입사일'] = pd.to_datetime(df_report['입사일'])
                 df_report['재직기간'] = ((current_date - df_report['입사일']).dt.days / 365.25).round(1)
                 
                 # 컬럼 순서 변경
