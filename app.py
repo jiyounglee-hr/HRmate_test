@@ -833,8 +833,10 @@ try:
                 df['퇴사일'] = pd.to_datetime(df['퇴사일'])
                 
                 # 조회 기준일 설정
-                available_years = sorted(df['입사일'].dt.year.unique(), reverse=True)
-                selected_year = st.selectbox("조회년도", available_years, index=0)
+                current_year = datetime.now().year
+                years = list(range(2016, current_year + 1))
+                years.sort(reverse=True)  # 내림차순 정렬
+                selected_year = st.selectbox("조회년도", years, index=0)
                 
                 months = list(range(1, 13))
                 selected_month = st.selectbox("조회월", months, index=0)
