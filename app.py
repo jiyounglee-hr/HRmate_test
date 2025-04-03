@@ -935,24 +935,24 @@ try:
                     
                     # 구분3: 의료기기 생산 및 수출·수입·수리실적보고
                     st.markdown("3. 의료기기 생산 및 수출·수입·수리실적보고")
-                    group4_stats = current_employees['구분3'].value_counts().reset_index()
-                    group4_stats.columns = ['구분', '인원수']
-                    total_count4 = group4_stats['인원수'].sum()
+                    group3_stats = current_employees['구분3'].value_counts().reset_index()
+                    group3_stats.columns = ['구분', '인원수']
+                    total_count3 = group3_stats['인원수'].sum()
                     
                     # '임원'이 있는 행을 찾아서 첫 번째로 이동
-                    임원_row = group4_stats[group4_stats['구분'] == '임원']
-                    other_rows = group4_stats[group4_stats['구분'] != '임원']
-                    group4_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    임원_row = group3_stats[group3_stats['구분'] == '임원']
+                    other_rows = group3_stats[group3_stats['구분'] != '임원']
+                    group3_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
                     
-                    group4_stats = group4_stats.T  # 행과 열을 바꿈
-                    group4_stats.columns = group4_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
-                    group4_stats = group4_stats.iloc[1:]  # 첫 번째 행 제외
-                    group4_stats['총인원'] = total_count4  # 총인원 열 추가
+                    group3_stats = group3_stats.T  # 행과 열을 바꿈
+                    group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
+                    group3_stats['총인원'] = total_count3  # 총인원 열 추가
                     st.dataframe(
-                        group4_stats,
+                        group3_stats,
                         use_container_width=False,
                         width=700,
-                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group4_stats.columns}
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group3_stats.columns}
                     )
                     
                     # 인원상세 목록
