@@ -1256,6 +1256,34 @@ try:
                         months = overtime_df['연월구분'].unique()
                         selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
                         
+                        # 엑셀 다운로드 버튼 생성을 위한 함수
+                        def convert_df_to_excel():
+                            output = BytesIO()
+                            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                                filtered_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
+                                # 열 너비 자동 조정
+                                worksheet = writer.sheets['초과근무내역']
+                                worksheet.set_column('B:B', 15)  # 이름
+                                worksheet.set_column('C:C', 15)  # 초과시간
+                                worksheet.set_column('D:D', 50)  # 초과근무 내역
+                                worksheet.set_column('E:E', 25)  # 이메일
+                                worksheet.set_column('F:F', 15)  # 스트림기본
+                            return output.getvalue()
+                        
+                        # 필터링된 데이터가 있을 때만 다운로드 버튼 표시
+                        if not filtered_df.empty:
+                            excel_data = convert_df_to_excel()
+                            download_filename = f'초과근무내역_{selected_month}.xlsx'
+                            
+                            st.download_button(
+                                label="📥 엑셀 파일 다운로드",
+                                data=excel_data,
+                                file_name=download_filename,
+                                mime="application/vnd.ms-excel"
+                            )
+                            
+                            st.markdown("<br>", unsafe_allow_html=True)  # 간격 추가
+                        
                         # 선택된 연월에 해당하는 데이터 필터링
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
                         
