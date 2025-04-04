@@ -1241,7 +1241,7 @@ try:
                         st.error(f"임금 테이블 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
         elif menu == "⏰ 초과근무 조회":
-            st.title("##### ⏰ 초과근무 조회")
+            st.markdown("##### ⏰ 초과근무 조회")
             
             # 엑셀 파일 업로드
             uploaded_file = st.file_uploader("초과근무 엑셀 파일을 업로드하세요", type=['xlsx'])
