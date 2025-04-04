@@ -1276,21 +1276,36 @@ try:
                         
                         # 컬럼명 변경
                         result_df = result_df.rename(columns={content_column: '초과근무 내역'})
-                        result_df = result_df[['이름', '이메일', '초과근무 내역', '초과근무시간 합']]
+                        result_df = result_df[['이름', '초과근무시간 합',  '초과근무 내역', '이메일']]
+                        
+                        # 인덱스를 1부터 시작하도록 설정
+                        result_df.index = range(1, len(result_df) + 1)
                         
                         # 테이블 표시
                         st.markdown("""
                             <style>
+                            [data-testid="stDataFrame"] {
+                                width: 100%;
+                            }
                             [data-testid="stDataFrame"] td {
-                                white-space: pre-wrap;
-                                min-height: fit-content;
+                                white-space: pre-wrap !important;
+                                min-height: fit-content !important;
                                 height: auto !important;
-                                line-height: 1.5;
+                                line-height: 1.5 !important;
                                 padding: 8px !important;
+                                vertical-align: top !important;
                             }
                             [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
-                                min-height: fit-content;
+                                min-height: fit-content !important;
                                 height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] > div {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
                             }
                             </style>
                         """, unsafe_allow_html=True)
@@ -1303,9 +1318,9 @@ try:
                                 "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
                                 "이메일": st.column_config.TextColumn("이메일", width=100)
                             },
-                            hide_index=True,
+                            hide_index=False,
                             use_container_width=True,
-                            height=400
+                            height=600
                         )
                     else:
                         st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
