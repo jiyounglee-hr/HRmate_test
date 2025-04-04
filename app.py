@@ -1254,7 +1254,11 @@ try:
                     # 연월 구분 드롭다운 생성
                     if '연월구분' in overtime_df.columns:
                         months = overtime_df['연월구분'].unique()
-                        selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
+                        
+                        # 컬럼 생성 (드롭다운과 다운로드 버튼을 한 줄에 표시)
+                        col1, col2 = st.columns([0.7, 0.3])
+                        with col1:
+                            selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
                         
                         # 선택된 연월에 해당하는 데이터 필터링
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
@@ -1263,13 +1267,14 @@ try:
                         def convert_df_to_excel():
                             output = BytesIO()
                             with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                                result_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
+                                filtered_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
                                 # 열 너비 자동 조정
                                 worksheet = writer.sheets['초과근무내역']
                                 worksheet.column_dimensions['B'].width = 15  # 이름
-                                worksheet.column_dimensions['C'].width = 15  # 초과근무시간 합
+                                worksheet.column_dimensions['C'].width = 15  # 초과시간
                                 worksheet.column_dimensions['D'].width = 50  # 초과근무 내역
                                 worksheet.column_dimensions['E'].width = 25  # 이메일
+                                worksheet.column_dimensions['F'].width = 15  # 스트림기본
                             return output.getvalue()
                         
                         # 필터링된 데이터가 있을 때만 다운로드 버튼 표시
@@ -1277,93 +1282,92 @@ try:
                             excel_data = convert_df_to_excel()
                             download_filename = f'초과근무내역_{selected_month}.xlsx'
                             
-                            # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
-                            # 시간을 숫자로 변환하여 합산
-                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
-                            
-                            # 초과근무 내용 컬럼명 확인
-                            content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
-                            
-                            result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                                content_column: lambda x: '\n'.join(x),  # 일반 줄바꿈 문자 사용
-                                '초과시간': 'sum'
-                            }).reset_index()
-                            
-                            # 시간을 시:분 형식으로 변환
-                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
-                            
-                            # 컬럼명 변경
-                            result_df = result_df.rename(columns={content_column: '초과근무 내역'})
-                            result_df = result_df[['이름', '초과근무시간 합',  '초과근무 내역', '이메일']]
-                            
-                            # 인덱스를 1부터 시작하도록 설정
-                            result_df.index = range(1, len(result_df) + 1)
-                            
-                            # 테이블 표시
-                            st.markdown("""
-                                <style>
-                                [data-testid="stDataFrame"] {
-                                    width: 80%;
-                                }
-                                [data-testid="stDataFrame"] td {
-                                    white-space: pre-wrap !important;
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    line-height: 1.5 !important;
-                                    padding: 8px !important;
-                                    vertical-align: top !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] > div {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[role="cell"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[role="row"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameRowMain"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                }
-                                </style>
-                            """, unsafe_allow_html=True)
-                            
-                            st.dataframe(
-                                result_df,
-                                column_config={
-                                    "이름": st.column_config.TextColumn("이름", width=100),
-                                    "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
-                                    "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
-                                    "이메일": st.column_config.TextColumn("이메일", width=100)
-                                },
-                                hide_index=False,
-                                use_container_width=True,
-                                height=600
-                            )
-                            
-                            # 엑셀 다운로드 버튼을 목록 아래에 배치
-                            st.download_button(
-                                label="📥 엑셀 파일 다운로드",
-                                data=excel_data,
-                                file_name=download_filename,
-                                mime="application/vnd.ms-excel"
-                            )
-                        else:
-                            st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
+                            with col2:
+                                st.download_button(
+                                    label="📥 엑셀 파일 다운로드",
+                                    data=excel_data,
+                                    file_name=download_filename,
+                                    mime="application/vnd.ms-excel"
+                                )
+                        # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
+                        # 시간을 숫자로 변환하여 합산
+                        filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
+                        
+                        # 초과근무 내용 컬럼명 확인
+                        content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
+                        
+                        result_df = filtered_df.groupby(['이름', '이메일']).agg({
+                            content_column: lambda x: '\n'.join(x),  # 일반 줄바꿈 문자 사용
+                            '초과시간': 'sum'
+                        }).reset_index()
+                        
+                        # 시간을 시:분 형식으로 변환
+                        result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
+                        
+                        # 컬럼명 변경
+                        result_df = result_df.rename(columns={content_column: '초과근무 내역'})
+                        result_df = result_df[['이름', '초과근무시간 합',  '초과근무 내역', '이메일']]
+                        
+                        # 인덱스를 1부터 시작하도록 설정
+                        result_df.index = range(1, len(result_df) + 1)
+                        
+                        # 테이블 표시
+                        st.markdown("""
+                            <style>
+                            [data-testid="stDataFrame"] {
+                                width: 80%;
+                            }
+                            [data-testid="stDataFrame"] td {
+                                white-space: pre-wrap !important;
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                line-height: 1.5 !important;
+                                padding: 8px !important;
+                                vertical-align: top !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] > div {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
+                            }
+                            [data-testid="stDataFrame"] div[role="cell"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
+                            }
+                            [data-testid="stDataFrame"] div[role="row"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameRowMain"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                            }
+                            </style>
+                        """, unsafe_allow_html=True)
+                        
+                        st.dataframe(
+                            result_df,
+                            column_config={
+                                "이름": st.column_config.TextColumn("이름", width=100),
+                                "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
+                                "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
+                                "이메일": st.column_config.TextColumn("이메일", width=100)
+                            },
+                            hide_index=False,
+                            use_container_width=True,
+                            height=600
+                        )
+                    else:
+                        st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
                     
                 except Exception as e:
                     st.error(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}")
