@@ -1249,7 +1249,19 @@ try:
             if uploaded_file is not None:
                 try:
                     # 엑셀 파일 읽기
-                    overtime_df = pd.read_excel(uploaded_file)
+                    overtime_df = pd.read_excel(uploaded_file, engine='openpyxl')
+                    
+                    # 데이터가 비어있는지 확인
+                    if overtime_df.empty:
+                        st.error("업로드된 엑셀 파일에 데이터가 없습니다.")
+                        st.stop()
+                    
+                    # 필수 컬럼 확인
+                    required_columns = ['연월구분', '이름', '이메일', '초과시간', '초과근무 내용']
+                    missing_columns = [col for col in required_columns if col not in overtime_df.columns]
+                    if missing_columns:
+                        st.error(f"필수 컬럼이 없습니다: {', '.join(missing_columns)}")
+                        st.stop()
                     
                     # 연월 구분 드롭다운 생성
                     if '연월구분' in overtime_df.columns:
