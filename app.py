@@ -1278,15 +1278,14 @@ try:
                             excel_data = convert_df_to_excel()
                             download_filename = f'초과근무내역_{selected_month}.xlsx'
                             
-                            st.download_button(
-                                label="📥 엑셀 파일 다운로드",
-                                data=excel_data,
-                                file_name=download_filename,
-                                mime="application/vnd.ms-excel"
-                            )
-                            
-                            st.markdown("<br>", unsafe_allow_html=True)  # 간격 추가
-                        
+                            col1, col2, col3 = st.columns([1, 1, 1])
+                            with col3:
+                                st.download_button(
+                                    label="📥 엑셀 파일 다운로드",
+                                    data=excel_data,
+                                    file_name=download_filename,
+                                    mime="application/vnd.ms-excel"
+                                )
                         # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
                         # 시간을 숫자로 변환하여 합산
                         filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
