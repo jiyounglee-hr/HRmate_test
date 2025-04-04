@@ -1241,7 +1241,7 @@ try:
                         st.error(f"임금 테이블 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
         elif menu == "⏰ 초과근무 조회":
-            st.title("⏰ 초과근무 조회")
+            st.title("##### ⏰ 초과근무 조회")
             
             # 엑셀 파일 업로드
             uploaded_file = st.file_uploader("초과근무 엑셀 파일을 업로드하세요", type=['xlsx'])
@@ -1267,7 +1267,7 @@ try:
                         content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
                         
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                            content_column: lambda x: '\n\n'.join(x),  # 일반 줄바꿈 문자 사용
+                            content_column: lambda x: '\n'.join(x),  # 일반 줄바꿈 문자 사용
                             '초과시간': 'sum'
                         }).reset_index()
                         
@@ -1284,6 +1284,13 @@ try:
                             [data-testid="stDataFrame"] td {
                                 white-space: pre-wrap;
                                 min-height: fit-content;
+                                height: auto !important;
+                                line-height: 1.5;
+                                padding: 8px !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
+                                min-height: fit-content;
+                                height: auto !important;
                             }
                             </style>
                         """, unsafe_allow_html=True)
@@ -1292,9 +1299,9 @@ try:
                             result_df,
                             column_config={
                                 "이름": st.column_config.TextColumn("이름", width=100),
-                                "이메일": st.column_config.TextColumn("이메일", width=100),
+                                "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
                                 "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
-                                "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100)
+                                "이메일": st.column_config.TextColumn("이메일", width=100)
                             },
                             hide_index=True,
                             use_container_width=True,
