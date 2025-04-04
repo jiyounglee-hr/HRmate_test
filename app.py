@@ -1256,6 +1256,9 @@ try:
                         months = overtime_df['연월구분'].unique()
                         selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
                         
+                        # 선택된 연월에 해당하는 데이터 필터링
+                        filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
+                        
                         # 엑셀 다운로드 버튼 생성을 위한 함수
                         def convert_df_to_excel():
                             output = BytesIO()
@@ -1283,9 +1286,6 @@ try:
                             )
                             
                             st.markdown("<br>", unsafe_allow_html=True)  # 간격 추가
-                        
-                        # 선택된 연월에 해당하는 데이터 필터링
-                        filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
                         
                         # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
                         # 시간을 숫자로 변환하여 합산
