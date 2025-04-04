@@ -222,7 +222,7 @@ st.sidebar.markdown("---")
 # 네비게이션 메뉴
 menu = st.sidebar.radio(
     " ",
-    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색", "🏦 기관제출용 인원현황", "📋 채용_처우협상"],
+    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색", "🏦 기관제출용 인원현황", "📋 채용_처우협상", "⏰ 초과근무 조회"],
     index=0,
     format_func=lambda x: f"📊 {x}" if x == "현재 인원현황" else (f"📈 {x}" if x == "연도별 인원 통계" else f"{x}")
 )
@@ -1239,6 +1239,54 @@ try:
                             """)
                     except Exception as e:
                         st.error(f"임금 테이블 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+
+        elif menu == "⏰ 초과근무 조회":
+            st.title("⏰ 초과근무 조회")
+            
+            # 엑셀 파일 업로드
+            uploaded_file = st.file_uploader("초과근무 엑셀 파일을 업로드하세요", type=['xlsx'])
+            
+            if uploaded_file is not None:
+                try:
+                    # 엑셀 파일 읽기
+                    overtime_df = pd.read_excel(uploaded_file)
+                    
+                    # 연월 구분 드롭다운 생성
+                    if '근무일자' in overtime_df.columns:
+                        overtime_df['근무일자'] = pd.to_datetime(overtime_df['근무일자'])
+                        months = overtime_df['근무일자'].dt.strftime('%Y-%m').unique()
+                        selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
+                        
+                        # 선택된 연월에 해당하는 데이터 필터링
+                        filtered_df = overtime_df[overtime_df['근무일자'].dt.strftime('%Y-%m') == selected_month]
+                        
+                        # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
+                        result_df = filtered_df.groupby(['이름', '이메일']).agg({
+                            '초과근무 내용': lambda x: '\n'.join(x),
+                            '초과시간': 'sum'
+                        }).reset_index()
+                        
+                        # 컬럼명 변경
+                        result_df.columns = ['이름', '이메일', '초과근무 내역', '초과근무시간 합']
+                        
+                        # 테이블 표시
+                        st.dataframe(
+                            result_df,
+                            column_config={
+                                "이름": st.column_config.TextColumn("이름", width=100),
+                                "이메일": st.column_config.TextColumn("이메일", width=200),
+                                "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
+                                "초과근무시간 합": st.column_config.NumberColumn("초과근무시간 합", width=100)
+                            },
+                            hide_index=True
+                        )
+                    else:
+                        st.error("엑셀 파일에 '근무일자' 컬럼이 없습니다.")
+                    
+                except Exception as e:
+                    st.error(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}")
+            else:
+                st.info("초과근무 엑셀 파일을 업로드하세요.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
