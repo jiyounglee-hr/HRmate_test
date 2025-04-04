@@ -1376,23 +1376,15 @@ try:
                             # 전체 합계 열 추가
                             pivot_df['전체 합계'] = pivot_df.sum(axis=1)
                             
-                            # 본부별 인원수 계산
-                            employee_count = filtered_df.groupby('본부')['이름'].nunique()
-                            employee_count['전체 합계'] = employee_count.sum()
-                            
-                            # 인원수 행 추가
-                            pivot_df.loc['인원수'] = employee_count
-                            
-                            # 시간을 시:분 형식으로 변환 (인원수 행 제외)
+                            # 시간을 시:분 형식으로 변환
                             for col in pivot_df.columns:
-                                if pivot_df.index[-1] != '인원수':  # 마지막 행이 인원수가 아닌 경우에만 변환
-                                    pivot_df[col] = pivot_df[col].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
+                                pivot_df[col] = pivot_df[col].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
                             
                             # 피벗 테이블이 비어있지 않을 때만 표시
                             if not pivot_df.empty:
                                 st.dataframe(
                                     pivot_df,
-                                    use_container_width=True,
+                                use_container_width=True,
                                 )
                                 
 
