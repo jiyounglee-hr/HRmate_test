@@ -1252,13 +1252,12 @@ try:
                     overtime_df = pd.read_excel(uploaded_file)
                     
                     # 연월 구분 드롭다운 생성
-                    if '근무일자' in overtime_df.columns:
-                        overtime_df['근무일자'] = pd.to_datetime(overtime_df['근무일자'])
-                        months = overtime_df['근무일자'].dt.strftime('%Y-%m').unique()
+                    if '연월구분' in overtime_df.columns:
+                        months = overtime_df['연월구분'].unique()
                         selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
                         
                         # 선택된 연월에 해당하는 데이터 필터링
-                        filtered_df = overtime_df[overtime_df['근무일자'].dt.strftime('%Y-%m') == selected_month]
+                        filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
                         
                         # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
@@ -1281,7 +1280,7 @@ try:
                             hide_index=True
                         )
                     else:
-                        st.error("엑셀 파일에 '근무일자' 컬럼이 없습니다.")
+                        st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
                     
                 except Exception as e:
                     st.error(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}")
