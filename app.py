@@ -1261,7 +1261,7 @@ try:
                         
                         # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
                         # 시간을 숫자로 변환하여 합산
-                        filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: x.hour + x.minute/60 if isinstance(x, datetime.time) else x)
+                        filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
                         
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
                             '초과근무 내용': lambda x: '\n'.join(x),
