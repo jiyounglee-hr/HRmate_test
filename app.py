@@ -1263,8 +1263,11 @@ try:
                         # 시간을 숫자로 변환하여 합산
                         filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
                         
+                        # 초과근무 내용 컬럼명 확인
+                        content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
+                        
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                            '초과근무 내용': lambda x: '\n'.join(x),
+                            content_column: lambda x: '\n'.join(x),
                             '초과시간': 'sum'
                         }).reset_index()
                         
@@ -1272,6 +1275,7 @@ try:
                         result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
                         
                         # 컬럼명 변경
+                        result_df = result_df.rename(columns={content_column: '초과근무 내역'})
                         result_df = result_df[['이름', '이메일', '초과근무 내역', '초과근무시간 합']]
                         
                         # 테이블 표시
