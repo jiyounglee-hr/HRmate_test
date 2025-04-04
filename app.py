@@ -1267,7 +1267,7 @@ try:
                         content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
                         
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                            content_column: lambda x: '\n'.join(x),
+                            content_column: lambda x: '\n\n'.join(x),  # 각 내역 사이에 빈 줄 추가
                             '초과시간': 'sum'
                         }).reset_index()
                         
