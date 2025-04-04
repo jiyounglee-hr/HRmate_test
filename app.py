@@ -270,7 +270,7 @@ try:
                 
                 # 퇴사율 계산 (소수점 첫째자리까지)
                 재직_정규직_수 = len(df[(df['고용구분'] == '정규직') & (df['재직상태'] == '재직')])
-                퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
+                퇴사율 = round((정규직_퇴사자 / 재직_정규직_ * 100), 1) if 재직_정규직_수 > 0 else 0
                 
                  # 기본통계 분석
                 st.markdown("##### ㆍ현재 인원 현황")
@@ -1260,13 +1260,19 @@ try:
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
                         
                         # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
+                        # 시간을 숫자로 변환하여 합산
+                        filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: x.hour + x.minute/60 if isinstance(x, datetime.time) else x)
+                        
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
                             '초과근무 내용': lambda x: '\n'.join(x),
                             '초과시간': 'sum'
                         }).reset_index()
                         
+                        # 시간을 시:분 형식으로 변환
+                        result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
+                        
                         # 컬럼명 변경
-                        result_df.columns = ['이름', '이메일', '초과근무 내역', '초과근무시간 합']
+                        result_df = result_df[['이름', '이메일', '초과근무 내역', '초과근무시간 합']]
                         
                         # 테이블 표시
                         st.dataframe(
@@ -1275,7 +1281,7 @@ try:
                                 "이름": st.column_config.TextColumn("이름", width=100),
                                 "이메일": st.column_config.TextColumn("이메일", width=200),
                                 "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
-                                "초과근무시간 합": st.column_config.NumberColumn("초과근무시간 합", width=100)
+                                "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100)
                             },
                             hide_index=True
                         )
