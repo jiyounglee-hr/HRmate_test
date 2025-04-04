@@ -1285,7 +1285,7 @@ try:
                         st.markdown("""
                             <style>
                             .custom-table {
-                                width: 100%;
+                                width: 80%;
                                 border-collapse: collapse;
                                 margin: 10px 0;
                             }
@@ -1307,14 +1307,14 @@ try:
                                 background-color: #f5f5f5;
                             }
                             .index-column {
-                                width: 50px;
+                                width: 70px;
                                 text-align: center !important;
                             }
                             .name-column {
                                 width: 100px;
                             }
                             .time-column {
-                                width: 100px;
+                                width: 180px;
                             }
                             .content-column {
                                 min-width: 300px;
