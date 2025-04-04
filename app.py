@@ -1342,15 +1342,12 @@ try:
                             # 2025년 월별 본부별 초과근무 합계 표시
                             st.markdown("##### 2025년 월별 초과근무")
                             
-                            # 2025년 데이터만 필터링
-                            filtered_df_2025 = filtered_df[filtered_df['연월구분'].str.startswith('2025')].copy()
-                            
                             # 시간을 숫자로 변환
-                            filtered_df_2025['초과시간'] = filtered_df_2025['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
+                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
                             
                             # 피벗 테이블 생성
                             pivot_df = pd.pivot_table(
-                                filtered_df_2025,
+                                filtered_df,
                                 values='초과시간',
                                 index='연월구분',
                                 columns='본부',
