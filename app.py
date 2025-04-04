@@ -1340,7 +1340,7 @@ try:
                             )
                             
                             # 2025년 월별 본부별 초과근무 합계 표시
-                            st.markdown("##### 2025년 월별 초과근무")
+                            st.markdown("##### 본부별 초과근무")
                             
                             # 시간을 숫자로 변환
                             filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
@@ -1355,13 +1355,15 @@ try:
                                 fill_value=0
                             )
                             
+                            # 전체 합계 열 추가
+                            pivot_df['전체 합계'] = pivot_df.sum(axis=1)
+                            
                             # 시간을 시:분 형식으로 변환
                             for col in pivot_df.columns:
                                 pivot_df[col] = pivot_df[col].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
                             
                             # 피벗 테이블이 비어있지 않을 때만 표시
                             if not pivot_df.empty:
-                                st.markdown("##### 월별 본부별 초과근무")
                                 st.dataframe(
                                     pivot_df,
                                     use_container_width=True,
