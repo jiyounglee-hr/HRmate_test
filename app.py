@@ -1336,7 +1336,26 @@ try:
                                 },
                                 hide_index=False,
                                 use_container_width=True,
-                                height=600
+                                height=400
+                            )
+                            
+                            # 엑셀 다운로드 버튼
+                            output = BytesIO()
+                            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                                result_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
+                                # 열 너비 자동 조정
+                                worksheet = writer.sheets['초과근무내역']
+                                worksheet.column_dimensions['B'].width = 15  # 이름
+                                worksheet.column_dimensions['C'].width = 15  # 초과근무시간 합
+                                worksheet.column_dimensions['D'].width = 50  # 초과근무 내역
+                                worksheet.column_dimensions['E'].width = 25  # 이메일
+                            excel_data = output.getvalue()
+                            
+                            st.download_button(
+                                label="📥 엑셀 파일 다운로드",
+                                data=excel_data,
+                                file_name=f"초과근무내역_{selected_month}.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                             )
                         else:
                             st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
