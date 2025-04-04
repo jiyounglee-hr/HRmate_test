@@ -1267,7 +1267,7 @@ try:
                         content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
                         
                         result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                            content_column: lambda x: '<br><br>'.join(x),  # HTML 줄바꿈 태그 사용
+                            content_column: lambda x: '\n\n'.join(x),  # 일반 줄바꿈 문자 사용
                             '초과시간': 'sum'
                         }).reset_index()
                         
@@ -1287,7 +1287,8 @@ try:
                                 "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
                                 "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100)
                             },
-                            hide_index=True
+                            hide_index=True,
+                            use_container_width=True
                         )
                     else:
                         st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
