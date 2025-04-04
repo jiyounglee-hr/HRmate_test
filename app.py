@@ -1249,7 +1249,7 @@ try:
             if uploaded_file is not None:
                 try:
                     # 엑셀 파일 읽기
-                    overtime_df = pd.read_excel(uploaded_file, engine='openpyxl')
+                    overtime_df = pd.read_excel(uploaded_file, engine='openpyxl', sheet_name=0)
                     
                     # 데이터가 비어있는지 확인
                     if overtime_df.empty:
