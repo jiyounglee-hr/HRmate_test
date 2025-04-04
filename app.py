@@ -1281,75 +1281,61 @@ try:
                         # 인덱스를 1부터 시작하도록 설정
                         result_df.index = range(1, len(result_df) + 1)
                         
-                        # HTML 스타일 정의
+                        # 테이블 표시
                         st.markdown("""
                             <style>
-                            .custom-table {
+                            [data-testid="stDataFrame"] {
                                 width: 80%;
-                                border-collapse: collapse;
-                                margin: 10px 0;
                             }
-                            .custom-table th {
-                                background-color: #f0f2f6;
-                                padding: 12px 8px;
-                                text-align: left;
-                                border: 1px solid #ddd;
-                                font-weight: bold;
+                            [data-testid="stDataFrame"] td {
+                                white-space: pre-wrap !important;
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                line-height: 1.5 !important;
+                                padding: 8px !important;
+                                vertical-align: top !important;
                             }
-                            .custom-table td {
-                                padding: 12px 8px;
-                                text-align: left;
-                                border: 1px solid #ddd;
-                                white-space: pre-wrap;
-                                vertical-align: top;
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
                             }
-                            .custom-table tr:hover {
-                                background-color: #f5f5f5;
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] > div {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
                             }
-                            .index-column {
-                                width: 70px;
-                                text-align: center !important;
+                            [data-testid="stDataFrame"] div[role="cell"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
                             }
-                            .name-column {
-                                width: 100px;
+                            [data-testid="stDataFrame"] div[role="row"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
                             }
-                            .time-column {
-                                width: 180px;
-                            }
-                            .content-column {
-                                min-width: 300px;
-                            }
-                            .email-column {
-                                width: 100px;
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameRowMain"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
                             }
                             </style>
                         """, unsafe_allow_html=True)
                         
-                        # DataFrame을 HTML 테이블로 변환
-                        table_html = '<table class="custom-table">'
-                        # 헤더 추가
-                        table_html += '<tr>'
-                        table_html += '<th class="index-column">No</th>'
-                        table_html += '<th class="name-column">이름</th>'
-                        table_html += '<th class="time-column">초과근무시간 합</th>'
-                        table_html += '<th class="content-column">초과근무 내역</th>'
-                        table_html += '<th class="email-column">이메일</th>'
-                        table_html += '</tr>'
-                        
-                        # 데이터 행 추가
-                        for idx, row in result_df.iterrows():
-                            table_html += '<tr>'
-                            table_html += f'<td class="index-column">{idx}</td>'
-                            table_html += f'<td class="name-column">{row["이름"]}</td>'
-                            table_html += f'<td class="time-column">{row["초과근무시간 합"]}</td>'
-                            table_html += f'<td class="content-column">{row["초과근무 내역"]}</td>'
-                            table_html += f'<td class="email-column">{row["이메일"]}</td>'
-                            table_html += '</tr>'
-                        
-                        table_html += '</table>'
-                        
-                        # HTML 테이블 표시
-                        st.markdown(table_html, unsafe_allow_html=True)
+                        st.dataframe(
+                            result_df,
+                            column_config={
+                                "이름": st.column_config.TextColumn("이름", width=100),
+                                "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
+                                "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
+                                "이메일": st.column_config.TextColumn("이메일", width=100)
+                            },
+                            hide_index=False,
+                            use_container_width=True,
+                            height=600
+                        )
                     else:
                         st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
                     
