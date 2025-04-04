@@ -1254,7 +1254,11 @@ try:
                     # 연월 구분 드롭다운 생성
                     if '연월구분' in overtime_df.columns:
                         months = overtime_df['연월구분'].unique()
-                        selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
+                        
+                        # 컬럼 생성 (드롭다운과 다운로드 버튼을 한 줄에 표시)
+                        col1, col2 = st.columns([0.7, 0.3])
+                        with col1:
+                            selected_month = st.selectbox('조회 기준 연월을 선택하세요', sorted(months, reverse=True))
                         
                         # 선택된 연월에 해당하는 데이터 필터링
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
@@ -1278,8 +1282,7 @@ try:
                             excel_data = convert_df_to_excel()
                             download_filename = f'초과근무내역_{selected_month}.xlsx'
                             
-                            col1, col2, col3 = st.columns([1, 1, 1])
-                            with col3:
+                            with col2:
                                 st.download_button(
                                     label="📥 엑셀 파일 다운로드",
                                     data=excel_data,
