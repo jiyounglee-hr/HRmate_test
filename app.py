@@ -1307,6 +1307,20 @@ try:
                                 white-space: pre-wrap !important;
                                 overflow: visible !important;
                             }
+                            [data-testid="stDataFrame"] div[role="cell"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                                white-space: pre-wrap !important;
+                                overflow: visible !important;
+                            }
+                            [data-testid="stDataFrame"] div[role="row"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                            }
+                            [data-testid="stDataFrame"] div[data-testid="StyledDataFrameRowMain"] {
+                                min-height: fit-content !important;
+                                height: auto !important;
+                            }
                             </style>
                         """, unsafe_allow_html=True)
                         
