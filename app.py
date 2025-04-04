@@ -1261,87 +1261,6 @@ try:
                         
                         # 필터링된 데이터가 있을 때만 표시
                         if not filtered_df.empty:
-                            # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
-                            # 시간을 숫자로 변환하여 합산
-                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
-                            
-                            # 초과근무 내용 컬럼명 확인
-                            content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
-                            
-                            result_df = filtered_df.groupby(['이름', '이메일']).agg({
-                                content_column: lambda x: '\n'.join(x),  # 일반 줄바꿈 문자 사용
-                                '초과시간': 'sum'
-                            }).reset_index()
-                            
-                            # 시간을 시:분 형식으로 변환
-                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
-                            
-                            # 컬럼명 변경
-                            result_df = result_df.rename(columns={content_column: '초과근무 내역'})
-                            result_df = result_df[['이름', '초과근무시간 합',  '초과근무 내역', '이메일']]
-                            
-                            # 인덱스를 1부터 시작하도록 설정
-                            result_df.index = range(1, len(result_df) + 1)
-                            
-                            # 테이블 표시
-                            st.markdown("""
-                                <style>
-                                [data-testid="stDataFrame"] {
-                                    width: 80%;
-                                }
-                                [data-testid="stDataFrame"] td {
-                                    white-space: pre-wrap !important;
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    line-height: 1.5 !important;
-                                    padding: 8px !important;
-                                    vertical-align: top !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameDataCell"] > div {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[role="cell"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                    white-space: pre-wrap !important;
-                                    overflow: visible !important;
-                                }
-                                [data-testid="stDataFrame"] div[role="row"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                }
-                                [data-testid="stDataFrame"] div[data-testid="StyledDataFrameRowMain"] {
-                                    min-height: fit-content !important;
-                                    height: auto !important;
-                                }
-                                </style>
-                            """, unsafe_allow_html=True)
-                            
-                            st.dataframe(
-                                result_df,
-                                column_config={
-                                    "이름": st.column_config.TextColumn("이름", width=100),
-                                    "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
-                                    "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
-                                    "이메일": st.column_config.TextColumn("이메일", width=100)
-                                },
-                                hide_index=False,
-                                use_container_width=True,
-                                height=400
-                            )
-                            
-                            # 2025년 월별 본부별 초과근무 합계 표시
-                            st.markdown("##### 본부별 초과근무")
-                            
                             # 시간을 숫자로 변환
                             filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
                             
@@ -1364,10 +1283,18 @@ try:
                             
                             # 피벗 테이블이 비어있지 않을 때만 표시
                             if not pivot_df.empty:
+                                st.markdown("##### 본부별 초과근무")
                                 st.dataframe(
                                     pivot_df,
-                                    use_container_width=True,
+                                    use_container_width=True
                                 )
+                            
+                            # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
+                            # 시간을 숫자로 변환하여 합산
+                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
+                            
+                            # 초과근무 내용 컬럼명 확인
+                            content_column = '초과근무 내용' if '초과근무 내용' in filtered_df.columns else '초과근무내용'
                             
                             # 엑셀 다운로드 버튼
                             output = BytesIO()
