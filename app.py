@@ -1365,7 +1365,6 @@ try:
                                 st.dataframe(
                                     pivot_df,
                                     use_container_width=True,
-                                    height=400
                                 )
                             
                             # 엑셀 다운로드 버튼
