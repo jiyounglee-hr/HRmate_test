@@ -1359,12 +1359,14 @@ try:
                             for col in pivot_df.columns:
                                 pivot_df[col] = pivot_df[col].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
                             
-                            # 피벗 테이블 표시
-                            st.dataframe(
-                                pivot_df,
-                                use_container_width=True,
-                                height=400
-                            )
+                            # 피벗 테이블이 비어있지 않을 때만 표시
+                            if not pivot_df.empty:
+                                st.markdown("##### 월별 본부별 초과근무")
+                                st.dataframe(
+                                    pivot_df,
+                                    use_container_width=True,
+                                    height=400
+                                )
                             
                             # 엑셀 다운로드 버튼
                             output = BytesIO()
