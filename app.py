@@ -1262,15 +1262,15 @@ try:
                         # 엑셀 다운로드 버튼 생성을 위한 함수
                         def convert_df_to_excel():
                             output = BytesIO()
-                            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                            with pd.ExcelWriter(output, engine='openpyxl') as writer:
                                 filtered_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
                                 # 열 너비 자동 조정
                                 worksheet = writer.sheets['초과근무내역']
-                                worksheet.set_column('B:B', 15)  # 이름
-                                worksheet.set_column('C:C', 15)  # 초과시간
-                                worksheet.set_column('D:D', 50)  # 초과근무 내역
-                                worksheet.set_column('E:E', 25)  # 이메일
-                                worksheet.set_column('F:F', 15)  # 스트림기본
+                                worksheet.column_dimensions['B'].width = 15  # 이름
+                                worksheet.column_dimensions['C'].width = 15  # 초과시간
+                                worksheet.column_dimensions['D'].width = 50  # 초과근무 내역
+                                worksheet.column_dimensions['E'].width = 25  # 이메일
+                                worksheet.column_dimensions['F'].width = 15  # 스트림기본
                             return output.getvalue()
                         
                         # 필터링된 데이터가 있을 때만 다운로드 버튼 표시
