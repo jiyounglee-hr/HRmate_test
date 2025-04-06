@@ -1402,9 +1402,9 @@ try:
                             st.dataframe(
                                 result_df,
                                 column_config={
-                                    "이름": st.column_config.TextColumn("이름", width=100),
-                                    "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=100),
-                                    "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=300),
+                                    "이름": st.column_config.TextColumn("이름", width=50),
+                                    "초과근무시간 합": st.column_config.TextColumn("초과근무시간 합", width=70),
+                                    "초과근무 내역": st.column_config.TextColumn("초과근무 내역", width=400),
                                     "이메일": st.column_config.TextColumn("이메일", width=100)
                                 },
                                 hide_index=False,
@@ -1417,9 +1417,9 @@ try:
                                 result_df.to_excel(writer, sheet_name='초과근무내역', index=True, index_label='No')
                                 # 열 너비 자동 조정
                                 worksheet = writer.sheets['초과근무내역']
-                                worksheet.column_dimensions['B'].width = 15  # 이름
+                                worksheet.column_dimensions['B'].width = 10 # 이름
                                 worksheet.column_dimensions['C'].width = 15  # 초과근무시간 합
-                                worksheet.column_dimensions['D'].width = 50  # 초과근무 내역
+                                worksheet.column_dimensions['D'].width = 70  # 초과근무 내역
                                 worksheet.column_dimensions['E'].width = 25  # 이메일
                             excel_data = output.getvalue()
                                     
