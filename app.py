@@ -234,13 +234,25 @@ menu = st.sidebar.selectbox(
         "⏰ 초과근무 조회"
     ],
     index=1,  # 기본값을 "현재 인원현황"으로 설정
-    format_func=lambda x: "" if "──────────────" in x else x  # 구분선은 빈 문자열로 표시
+    format_func=lambda x: f"<span style='color: black; font-weight: bold'>{x}</span>" if "──────────────" in x else x
 )
+
+# HTML 렌더링 허용을 위한 스타일 적용
+st.markdown("""
+    <style>
+    .stSelectbox div[role='listbox'] div[role='option'] {
+        font-weight: normal;
+    }
+    .stSelectbox div[role='listbox'] div[role='option'] span {
+        color: black !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # 구분선 항목 선택 시 기본 메뉴로 리다이렉트
 if "──────────────" in menu:
     menu = "📊 현재 인원현황"
-    
+
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
 st.sidebar.markdown("##### 참고 사이트")
@@ -272,7 +284,7 @@ try:
         if '퇴사일' in df.columns:
             df['퇴사연도'] = df['퇴사일'].dt.year
         
-        if menu == "현재 인원현황":
+        if menu == "📊 현재 인원현황":
             # 기본 통계
             if '재직상태' in df.columns and '정규직전환일' in df.columns:
                 재직자 = len(df[df['재직상태'] == '재직'])
@@ -679,7 +691,7 @@ try:
 
                 st.markdown("<br>", unsafe_allow_html=True)
 
-        elif menu == "연도별 인원 통계":
+        elif menu == "📈 연도별 인원 통계":
             # 최근 5년간 인원 현황 분석
             st.markdown("##### ㆍ최근 5년간 입퇴사 현황")
             
