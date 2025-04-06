@@ -219,22 +219,32 @@ st.markdown("""
 st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
+# menu 변수 초기화
+menu = "현재 인원현황"
+
 # 네비게이션 메뉴
 st.sidebar.markdown("### HR Data")
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[0].click()" style="text-decoration: none; color: inherit;">📊 현재 인원현황</a></div>', unsafe_allow_html=True)
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[1].click()" style="text-decoration: none; color: inherit;">📈 연도별 인원 통계</a></div>', unsafe_allow_html=True)
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[2].click()" style="text-decoration: none; color: inherit;">🔍 임직원 검색</a></div>', unsafe_allow_html=True)
+if st.sidebar.button("📊 현재 인원현황"):
+    menu = "현재 인원현황"
+if st.sidebar.button("📈 연도별 인원 통계"):
+    menu = "연도별 인원 통계"
+if st.sidebar.button("🔍 임직원 검색"):
+    menu = "🔍 임직원 검색"
 
 st.sidebar.markdown("### HR Support")
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[3].click()" style="text-decoration: none; color: inherit;">🏦 기관제출용 인원현황</a></div>', unsafe_allow_html=True)
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[4].click()" style="text-decoration: none; color: inherit;">📋 채용_처우협상</a></div>', unsafe_allow_html=True)
-st.sidebar.markdown('<div style="margin-bottom: 0.5rem;"><a href="#" onclick="document.querySelector(\'[data-testid=stSidebar]\').querySelector(\'[data-testid=stMarkdownContainer]\').querySelectorAll(\'button\')[5].click()" style="text-decoration: none; color: inherit;">⏰ 초과근무 조회</a></div>', unsafe_allow_html=True)
+if st.sidebar.button("🏦 기관제출용 인원현황"):
+    menu = "🏦 기관제출용 인원현황"
+if st.sidebar.button("📋 채용_처우협상"):
+    menu = "📋 채용_처우협상"
+if st.sidebar.button("⏰ 초과근무 조회"):
+    menu = "⏰ 초과근무 조회"
 
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
 st.sidebar.markdown("##### 참고 사이트")
 st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용(이력서 분석)</a>', unsafe_allow_html=True)
 st.sidebar.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📰 PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
+
 try:
     # 데이터 로드
     df = load_data()
