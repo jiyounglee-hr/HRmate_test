@@ -1296,7 +1296,42 @@ try:
                         
                         # 선택된 연월에 해당하는 데이터 필터링
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
-                        
+                         # 월별 본부별 초과근무 합계 표시
+                            st.markdown("---")                            
+                            # 시간을 숫자로 변환
+                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
+                            
+                            # 피벗 테이블 생성
+                            pivot_df = pd.pivot_table(
+                                filtered_df,
+                                values='초과시간',
+                                index='연월구분',
+                                columns='본부',
+                                aggfunc='sum',
+                                fill_value=0
+                            )
+                            
+                            # 전체 합계 열 추가
+                            pivot_df['전체 합계'] = pivot_df.sum(axis=1)
+                            
+                            # 본부별 인원수 계산
+                            employee_count = filtered_df.groupby('본부')['이름'].nunique()
+                            employee_count['전체 합계'] = employee_count.sum()
+                            
+                            # 인원수 행 추가
+                            pivot_df.loc['인원수'] = employee_count
+                            
+                            # 시간을 소수점 한 자리로 변환 (인원수 행 제외)
+                            for col in pivot_df.columns:
+                                pivot_df.loc[pivot_df.index != '인원수', col] = pivot_df.loc[pivot_df.index != '인원수', col].apply(lambda x: f"{float(x):.1f}시간")
+                            
+                            # 피벗 테이블이 비어있지 않을 때만 표시
+                            if not pivot_df.empty:
+                                st.dataframe(
+                                    pivot_df,
+                                    use_container_width=True,
+                                )
+                                
                         # 필터링된 데이터가 있을 때만 표시
                         if not filtered_df.empty:
                             # 이름과 이메일로 그룹화하여 초과근무 내역과 시간 합계 계산
@@ -1311,8 +1346,8 @@ try:
                                 '초과시간': 'sum'
                             }).reset_index()
                             
-                            # 시간을 소수점 한 자리로 표시
-                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{x:.1f}시간")
+                            # 시간을 시:분 형식으로 변환
+                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
                             
                             # 컬럼명 변경
                             result_df = result_df.rename(columns={content_column: '초과근무 내역'})
@@ -1395,42 +1430,7 @@ try:
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                             )
                             
-                            # 월별 본부별 초과근무 합계 표시
-                            st.markdown("---")                            
-                            # 시간을 숫자로 변환
-                            filtered_df['초과시간'] = filtered_df['초과시간'].apply(lambda x: float(x.hour) + float(x.minute)/60 if hasattr(x, 'hour') and hasattr(x, 'minute') else float(x))
-                            
-                            # 피벗 테이블 생성
-                            pivot_df = pd.pivot_table(
-                                filtered_df,
-                                values='초과시간',
-                                index='연월구분',
-                                columns='본부',
-                                aggfunc='sum',
-                                fill_value=0
-                            )
-                            
-                            # 전체 합계 열 추가
-                            pivot_df['전체 합계'] = pivot_df.sum(axis=1)
-                            
-                            # 본부별 인원수 계산
-                            employee_count = filtered_df.groupby('본부')['이름'].nunique()
-                            employee_count['전체 합계'] = employee_count.sum()
-                            
-                            # 인원수 행 추가
-                            pivot_df.loc['인원수'] = employee_count
-                            
-                            # 시간을 소수점 한 자리로 변환 (인원수 행 제외)
-                            for col in pivot_df.columns:
-                                pivot_df.loc[pivot_df.index != '인원수', col] = pivot_df.loc[pivot_df.index != '인원수', col].apply(lambda x: f"{float(x):.1f}시간")
-                            
-                            # 피벗 테이블이 비어있지 않을 때만 표시
-                            if not pivot_df.empty:
-                                st.dataframe(
-                                    pivot_df,
-                                    use_container_width=True,
-                                )
-                                
+                           
 
                         else:
                             st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
