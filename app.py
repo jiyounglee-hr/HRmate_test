@@ -220,23 +220,12 @@ st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
 # 네비게이션 메뉴
-st.sidebar.markdown("### HR Data")
-menu_hr_data = st.sidebar.radio(
+menu = st.sidebar.radio(
     " ",
-    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색"],
+    ["현재 인원현황", "연도별 인원 통계", "🔍 임직원 검색", "🏦 기관제출용 인원현황", "📋 채용_처우협상", "⏰ 초과근무 조회"],
     index=0,
     format_func=lambda x: f"📊 {x}" if x == "현재 인원현황" else (f"📈 {x}" if x == "연도별 인원 통계" else f"{x}")
 )
-
-st.sidebar.markdown("### HR Support")
-menu_hr_support = st.sidebar.radio(
-    " ",
-    ["🏦 기관제출용 인원현황", "📋 채용_처우협상", "⏰ 초과근무 조회"],
-    index=0
-)
-
-# 현재 선택된 메뉴 통합
-menu = menu_hr_support if menu_hr_support in ["🏦 기관제출용 인원현황", "📋 채용_처우협상", "⏰ 초과근무 조회"] else menu_hr_data
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
 st.sidebar.markdown("##### 참고 사이트")
