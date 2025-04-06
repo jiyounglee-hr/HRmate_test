@@ -685,7 +685,7 @@ try:
 
                 st.markdown("<br>", unsafe_allow_html=True)
 
-        elif menu == "연도별 인원 통계":
+        elif menu == "📈 연도별 인원 통계":
             # 최근 5년간 인원 현황 분석
             st.markdown("##### ㆍ최근 5년간 입퇴사 현황")
             
