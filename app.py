@@ -1311,8 +1311,8 @@ try:
                                 '초과시간': 'sum'
                             }).reset_index()
                             
-                            # 시간을 시:분 형식으로 변환
-                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
+                            # 시간을 소수점 한 자리로 표시
+                            result_df['초과근무시간 합'] = result_df['초과시간'].apply(lambda x: f"{x:.1f}시간")
                             
                             # 컬럼명 변경
                             result_df = result_df.rename(columns={content_column: '초과근무 내역'})
@@ -1420,10 +1420,9 @@ try:
                             # 인원수 행 추가
                             pivot_df.loc['인원수'] = employee_count
                             
-                            # 시간을 시:분 형식으로 변환 (인원수 행 제외)
+                            # 시간을 소수점 한 자리로 변환 (인원수 행 제외)
                             for col in pivot_df.columns:
-                                if pivot_df.index[-1] != '인원수':  # 마지막 행이 인원수가 아닌 경우에만 변환
-                                    pivot_df[col] = pivot_df[col].apply(lambda x: f"{int(x)}시간 {int((x % 1) * 60)}분")
+                                pivot_df.loc[pivot_df.index != '인원수', col] = pivot_df.loc[pivot_df.index != '인원수', col].apply(lambda x: f"{float(x):.1f}시간")
                             
                             # 피벗 테이블이 비어있지 않을 때만 표시
                             if not pivot_df.empty:
