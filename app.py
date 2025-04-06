@@ -219,6 +219,11 @@ st.markdown("""
 st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
+# 기본 메뉴 설정
+if 'menu' not in st.session_state:
+    st.session_state.menu = "📊 현재 인원현황"
+menu = st.session_state.menu
+
 # HR Data 섹션
 st.sidebar.markdown("### HR Data")
 if st.sidebar.button("📊 현재 인원현황", use_container_width=True):
@@ -245,10 +250,7 @@ st.sidebar.markdown("##### 참고 사이트")
 st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용(이력서 분석)</a>', unsafe_allow_html=True)
 st.sidebar.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📰 PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
-# 기본 메뉴 설정
-if 'menu' not in st.session_state:
-    st.session_state.menu = "📊 현재 인원현황"
-menu = st.session_state.menu
+
 
 try:
     # 데이터 로드
