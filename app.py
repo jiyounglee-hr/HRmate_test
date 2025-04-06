@@ -238,30 +238,25 @@ st.markdown("""
 st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
-# 기본 메뉴 설정
-if 'menu' not in st.session_state:
-    st.session_state.menu = "📊 현재 인원현황"
-menu = st.session_state.menu
-
 # HR Data 섹션
 st.sidebar.markdown("### HR Data")
 if st.sidebar.button("📊 현재 인원현황", use_container_width=True):
-    menu = "📊 현재 인원현황"
+    st.session_state.menu = "📊 현재 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-    menu = "📈 연도별 인원 통계"
+    st.session_state.menu = "📈 연도별 인원 통계"
 if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
-    menu = "🔍 임직원 검색"
+    st.session_state.menu = "🔍 임직원 검색"
 
 st.sidebar.markdown("---")
 
 # HR Support 섹션
 st.sidebar.markdown("### HR Support")
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-    menu = "🏦 기관제출용 인원현황"
+    st.session_state.menu = "🏦 기관제출용 인원현황"
 if st.sidebar.button("📋 채용_처우협상", use_container_width=True):
-    menu = "📋 채용_처우협상"
+    st.session_state.menu = "📋 채용_처우협상"
 if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-    menu = "⏰ 초과근무 조회"
+    st.session_state.menu = "⏰ 초과근무 조회"
 
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
@@ -269,7 +264,10 @@ st.sidebar.markdown("##### 참고 사이트")
 st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용(이력서 분석)</a>', unsafe_allow_html=True)
 st.sidebar.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📰 PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
-
+# 기본 메뉴 설정
+if 'menu' not in st.session_state:
+    st.session_state.menu = "📊 현재 인원현황"
+menu = st.session_state.menu
 
 try:
     # 데이터 로드
