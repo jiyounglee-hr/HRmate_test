@@ -1216,7 +1216,12 @@ try:
                         selected_job_category = job_mapping[job_role]
                         
                         # 해당 직군과 연차에 맞는 데이터 필터링
-                        years_int = int(float(years))  # 연차를 float로 변환 후 정수로 변환
+                        try:
+                            years_int = int(float(years))  # 연차를 float로 변환 후 정수로 변환
+                        except (ValueError, TypeError):
+                            st.error(f"경력 기간을 정수로 변환하는 중 오류가 발생했습니다. 입력된 경력 기간: {years}")
+                            st.stop()
+                            
                         filtered_data = salary_table[
                             (salary_table['직군'] == selected_job_category) & 
                             (salary_table['연차'] == years_int)
