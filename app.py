@@ -1077,7 +1077,7 @@ try:
             # 입력 폼 생성
             with st.form("salary_form"):
                 # 1줄: 포지션명, 후보자명
-                col1, col2, col3 = st.columns(2)
+                col1, col2, col3 = st.columns(3)
                 with col1:
                     position = st.text_input("포지션명", "")
                 with col2:
@@ -1086,7 +1086,7 @@ try:
                 job_role = st.selectbox("직군 선택", job_roles)
                 
                 # 2줄: 현재연봉, 기타 처우, 희망연봉
-                col4, col5, col6, col7 = st.columns(3)
+                col4, col5, col6, col7 = st.columns(4)
                 with col4:
                     current_salary = st.number_input("현재연봉 (만원)", min_value=0, step=100)
                 with col5:
@@ -1096,7 +1096,7 @@ try:
                 with col6:
                     years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
                 # 3줄: 특이사항
-                col7 = st.columns(2)
+                col7 = st.columns(1)
                 with col7:
                     education_notes = st.text_input("특이사항", "")
                 # 전체 경력을 년 단위로 변환 (분석용) - 반올림 적용
