@@ -1178,6 +1178,21 @@ try:
                 experience_text = st.text_area("경력기간 입력 (예: 2020.06 ~ 재직 중)", 
                                              help="각 경력은 줄바꿈으로 구분해주세요.\n예시:\n2020.06 ~ 재직 중\n2019.04 ~ 2020.06\n2017.06 ~ 2019.03")
                 
+                # 경력기간 조회 버튼 추가
+                experience_submitted = st.form_submit_button("경력기간 조회")
+                
+                if experience_submitted and experience_text:
+                    try:
+                        # 경력기간 계산
+                        total_years, experience_periods = calculate_experience(experience_text)
+                        st.markdown("##### 📅 경력기간 산정 결과")
+                        st.markdown(f"**총 경력기간: {total_years:.1f}년**")
+                        for period in experience_periods:
+                            st.markdown(f"- {period}")
+                        st.markdown("---")
+                    except Exception as e:
+                        st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
+
             # 입력 폼 생성
             with st.form("salary_form"):
                 # 1줄: 포지션명, 후보자명
