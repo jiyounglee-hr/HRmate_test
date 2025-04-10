@@ -11,6 +11,7 @@ import io
 import requests
 from PIL import Image
 from io import BytesIO
+import re
 
 # 페이지 설정
 st.set_page_config(
@@ -1096,7 +1097,11 @@ try:
                 with col7:
                     years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
                 
-                # 3줄: 특이사항
+                # 3줄: 경력기간 입력
+                experience_text = st.text_area("경력기간 입력 (예: 2020.06 ~ 재직 중)", 
+                                             help="각 경력은 줄바꿈으로 구분해주세요.\n예시:\n2020.06 ~ 재직 중\n2019.04 ~ 2020.06\n2017.06 ~ 2019.03")
+                
+                # 4줄: 특이사항
                 education_notes = st.text_input("특이사항", "")
                 
                 # 분석하기 버튼
@@ -1104,6 +1109,15 @@ try:
 
                 if submitted:
                     try:
+                        # 경력기간 계산
+                        if experience_text:
+                            total_years, experience_periods = calculate_experience(experience_text)
+                            st.markdown("##### 📅 경력기간 산정 결과")
+                            st.markdown(f"**총 경력기간: {total_years:.1f}년**")
+                            for period in experience_periods:
+                                st.markdown(f"- {period}")
+                            st.markdown("---")
+                        
                         # salary_table.xlsx 파일 읽기
                         salary_table = pd.read_excel("salary_table.xlsx")
                         
@@ -1440,3 +1454,65 @@ try:
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+
+def calculate_experience(experience_text):
+    """경력기간을 계산하는 함수"""
+    import re
+    from datetime import datetime
+    import pandas as pd
+    
+    # 날짜 패턴 정의
+    date_patterns = [
+        r'(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?',  # 2001-03, 2001.03, 2001/03, 2001-03-01
+        r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
+        r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
+        r'(\d{4})\s*[-~]\s*재직중'  # 2001-재직중
+    ]
+    
+    # 경력기간 추출
+    experience_periods = []
+    total_years = 0
+    
+    # 각 줄을 분리하여 처리
+    lines = experience_text.split('\n')
+    for line in lines:
+        # 날짜 패턴 매칭
+        for pattern in date_patterns:
+            matches = re.finditer(pattern, line)
+            for match in matches:
+                start_date = None
+                end_date = None
+                
+                # 시작일 추출
+                if len(match.groups()) >= 2:
+                    year = int(match.group(1))
+                    month = int(match.group(2))
+                    day = int(match.group(3)) if match.group(3) else 1
+                    start_date = datetime(year, month, day)
+                
+                # 종료일 추출 (현재/재직중인 경우 오늘 날짜 사용)
+                if '현재' in line or '재직중' in line:
+                    end_date = datetime.now()
+                else:
+                    # 다음 날짜 패턴 찾기
+                    next_match = re.search(r'[-~]\s*(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?', line[match.end():])
+                    if next_match:
+                        year = int(next_match.group(1))
+                        month = int(next_match.group(2))
+                        day = int(next_match.group(3)) if next_match.group(3) else 1
+                        end_date = datetime(year, month, day)
+                
+                if start_date and end_date:
+                    # 경력기간 계산 (년.월)
+                    delta = end_date - start_date
+                    years = delta.days / 365.25
+                    months = (years - int(years)) * 12
+                    total_years += years
+                    
+                    # 경력기간 포맷팅
+                    start_str = start_date.strftime('%Y-%m')
+                    end_str = end_date.strftime('%Y-%m')
+                    period_str = f"{start_str}~{end_str} ({years:.1f}년)"
+                    experience_periods.append(period_str)
+    
+    return total_years, experience_periods 
