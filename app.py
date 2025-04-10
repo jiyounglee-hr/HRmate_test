@@ -1236,7 +1236,7 @@ try:
                 with col6:
                     desired_salary = st.number_input("희망연봉 (만원)", min_value=0, step=100)
                 with col7:
-                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=float(st.query_params.get("years", 0.0)), step=0.1, format="%.1f")
+                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=float(st.session_state.get('years', st.query_params.get("years", 0.0))), step=0.1, format="%.1f")
                 
               
                 # 4줄: 특이사항
