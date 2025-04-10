@@ -47,7 +47,7 @@ def calculate_experience(experience_text):
         en_match = re.search(en_pattern, line)
         
         # 한국어 날짜 형식 패턴 (예: 2021 년 11월 – 2024 년 10월)
-        kr_pattern = r'(\d{4})\s*년?\s*(\d{1,2})\s*월\s*[–-~]\s*(\d{4})\s*년?\s*(\d{1,2})\s*월'
+        kr_pattern = r'(\d{4})\s*년?\s*(\d{1,2})\s*월\s*[-–~]\s*(\d{4})\s*년?\s*(\d{1,2})\s*월'
         kr_match = re.search(kr_pattern, line)
         
         if en_match:
