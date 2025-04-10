@@ -1518,6 +1518,7 @@ except Exception as e:
 
 def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
+    import re
     from datetime import datetime
     import pandas as pd
     
