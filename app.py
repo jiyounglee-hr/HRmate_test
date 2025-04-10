@@ -1207,6 +1207,7 @@ try:
                             for period in experience_periods:
                                 st.markdown(f"- {period}")
                             st.markdown("---")
+                            years = total_years  # 계산된 총 경력을 years 변수에 할당
                         
                         # salary_table.xlsx 파일 읽기
                         salary_table = pd.read_excel("salary_table.xlsx")
@@ -1215,7 +1216,7 @@ try:
                         selected_job_category = job_mapping[job_role]
                         
                         # 해당 직군과 연차에 맞는 데이터 필터링
-                        years_int = int(years)  # 연차를 정수로 변환
+                        years_int = int(float(years))  # 연차를 float로 변환 후 정수로 변환
                         filtered_data = salary_table[
                             (salary_table['직군'] == selected_job_category) & 
                             (salary_table['연차'] == years_int)
