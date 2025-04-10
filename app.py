@@ -23,7 +23,9 @@ def calculate_experience(experience_text):
         r'(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?',  # 2001-03, 2001.03, 2001/03, 2001-03-01
         r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
         r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
-        r'(\d{4})\s*[-~]\s*재직중'  # 2001-재직중
+        r'(\d{4})\s*[-~]\s*재직중',  # 2001-재직중
+        r'(\d{4})\s*[-~]\s*재직 중',  # 2001-재직 중
+        r'(\d{4})\s*[-~]\s*재직'  # 2001-재직
     ]
     
     # 경력기간 추출
@@ -47,8 +49,8 @@ def calculate_experience(experience_text):
                     day = int(match.group(3)) if match.group(3) else 1
                     start_date = datetime(year, month, day)
                 
-                # 종료일 추출 (현재/재직중인 경우 오늘 날짜 사용)
-                if '현재' in line or '재직중' in line:
+                # 종료일 추출 (현재/재직중/재직 중/재직인 경우 오늘 날짜 사용)
+                if any(keyword in line for keyword in ['현재', '재직중', '재직 중', '재직']):
                     end_date = datetime.now()
                 else:
                     # 다음 날짜 패턴 찾기
@@ -1527,7 +1529,9 @@ def calculate_experience(experience_text):
         r'(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?',  # 2001-03, 2001.03, 2001/03, 2001-03-01
         r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
         r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
-        r'(\d{4})\s*[-~]\s*재직중'  # 2001-재직중
+        r'(\d{4})\s*[-~]\s*재직중',  # 2001-재직중
+        r'(\d{4})\s*[-~]\s*재직 중',  # 2001-재직 중
+        r'(\d{4})\s*[-~]\s*재직'  # 2001-재직
     ]
     
     # 경력기간 추출
@@ -1551,8 +1555,8 @@ def calculate_experience(experience_text):
                     day = int(match.group(3)) if match.group(3) else 1
                     start_date = datetime(year, month, day)
                 
-                # 종료일 추출 (현재/재직중인 경우 오늘 날짜 사용)
-                if '현재' in line or '재직중' in line:
+                # 종료일 추출 (현재/재직중/재직 중/재직인 경우 오늘 날짜 사용)
+                if any(keyword in line for keyword in ['현재', '재직중', '재직 중', '재직']):
                     end_date = datetime.now()
                 else:
                     # 다음 날짜 패턴 찾기
