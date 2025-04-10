@@ -1083,7 +1083,7 @@ try:
                 with col2:
                     candidate_name = st.text_input("후보자명", "")
                 with col3:
-                job_role = st.selectbox("직군 선택", job_roles)
+                    job_role = st.selectbox("직군 선택", job_roles)
                 
                 # 2줄: 현재연봉, 기타 처우, 희망연봉
                 col4, col5, col6, col7 = st.columns(4)
@@ -1093,14 +1093,12 @@ try:
                     other_salary = st.number_input("기타 보상상 (만원)", min_value=0, step=100)
                 with col6:
                     desired_salary = st.number_input("희망연봉 (만원)", min_value=0, step=100)
-                with col6:
-                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
-                # 3줄: 특이사항
-                col7 = st.columns(1)
                 with col7:
-                    education_notes = st.text_input("특이사항", "")
-                # 전체 경력을 년 단위로 변환 (분석용) - 반올림 적용
-                years_exp = round(years)
+                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
+                
+                # 3줄: 특이사항
+                education_notes = st.text_input("특이사항", "")
+                
                 # 분석하기 버튼
                 submitted = st.form_submit_button("분석하기")
 
