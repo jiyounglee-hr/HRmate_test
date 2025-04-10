@@ -1173,7 +1173,11 @@ try:
             
             # 직군 상세 목록
             job_roles = list(job_mapping.keys())
-            
+            # 경력입력 폼 생성
+            with st.form("experience_form"):
+                experience_text = st.text_area("경력기간 입력 (예: 2020.06 ~ 재직 중)", 
+                                             help="각 경력은 줄바꿈으로 구분해주세요.\n예시:\n2020.06 ~ 재직 중\n2019.04 ~ 2020.06\n2017.06 ~ 2019.03")
+                
             # 입력 폼 생성
             with st.form("salary_form"):
                 # 1줄: 포지션명, 후보자명
@@ -1196,10 +1200,7 @@ try:
                 with col7:
                     years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
                 
-                # 3줄: 경력기간 입력
-                experience_text = st.text_area("경력기간 입력 (예: 2020.06 ~ 재직 중)", 
-                                             help="각 경력은 줄바꿈으로 구분해주세요.\n예시:\n2020.06 ~ 재직 중\n2019.04 ~ 2020.06\n2017.06 ~ 2019.03")
-                
+              
                 # 4줄: 특이사항
                 education_notes = st.text_input("특이사항", "")
                 
