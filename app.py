@@ -1111,13 +1111,14 @@ try:
                         selected_job_category = job_mapping[job_role]
                         
                         # 해당 직군과 연차에 맞는 데이터 필터링
+                        years_int = int(years)  # 연차를 정수로 변환
                         filtered_data = salary_table[
                             (salary_table['직군'] == selected_job_category) & 
-                            (salary_table['연차'] == years)
+                            (salary_table['연차'] == years_int)
                         ]
                         
                         if filtered_data.empty:
-                            st.warning(f"선택하신 직군 '{job_role}' ({selected_job_category})과 연차 {years}년에 해당하는 데이터가 없습니다.")
+                            st.warning(f"선택하신 직군 '{job_role}' ({selected_job_category})과 연차 {years_int}년에 해당하는 데이터가 없습니다.")
                             st.stop()
                         
                         # 첫 번째 행 선택
@@ -1149,7 +1150,7 @@ try:
                         col1, col2 = st.columns([0.6, 0.4])
                         with col1:
                             # salary_table 관련 데이터 표시
-                            related_years = [years-1, years, years+1]
+                            related_years = [years_int-1, years_int, years_int+1]
                             related_data = salary_table[
                                 (salary_table['직군'] == selected_job_category) & 
                                 (salary_table['연차'].isin(related_years))
