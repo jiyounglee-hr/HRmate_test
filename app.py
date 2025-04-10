@@ -42,6 +42,27 @@ def calculate_experience(experience_text):
             current_company = line
             continue
             
+        # 영문 월 형식 패턴 (예: Nov 2021 – Oct 2024)
+        en_pattern = r'([A-Za-z]{3})\s*(\d{4})\s*[–-]\s*([A-Za-z]{3})\s*(\d{4})'
+        en_match = re.search(en_pattern, line)
+        
+        if en_match:
+            start_month, start_year, end_month, end_year = en_match.groups()
+            start_date = f"{start_year}-{month_dict[start_month]}-01"
+            end_date = f"{end_year}-{month_dict[end_month]}-01"
+            
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            end = datetime.strptime(end_date, "%Y-%m-%d")
+            
+            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            total_months += months
+            
+            period_str = f"{start_month} {start_year} - {end_month} {end_year}: {months//12}년 {months%12}개월"
+            if current_company:
+                period_str = f"{current_company}: {period_str}"
+            experience_periods.append(period_str)
+            continue
+            
         # 날짜 패턴 처리
         # 1. 2024. 05 ~ 형식
         pattern1 = r'(\d{4})\.\s*(\d{1,2})\s*[~-–]'
