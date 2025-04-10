@@ -1206,7 +1206,9 @@ try:
                     try:
                         # 경력기간 계산
                         total_years, experience_periods = calculate_experience(experience_text)
-                        st.write(f"총 경력기간: {total_years:.1f}년\n" + " ".join(experience_periods))
+                        st.write(f"총 경력기간: {total_years:.1f}년")
+                        for period in experience_periods:
+                            st.write(period)
                     except Exception as e:
                         st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
 
