@@ -1113,11 +1113,11 @@ try:
                         # 해당 직군과 연차에 맞는 데이터 필터링
                         filtered_data = salary_table[
                             (salary_table['직군'] == selected_job_category) & 
-                            (salary_table['연차'] == years_exp)
+                            (salary_table['연차'] == years)
                         ]
                         
                         if filtered_data.empty:
-                            st.warning(f"선택하신 직군 '{job_role}' ({selected_job_category})과 연차 {years_exp}년에 해당하는 데이터가 없습니다.")
+                            st.warning(f"선택하신 직군 '{job_role}' ({selected_job_category})과 연차 {years}년에 해당하는 데이터가 없습니다.")
                             st.stop()
                         
                         # 첫 번째 행 선택
@@ -1149,7 +1149,7 @@ try:
                         col1, col2 = st.columns([0.6, 0.4])
                         with col1:
                             # salary_table 관련 데이터 표시
-                            related_years = [years_exp-1, years_exp, years_exp+1]
+                            related_years = [years-1, years, years+1]
                             related_data = salary_table[
                                 (salary_table['직군'] == selected_job_category) & 
                                 (salary_table['연차'].isin(related_years))
@@ -1253,7 +1253,7 @@ try:
                         제시금액은 {suggested_salary if isinstance(suggested_salary, str) else f'{suggested_salary:,.0f}만원'}이 어떨지 의견 드립니다.
 
                         [연봉산정]
-                        - 인정경력: {years:.1f}년 (인정경력 기준: {years_exp}년)
+                        - 인정경력: {years:.1f}년
                         - 최종연봉: 기본연봉 {current_salary:,.0f}만원 + 기타 {other_salary:,.0f}만원
                         - 희망연봉: {desired_salary:,.0f}만원
                         - 기준(임금테이블) 연봉: {avg_salary:,.0f}만원 (최소 연봉: {min_salary:,.0f}만원, 최대 연봉: {max_salary:,.0f}만원)
