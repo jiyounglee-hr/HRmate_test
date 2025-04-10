@@ -24,8 +24,6 @@ def calculate_experience(experience_text):
         r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
         r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
         r'(\d{4})\s*[-~]\s*재직중'  # 2001-재직중
-        r'(\d{4})\s*[-~]\s*재직 중'  # 2001-재직중
-
     ]
     
     # 경력기간 추출
@@ -65,13 +63,13 @@ def calculate_experience(experience_text):
                     # 경력기간 계산 (년.월)
                     delta = end_date - start_date
                     years = delta.days / 365.25
-                    months = (years - int(years)) * 12
+                    months = int((years - int(years)) * 12)  # 개월 수를 정수로 변환
                     total_years += years
                     
                     # 경력기간 포맷팅
                     start_str = start_date.strftime('%Y-%m')
                     end_str = end_date.strftime('%Y-%m')
-                    period_str = f"{start_str}~{end_str} ({years:.1f}년)"
+                    period_str = f"{start_str}~{end_str} ({int(years)}년 {months}개월)"
                     experience_periods.append(period_str)
     
     return total_years, experience_periods
@@ -1520,7 +1518,6 @@ except Exception as e:
 
 def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
-    import re
     from datetime import datetime
     import pandas as pd
     
@@ -1569,13 +1566,13 @@ def calculate_experience(experience_text):
                     # 경력기간 계산 (년.월)
                     delta = end_date - start_date
                     years = delta.days / 365.25
-                    months = (years - int(years)) * 12
+                    months = int((years - int(years)) * 12)  # 개월 수를 정수로 변환
                     total_years += years
                     
                     # 경력기간 포맷팅
                     start_str = start_date.strftime('%Y-%m')
                     end_str = end_date.strftime('%Y-%m')
-                    period_str = f"{start_str}~{end_str} ({years:.1f}년)"
+                    period_str = f"{start_str}~{end_str} ({int(years)}년 {months}개월)"
                     experience_periods.append(period_str)
     
     return total_years, experience_periods 
