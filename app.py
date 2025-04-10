@@ -1209,8 +1209,8 @@ try:
                         st.write(f"총 경력기간: {total_years:.1f}년")
                         for period in experience_periods:
                             st.write(period)
-                        # 인정경력(년) 필드의 디폴트 값 업데이트
-                        st.session_state['years'] = total_years
+                        # 인정경력(년) 필드의 디폴트 값 업데이트 (숫자값만)
+                        st.session_state['years'] = float(f"{total_years:.1f}")
                     except Exception as e:
                         st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
 
