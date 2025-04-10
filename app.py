@@ -21,86 +21,66 @@ def calculate_experience(experience_text):
     
     # 영문 월을 숫자로 변환하는 딕셔너리
     month_dict = {
-        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
     }
     
-    # 날짜 패턴 정의
-    date_patterns = [
-        r'(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?',  # 2001-03, 2001.03, 2001/03, 2001-03-01
-        r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
-        r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
-        r'(\d{4})\s*[-~]\s*재직중',  # 2001-재직중
-        r'(\d{4})\s*[-~]\s*재직 중',  # 2001-재직 중
-        r'(\d{4})\s*[-~]\s*재직',  # 2001-재직
-        r'([A-Za-z]{3})\s+(\d{4})\s*[–-]\s*([A-Za-z]{3})\s+(\d{4})',  # Nov 2021 – Oct 2024
-        r'([A-Za-z]{3})\s*(\d{4})\s*[-~]\s*([A-Za-z]{3})\s*(\d{4})',  # Nov 2021 – Oct 2024
-        r'([A-Za-z]{3})\s*(\d{4})\s*[-~]\s*([A-Za-z]{3})',  # Nov 2021 – Oct
-        r'([A-Za-z]{3})\s*(\d{4})\s*[-~]\s*(\d{4})'  # Nov 2021 – 2024
-    ]
+    # 영문 월 형식 패턴 (예: Nov 2021 – Oct 2024)
+    en_pattern = r'([A-Za-z]{3})\s*(\d{4})\s*[–-]\s*([A-Za-z]{3})\s*(\d{4})'
     
-    # 경력기간 추출
+    total_months = 0
     experience_periods = []
-    total_years = 0
     
-    # 각 줄을 분리하여 처리
-    lines = experience_text.split('\n')
-    for line in lines:
-        # 날짜 패턴 매칭
-        for pattern in date_patterns:
-            matches = re.finditer(pattern, line)
-            for match in matches:
-                start_date = None
-                end_date = None
-                
-                # 영문 월 패턴 처리
-                if len(match.groups()) >= 4 and match.group(1) in month_dict:
-                    # 시작일 추출
-                    start_month = month_dict[match.group(1)]
-                    start_year = int(match.group(2))
-                    start_date = datetime(start_year, start_month, 1)
-                    
-                    # 종료일 추출
-                    if match.group(3) in month_dict:
-                        end_month = month_dict[match.group(3)]
-                        end_year = int(match.group(4))
-                        end_date = datetime(end_year, end_month, 1)
-                    else:
-                        end_year = int(match.group(3))
-                        end_date = datetime(end_year, 12, 31)
-                else:
-                    # 기존 숫자 패턴 처리
-                    if len(match.groups()) >= 2:
-                        year = int(match.group(1))
-                        month = int(match.group(2))
-                        day = int(match.group(3)) if match.group(3) else 1
-                        start_date = datetime(year, month, day)
-                    
-                    # 종료일 추출 (현재/재직중/재직 중/재직인 경우 오늘 날짜 사용)
-                    if any(keyword in line for keyword in ['현재', '재직중', '재직 중', '재직']):
-                        end_date = datetime.now()
-                    else:
-                        # 다음 날짜 패턴 찾기
-                        next_match = re.search(r'[-~]\s*(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?', line[match.end():])
-                        if next_match:
-                            year = int(next_match.group(1))
-                            month = int(next_match.group(2))
-                            day = int(next_match.group(3)) if next_match.group(3) else 1
-                            end_date = datetime(year, month, day)
-                
-                if start_date and end_date:
-                    # 경력기간 계산 (년.월)
-                    delta = end_date - start_date
-                    years = delta.days / 365.25
-                    months = int((years - int(years)) * 12)  # 개월 수를 정수로 변환
-                    total_years += years
-                    
-                    # 경력기간 포맷팅
-                    start_str = start_date.strftime('%Y-%m')
-                    end_str = end_date.strftime('%Y-%m')
-                    period_str = f"{start_str}~{end_str} ({int(years)}년 {months}개월)"
-                    experience_periods.append(period_str)
+    # 영문 월 형식 처리
+    en_matches = re.finditer(en_pattern, experience_text)
+    for match in en_matches:
+        start_month, start_year, end_month, end_year = match.groups()
+        start_date = f"{start_year}-{month_dict[start_month]}-01"
+        end_date = f"{end_year}-{month_dict[end_month]}-01"
+        
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        
+        months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+        total_months += months
+        
+        experience_periods.append(f"{start_month} {start_year} - {end_month} {end_year}: {months//12}년 {months%12}개월")
     
+    # 한글 날짜 형식 처리
+    pattern = r'(\d{4})[-./년](\d{1,2})[-./월]?\s*[-~]\s*(\d{4})[-./년](\d{1,2})[-./월]?'
+    matches = re.finditer(pattern, experience_text)
+    
+    for match in matches:
+        start_year, start_month, end_year, end_month = match.groups()
+        start_date = f"{start_year}-{start_month.zfill(2)}-01"
+        end_date = f"{end_year}-{end_month.zfill(2)}-01"
+        
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        
+        months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+        total_months += months
+        
+        experience_periods.append(f"{start_year}년 {start_month}월 - {end_year}년 {end_month}월: {months//12}년 {months%12}개월")
+    
+    # 현재 재직중인 경우 처리
+    current_pattern = r'(\d{4})[-./년](\d{1,2})[-./월]?\s*[-~]\s*(현재|재직중)'
+    current_matches = re.finditer(current_pattern, experience_text)
+    
+    for match in current_matches:
+        start_year, start_month, _ = match.groups()
+        start_date = f"{start_year}-{start_month.zfill(2)}-01"
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        
+        months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+        total_months += months
+        
+        experience_periods.append(f"{start_year}년 {start_month}월 - 현재: {months//12}년 {months%12}개월")
+    
+    total_years = total_months / 12
     return total_years, experience_periods
 
 # 페이지 설정
