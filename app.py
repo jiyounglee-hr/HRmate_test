@@ -1212,7 +1212,7 @@ try:
                         # 인정경력(년) 필드의 디폴트 값 업데이트 (숫자값만)
                         st.session_state['years'] = float(f"{total_years:.1f}")
                         # 페이지 리프레시
-                        st.experimental_rerun()
+                        st.rerun()
                     except Exception as e:
                         st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
 
