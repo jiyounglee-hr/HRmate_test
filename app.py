@@ -46,10 +46,6 @@ def calculate_experience(experience_text):
         en_pattern = r'([A-Za-z]{3})\s*(\d{4})\s*[–-]\s*([A-Za-z]{3})\s*(\d{4})'
         en_match = re.search(en_pattern, line)
         
-        # 한국어 날짜 형식 패턴 (예: 2021년 11월 - 2024년 10월)
-        kr_pattern = r'(\d{4})\s*년\s*(\d{1,2})\s*월\s*[–-~]\s*(\d{4})\s*년\s*(\d{1,2})\s*월'
-        kr_match = re.search(kr_pattern, line)
-        
         if en_match:
             start_month, start_year, end_month, end_year = en_match.groups()
             start_date = f"{start_year}-{month_dict[start_month]}-01"
@@ -62,23 +58,6 @@ def calculate_experience(experience_text):
             total_months += months
             
             period_str = f"{start_month} {start_year} - {end_month} {end_year}: {months//12}년 {months%12}개월"
-            if current_company:
-                period_str = f"{current_company}: {period_str}"
-            experience_periods.append(period_str)
-            continue
-            
-        elif kr_match:
-            start_year, start_month, end_year, end_month = kr_match.groups()
-            start_date = f"{start_year}-{start_month.zfill(2)}-01"
-            end_date = f"{end_year}-{end_month.zfill(2)}-01"
-            
-            start = datetime.strptime(start_date, "%Y-%m-%d")
-            end = datetime.strptime(end_date, "%Y-%m-%d")
-            
-            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
-            total_months += months
-            
-            period_str = f"{start_year}년 {start_month}월 - {end_year}년 {end_month}월: {months//12}년 {months%12}개월"
             if current_company:
                 period_str = f"{current_company}: {period_str}"
             experience_periods.append(period_str)
