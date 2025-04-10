@@ -1212,7 +1212,7 @@ try:
                         # 인정경력(년) 필드의 디폴트 값 업데이트 (숫자값만)
                         st.session_state['years'] = float(f"{total_years:.1f}")
                         # 인정경력(년) 필드 업데이트
-                        st.experimental_set_query_params(years=float(f"{total_years:.1f}"))
+                        st.query_params["years"] = float(f"{total_years:.1f}")
                     except Exception as e:
                         st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
 
@@ -1236,7 +1236,7 @@ try:
                 with col6:
                     desired_salary = st.number_input("희망연봉 (만원)", min_value=0, step=100)
                 with col7:
-                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=float(st.experimental_get_query_params().get("years", [0.0])[0]), step=0.1, format="%.1f")
+                    years = st.number_input("인정경력 (년)", min_value=-4.0, value=float(st.query_params.get("years", 0.0)), step=0.1, format="%.1f")
                 
               
                 # 4줄: 특이사항
