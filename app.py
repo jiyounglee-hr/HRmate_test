@@ -13,6 +13,67 @@ from PIL import Image
 from io import BytesIO
 import re
 
+def calculate_experience(experience_text):
+    """경력기간을 계산하는 함수"""
+    from datetime import datetime
+    import pandas as pd
+    
+    # 날짜 패턴 정의
+    date_patterns = [
+        r'(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?',  # 2001-03, 2001.03, 2001/03, 2001-03-01
+        r'(\d{4})\s*[-~]\s*(\d{4})',  # 2001-2025
+        r'(\d{4})\s*[-~]\s*현재',  # 2001-현재
+        r'(\d{4})\s*[-~]\s*재직중'  # 2001-재직중
+    ]
+    
+    # 경력기간 추출
+    experience_periods = []
+    total_years = 0
+    
+    # 각 줄을 분리하여 처리
+    lines = experience_text.split('\n')
+    for line in lines:
+        # 날짜 패턴 매칭
+        for pattern in date_patterns:
+            matches = re.finditer(pattern, line)
+            for match in matches:
+                start_date = None
+                end_date = None
+                
+                # 시작일 추출
+                if len(match.groups()) >= 2:
+                    year = int(match.group(1))
+                    month = int(match.group(2))
+                    day = int(match.group(3)) if match.group(3) else 1
+                    start_date = datetime(year, month, day)
+                
+                # 종료일 추출 (현재/재직중인 경우 오늘 날짜 사용)
+                if '현재' in line or '재직중' in line:
+                    end_date = datetime.now()
+                else:
+                    # 다음 날짜 패턴 찾기
+                    next_match = re.search(r'[-~]\s*(\d{4})[-./](\d{1,2})[-./]?(\d{1,2})?', line[match.end():])
+                    if next_match:
+                        year = int(next_match.group(1))
+                        month = int(next_match.group(2))
+                        day = int(next_match.group(3)) if next_match.group(3) else 1
+                        end_date = datetime(year, month, day)
+                
+                if start_date and end_date:
+                    # 경력기간 계산 (년.월)
+                    delta = end_date - start_date
+                    years = delta.days / 365.25
+                    months = (years - int(years)) * 12
+                    total_years += years
+                    
+                    # 경력기간 포맷팅
+                    start_str = start_date.strftime('%Y-%m')
+                    end_str = end_date.strftime('%Y-%m')
+                    period_str = f"{start_str}~{end_str} ({years:.1f}년)"
+                    experience_periods.append(period_str)
+    
+    return total_years, experience_periods
+
 # 페이지 설정
 st.set_page_config(
     page_title="HRmate",
