@@ -1057,10 +1057,10 @@ try:
             job_mapping = {
                 "연구직": "직군1",
                 "개발직": "직군2",
-                "임상연구, QA": "직군2",
+                "임상연구, QA, 인증(RA)": "직군2",
                 "연구기획": "직군3",
                 "디자인": "직군3",
-                "인증(RA), SV, SCM": "직군3",
+                "SV, SCM": "직군3",
                 "마케팅": "직군3",
                 "기획": "직군3",
                 "기술영업 / SE(5년 이상)": "직군3",
@@ -1077,35 +1077,30 @@ try:
             # 입력 폼 생성
             with st.form("salary_form"):
                 # 1줄: 포지션명, 후보자명
-                col1, col2 = st.columns(2)
+                col1, col2, col3 = st.columns(2)
                 with col1:
                     position = st.text_input("포지션명", "")
                 with col2:
                     candidate_name = st.text_input("후보자명", "")
-                
-                # 2줄: 직군선택
+                with col3:
                 job_role = st.selectbox("직군 선택", job_roles)
                 
-                # 3줄: 현재연봉, 기타 처우, 희망연봉
-                col3, col4, col5 = st.columns(3)
-                with col3:
-                    current_salary = st.number_input("현재연봉 (만원)", min_value=0, step=100)
+                # 2줄: 현재연봉, 기타 처우, 희망연봉
+                col4, col5, col6, col7 = st.columns(3)
                 with col4:
-                    other_salary = st.number_input("기타 보상상 (만원)", min_value=0, step=100)
+                    current_salary = st.number_input("현재연봉 (만원)", min_value=0, step=100)
                 with col5:
+                    other_salary = st.number_input("기타 보상상 (만원)", min_value=0, step=100)
+                with col6:
                     desired_salary = st.number_input("희망연봉 (만원)", min_value=0, step=100)
-                
-                # 4줄: 인정경력 연차, 학력특이사항
-                col6, col7 = st.columns(2)
                 with col6:
                     years = st.number_input("인정경력 (년)", min_value=-4.0, value=0.0, step=0.1, format="%.1f")
+                # 3줄: 특이사항
+                col7 = st.columns(2)
                 with col7:
                     education_notes = st.text_input("특이사항", "")
-                
                 # 전체 경력을 년 단위로 변환 (분석용) - 반올림 적용
                 years_exp = round(years)
-                
-                
                 # 분석하기 버튼
                 submitted = st.form_submit_button("분석하기")
 
