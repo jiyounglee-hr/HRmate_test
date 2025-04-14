@@ -1915,23 +1915,19 @@ try:
             
             if df_promotion is not None:
                 # 조회 조건
-                col1, col2, col3, col4 = st.columns(4)
+                col1, col2, col3 = st.columns(3)
                 
                 with col1:
                     current_year = datetime.now().year
                     years = sorted(df_promotion['발령일'].dt.year.unique(), reverse=True)
-                    selected_year = st.selectbox("발령 연도", ["전체"] + list(years), index=0)
+                    selected_year = st.selectbox("발령 연도", years, index=0)
                 
                 with col2:
-                    departments = sorted(df_promotion['변경후_본부'].unique())
-                    selected_department = st.selectbox("본부", ["전체"] + departments)
-                
-                with col3:
                     name = st.text_input("성명")
                 
-                with col4:
+                with col3:
                     promotion_types = sorted(df_promotion['구분'].unique())
-                    selected_type = st.selectbox("발령구분", ["전체"] + promotion_types)
+                    selected_types = st.multiselect("발령구분", promotion_types)
                 
                 # 데이터 필터링
                 filtered_df = df_promotion.copy()
@@ -1939,14 +1935,11 @@ try:
                 if selected_year != "전체":
                     filtered_df = filtered_df[filtered_df['발령일'].dt.year == selected_year]
                 
-                if selected_department != "전체":
-                    filtered_df = filtered_df[filtered_df['변경후_본부'] == selected_department]
-                
                 if name:
                     filtered_df = filtered_df[filtered_df['성명'].str.contains(name, na=False)]
                 
-                if selected_type != "전체":
-                    filtered_df = filtered_df[filtered_df['구분'] == selected_type]
+                if selected_types:
+                    filtered_df = filtered_df[filtered_df['구분'].isin(selected_types)]
                 
                 # 표시할 컬럼 설정
                 display_columns = [
