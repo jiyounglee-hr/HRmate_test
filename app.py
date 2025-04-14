@@ -1800,6 +1800,11 @@ try:
                 df_display = df[se_columns]
             
             # 데이터 표시
+            df_display = df_display.reset_index(drop=True)
+            df_display.index = df_display.index + 1
+            df_display.index.name = 'No'
+            df_display = df_display.reset_index()
+            
             st.dataframe(
                 df_display,
                 use_container_width=True,
