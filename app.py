@@ -1729,6 +1729,10 @@ try:
                     df = pd.read_excel(file_path, sheet_name=0)  # 첫 번째 시트 사용
                     df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트 사용
                     
+                    # 중복된 컬럼 이름 처리
+                    df = df.loc[:, ~df.columns.duplicated()]
+                    df_history = df_history.loc[:, ~df_history.columns.duplicated()]
+                    
                     # 날짜 컬럼 형식 통일
                     date_columns = ['입사일', '퇴사일', '발령일']
                     for col in date_columns:
