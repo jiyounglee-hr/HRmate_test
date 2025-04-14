@@ -1682,6 +1682,11 @@ try:
                     # 파일 읽기
                     df = pd.read_excel(file_path, sheet_name=0)  # 첫 번째 시트 사용
                     df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트 사용
+                    
+                    # 컬럼 이름 확인 및 출력
+                    st.write("첫 번째 시트 컬럼:", df.columns.tolist())
+                    st.write("두 번째 시트 컬럼:", df_history.columns.tolist())
+                    
                     return df, df_history
                 except Exception as e:
                     st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
@@ -1690,7 +1695,7 @@ try:
             df, df_history = load_employee_data()
             
             # 조회일자 기준으로 인사발령 데이터 필터링
-            df_history_filtered = df_history[df_history['인사발령일'] <= query_date]
+            df_history_filtered = df_history[df_history['발령일'] <= query_date]
             
             # 기본 컬럼 설정
             base_columns = [
