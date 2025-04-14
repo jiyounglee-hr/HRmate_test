@@ -412,6 +412,8 @@ if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
 if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
     st.session_state.menu = "🔍 임직원 검색"
+if st.sidebar.button("😊 임직원 명부", use_container_width=True):
+    st.session_state.menu = "😊 임직원 명부"
 
 st.sidebar.markdown("---")
 
@@ -1641,6 +1643,117 @@ try:
                     st.error(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}")
             else:
                 st.info("초과근무 엑셀 파일을 업로드하세요.")
+
+        elif menu == "😊 임직원 명부":
+            st.title("😊 임직원 명부")
+            
+            # 조회 조건
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                query_date = st.date_input("조회일자", datetime.now())
+            
+            with col2:
+                name = st.text_input("성명")
+            
+            with col3:
+                employment_type = st.selectbox(
+                    "고용구분",
+                    ["전체", "정규직", "계약직", "인턴", "파견", "기타"]
+                )
+            
+            with col4:
+                show_department_history = st.checkbox("해당 시점부서 추가여부")
+            
+            # 데이터 로드
+            @st.cache_data
+            def load_employee_data():
+                df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="sheet1")
+                df_history = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="sheet2")
+                return df, df_history
+            
+            df, df_history = load_employee_data()
+            
+            # 조회일자 기준으로 인사발령 데이터 필터링
+            df_history_filtered = df_history[df_history['인사발령일'] <= query_date]
+            
+            # 기본 컬럼 설정
+            base_columns = [
+                "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
+                "재직기간", "정규직전환일", "고용구분", "재직상태", "생년월일", 
+                "남/여", "만나이", "퇴사일", "학력", "최종학교", "전공", 
+                "경력사항", "이전 경력", "휴직상태"
+            ]
+            
+            # 부서 이력 컬럼
+            history_columns = [
+                "발령일", "구분", "성명", "변경전_본부", "변경전_실", "변경전_팀", 
+                "변경전_직책", "변경후_본부", "변경후_실", "변경후_팀", "변경후_직책", "비고"
+            ]
+            
+            # 재직기간 계산 함수
+            def calculate_employment_period(row):
+                if pd.isna(row['입사일']):
+                    return None
+                
+                start_date = pd.to_datetime(row['입사일'])
+                end_date = pd.to_datetime(row['퇴사일']) if pd.notna(row['퇴사일']) else pd.to_datetime(query_date)
+                
+                years = (end_date - start_date).days // 365
+                months = ((end_date - start_date).days % 365) // 30
+                
+                return f"{years}년 {months}개월"
+            
+            # 데이터 필터링
+            if name:
+                df = df[df['성명'].str.contains(name, na=False)]
+            
+            if employment_type != "전체":
+                df = df[df['고용구분'] == employment_type]
+            
+            # 재직기간 계산
+            df['재직기간'] = df.apply(calculate_employment_period, axis=1)
+            
+            # 부서 이력 데이터 처리
+            if show_department_history:
+                # 인사발령 데이터와 조인
+                df_merged = pd.merge(
+                    df, 
+                    df_history_filtered, 
+                    left_on='성명', 
+                    right_on='성명', 
+                    how='left'
+                )
+                
+                # 컬럼 순서 조정
+                display_columns = base_columns + history_columns
+                df_display = df_merged[display_columns]
+            else:
+                df_display = df[base_columns]
+            
+            # 데이터 표시
+            st.dataframe(
+                df_display,
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            # 엑셀 다운로드 버튼
+            @st.cache_data
+            def convert_df_to_excel(df):
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False, sheet_name='임직원명부')
+                processed_data = output.getvalue()
+                return processed_data
+            
+            excel_data = convert_df_to_excel(df_display)
+            st.download_button(
+                label="📥 엑셀 다운로드",
+                data=excel_data,
+                file_name=f"임직원명부_{query_date.strftime('%Y%m%d')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
