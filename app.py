@@ -1949,21 +1949,14 @@ try:
                 ]
                 
                 # 데이터 표시
-                df_display = filtered_df[display_columns].copy()
-                df_display = df_display.sort_values('발령일', ascending=False)
-                df_display = df_display.reset_index(drop=True)
-                df_display.index = df_display.index + 1
-                df_display = df_display.reset_index()
-                df_display = df_display.rename(columns={'index': 'No'})
-                
-                # 날짜 컬럼의 시간 제거
-                df_display['발령일'] = pd.to_datetime(df_display['발령일']).dt.date
-                
-                st.dataframe(
-                    df_display,
-                    use_container_width=True,
-                    hide_index=True
-                )
+                if not filtered_df.empty:
+                    st.dataframe(
+                        filtered_df[display_columns].sort_values('발령일', ascending=False),
+                        use_container_width=True,
+                        height=800  # 높이를 800픽셀로 설정
+                    )
+                else:
+                    st.warning("조회된 데이터가 없습니다.")
                 
                 # 엑셀 다운로드 버튼
                 @st.cache_data
@@ -1974,7 +1967,7 @@ try:
                     processed_data = output.getvalue()
                     return processed_data
                 
-                excel_data = convert_df_to_excel(df_display)
+                excel_data = convert_df_to_excel(df_promotion)
                 st.download_button(
                     label="📥 엑셀 다운로드",
                     data=excel_data,
