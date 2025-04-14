@@ -1905,6 +1905,9 @@ try:
                     # 발령일을 YYYY-MM-DD 형식으로 변환
                     df_promotion['발령일'] = df_promotion['발령일'].dt.strftime('%Y-%m-%d')
                     
+                    # 발령일을 다시 datetime 형식으로 변환
+                    df_promotion['발령일'] = pd.to_datetime(df_promotion['발령일'])
+                    
                     return df_promotion
                 except Exception as e:
                     st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
