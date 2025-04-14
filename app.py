@@ -1902,11 +1902,8 @@ try:
                     # 발령일이 유효한 날짜인 행만 필터링
                     df_promotion = df_promotion[df_promotion['발령일'] != '']
                     
-                    # 발령일을 YYYY-MM-DD 형식으로 변환
-                    df_promotion['발령일'] = df_promotion['발령일'].dt.strftime('%Y-%m-%d')
-                    
-                    # 발령일을 다시 datetime 형식으로 변환
-                    df_promotion['발령일'] = pd.to_datetime(df_promotion['발령일'])
+                    # 발령년도 추출 및 정수형으로 변환
+                    df_promotion['발령년도'] = df_promotion['발령일'].dt.year.astype(int)
                     
                     return df_promotion
                 except Exception as e:
