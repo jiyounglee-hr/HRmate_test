@@ -1974,10 +1974,14 @@ try:
                     # 발령일 컬럼의 시간 제거
                     display_df['발령일'] = pd.to_datetime(display_df['발령일']).dt.strftime('%Y-%m-%d')
                     
+                    # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀, 최소 400px, 최대 600px)
+                    row_height = 35  # 각 행의 예상 높이
+                    dynamic_height = min(max(len(display_df) * row_height, 400), 600)
+                    
                     st.dataframe(
                         display_df,
                         use_container_width=True,
-                        height=600,  # 높이를 600픽셀로 설정
+                        height=dynamic_height
                     )
                 else:
                     st.warning("조회된 데이터가 없습니다.")
