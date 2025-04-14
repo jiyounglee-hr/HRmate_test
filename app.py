@@ -15,76 +15,158 @@ import re
 
 def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
-    # 불필요한 공백 제거
-    experience_text = re.sub(r'\s+', '', experience_text)
+    from datetime import datetime
+    import pandas as pd
+    import re
     
-    # 영문 월 형식 처리
+    # 영문 월을 숫자로 변환하는 딕셔너리
     month_dict = {
         'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
         'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
     }
     
-    # 영문 월 형식 패턴
-    en_month_pattern = r'([A-Za-z]{3})\s*(\d{4})'
-    
-    # 영문 월 형식을 숫자로 변환
-    def convert_en_month(match):
-        month, year = match.groups()
-        return f"{year}.{month_dict[month]}"
-    
-    # 영문 월 형식 변환
-    experience_text = re.sub(en_month_pattern, convert_en_month, experience_text)
-    
-    # 날짜 형식에서 일자 부분 제거 (YYYY-MM-DD 또는 YYYY.MM.DD 형식)
-    experience_text = re.sub(r'(\d{4})[-\.](\d{2})[-\.]\d{2}', r'\1.\2', experience_text)
-    
-    # 경력기간을 줄별로 분리
-    lines = [line.strip() for line in experience_text.split('\n') if line.strip()]
-    
     total_months = 0
     experience_periods = []
     
-    for line in lines:
-        # 회사명과 날짜 구분
-        parts = line.split('|')
-        if len(parts) > 1:
-            company = parts[0].strip()
-            date_text = parts[1].strip()
-        else:
-            company = ""
-            date_text = line.strip()
-        
-        # 날짜 패턴 매칭
-        pattern = r'(\d{4})[-\./](\d{2})\s*~\s*(\d{4})[-\./](\d{2})|(\d{4})[-\./](\d{2})\s*~\s*(현재|재직중)?'
-        match = re.search(pattern, date_text)
-        
-        if match:
-            if match.group(5):  # 현재/재직중 형식
-                start_year = int(match.group(5))
-                start_month = int(match.group(6))
-                end_year = datetime.now().year
-                end_month = datetime.now().month
-            else:  # 일반 기간 형식
-                start_year = int(match.group(1))
-                start_month = int(match.group(2))
-                end_year = int(match.group(3))
-                end_month = int(match.group(4))
-            
-            # 경력기간 계산
-            start_date = datetime(start_year, start_month, 1)
-            end_date = datetime(end_year, end_month, 1)
-            months = (end_year - start_year) * 12 + (end_month - start_month) + 1
-            
-            # 회사명이 있는 경우와 없는 경우 구분하여 출력
-            if company:
-                experience_periods.append(f"{company}: {start_year}.{start_month:02d} ~ {end_year}.{end_month:02d} ({months}개월)")
-            else:
-                experience_periods.append(f"{start_year}.{start_month:02d} ~ {end_year}.{end_month:02d} ({months}개월)")
-            
-            total_months += months
+    # 각 줄을 분리하여 처리
+    lines = experience_text.split('\n')
+    current_company = None
     
-    total_years = total_months / 12
-    return total_years, experience_periods
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # 회사명 추출 (숫자나 특수문자가 없는 줄)
+        if not any(c.isdigit() for c in line) and not any(c in '~-–./' for c in line):
+            current_company = line
+            continue
+            
+        # 영문 월 형식 패턴 (예: Nov 2021 – Oct 2024)
+        en_pattern = r'([A-Za-z]{3})\s*(\d{4})\s*[–-]\s*([A-Za-z]{3})\s*(\d{4})'
+        en_match = re.search(en_pattern, line)
+        
+        # 한국어 날짜 형식 패턴 (예: 2021 년 11월 – 2024 년 10월)
+        kr_pattern = r'(\d{4})\s*년?\s*(\d{1,2})\s*월\s*[-–~]\s*(\d{4})\s*년?\s*(\d{1,2})\s*월'
+        kr_match = re.search(kr_pattern, line)
+        
+        if en_match:
+            start_month, start_year, end_month, end_year = en_match.groups()
+            start_date = f"{start_year}-{month_dict[start_month]}-01"
+            end_date = f"{end_year}-{month_dict[end_month]}-01"
+            
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            end = datetime.strptime(end_date, "%Y-%m-%d")
+            
+            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            total_months += months
+            
+            years = months // 12
+            remaining_months = months % 12
+            decimal_years = round(months / 12, 1)
+            
+            period_str = f"{start_year}-{month_dict[start_month]}~{end_year}-{month_dict[end_month]} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            if current_company:
+                period_str = f"{current_company}: {period_str}"
+            experience_periods.append(period_str)
+            continue
+            
+        elif kr_match:
+            start_year, start_month, end_year, end_month = kr_match.groups()
+            start_date = f"{start_year}-{start_month.zfill(2)}-01"
+            end_date = f"{end_year}-{end_month.zfill(2)}-01"
+            
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            end = datetime.strptime(end_date, "%Y-%m-%d")
+            
+            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            total_months += months
+            
+            years = months // 12
+            remaining_months = months % 12
+            decimal_years = round(months / 12, 1)
+            
+            period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            if current_company:
+                period_str = f"{current_company}: {period_str}"
+            experience_periods.append(period_str)
+            continue
+            
+        # 날짜 패턴 처리
+        # 1. 2023. 04 ~ 2024. 07 형식
+        pattern1 = r'(\d{4})\.\s*(\d{1,2})\s*[~-–]\s*(\d{4})\.\s*(\d{1,2})'
+        # 2. 2015.01.~2016.06 형식
+        pattern2 = r'(\d{4})\.(\d{1,2})\.\s*[~-–]\s*(\d{4})\.(\d{1,2})'
+        # 3. 2024.05 ~ 형식
+        pattern3 = r'(\d{4})\.(\d{1,2})\s*[~-–]'
+        # 4. 2024-05 ~ 형식
+        pattern4 = r'(\d{4})-(\d{1,2})\s*[~-–]'
+        # 5. 2024/05 ~ 형식
+        pattern5 = r'(\d{4})/(\d{1,2})\s*[~-–]'
+        # 6. 2024.05.01 ~ 형식 (일 부분 무시)
+        pattern6 = r'(\d{4})\.(\d{1,2})\.\d{1,2}\s*[~-–]'
+        # 7. 2024-05-01 ~ 형식 (일 부분 무시)
+        pattern7 = r'(\d{4})-(\d{1,2})-\d{1,2}\s*[~-–]'
+        # 8. 2024/05/01 ~ 형식 (일 부분 무시)
+        pattern8 = r'(\d{4})/(\d{1,2})/\d{1,2}\s*[~-–]'
+        # 9. 2023/05 - 2024.04 형식
+        pattern9 = r'(\d{4})[/\.](\d{1,2})\s*[-]\s*(\d{4})[/\.](\d{1,2})'
+        
+        match = None
+        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9]:
+            match = re.search(pattern, line)
+            if match:
+                break
+                
+        if match:
+            if pattern in [pattern1, pattern2, pattern9]:
+                start_year, start_month, end_year, end_month = match.groups()
+                start_date = f"{start_year}-{start_month.zfill(2)}-01"
+                end_date = f"{end_year}-{end_month.zfill(2)}-01"
+                start = datetime.strptime(start_date, "%Y-%m-%d")
+                end = datetime.strptime(end_date, "%Y-%m-%d")
+            else:
+                start_year, start_month = match.groups()
+                start_date = f"{start_year}-{start_month.zfill(2)}-01"
+                start = datetime.strptime(start_date, "%Y-%m-%d")
+                
+                # 종료일 처리
+                if '현재' in line or '재직중' in line or not re.search(r'[~-–]\s*\d', line):
+                    end = datetime.now()
+                else:
+                    # 종료일 패턴 처리 (일 부분 무시)
+                    end_pattern = r'[~-–]\s*(\d{4})[\.-/](\d{1,2})(?:[\.-/]\d{1,2})?'
+                    end_match = re.search(end_pattern, line)
+                    if end_match:
+                        end_year, end_month = end_match.groups()
+                        end_date = f"{end_year}-{end_month.zfill(2)}-01"
+                        end = datetime.strptime(end_date, "%Y-%m-%d")
+                    else:
+                        end = datetime.now()
+            
+            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            total_months += months
+            
+            years = months // 12
+            remaining_months = months % 12
+            decimal_years = round(months / 12, 1)
+            
+            period_str = f"{start.year}-{str(start.month).zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            if current_company:
+                period_str = f"{current_company}: {period_str}"
+            experience_periods.append(period_str)
+    
+    # 총 경력기간 계산
+    total_years = total_months // 12
+    total_remaining_months = total_months % 12
+    total_decimal_years = round(total_months / 12, 1)
+    
+    # 결과 문자열 생성
+    result = "\n".join(experience_periods)
+    if result:
+        result += f"\n\n총 경력기간: {total_years}년 {total_remaining_months}개월 ({total_decimal_years}년)"
+    
+    return result
 
 # 페이지 설정
 st.set_page_config(
@@ -217,22 +299,27 @@ if not check_password():
     st.stop()  # Do not continue if check_password() returned False.
 
 # 데이터 로드 함수
-@st.cache_data
+@st.cache_data(ttl=60)  # 60초마다 캐시 갱신
 def load_data():
     try:
-        # 현재 스크립트의 디렉토리 경로 가져오기
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # 자동으로 엑셀 파일 찾기
-        excel_files = [f for f in os.listdir(current_dir) if f.endswith(('.xlsx', '.xls'))]
-        if excel_files:
-            # 가장 최근 수정된 엑셀 파일 선택
-            latest_file = max(excel_files, key=lambda x: os.path.getmtime(os.path.join(current_dir, x)))
-            file_path = os.path.join(current_dir, latest_file)
-            df = pd.read_excel(file_path)
-            return df
-        else:
-            st.warning("Excel 파일을 찾을 수 없습니다.")
+        # 엑셀 파일 경로
+        file_path = "임직원 기초 데이터.xlsx"
+        
+        # 파일이 존재하는지 확인
+        if not os.path.exists(file_path):
+            st.error(f"파일을 찾을 수 없습니다: {file_path}")
             return None
+            
+        # 파일 수정 시간 확인
+        last_modified = os.path.getmtime(file_path)
+        
+        # 엑셀 파일 읽기
+        df = pd.read_excel(file_path)
+        
+        # 데이터 로드 시간 표시
+        st.sidebar.markdown(f"*마지막 데이터 업데이트: {datetime.fromtimestamp(last_modified).strftime('%Y-%m-%d %H:%M:%S')}*")
+        
+        return df
     except Exception as e:
         st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
@@ -1149,8 +1236,8 @@ try:
             job_roles = list(job_mapping.keys())
             # 경력입력 폼 생성
             with st.form("experience_form"):
-                experience_text = st.text_area("경력기간 입력 (예: 2020.06 ~ 재직 중)", 
-                                             help="각 경력은 줄바꿈으로 구분해주세요.\n예시:\n2020.06 ~ 재직 중\n2019.04 ~ 2020.06\n2017.06 ~ 2019.03")
+                experience_text = st.text_area("경력기간 입력 (이력서의 날짜 부분을 복사해서 붙여주세요.)", 
+                                             help="# 날짜 패턴 : # 날짜 패턴 : 2023. 04, 2024.05.01, 2024.05, 2024-05, 2024-05-01, 2024/05, 2024/05/01, 2023/05, 2015.01.")
                 
                 # 경력기간 조회 버튼 추가
                 experience_submitted = st.form_submit_button("경력기간 조회")
@@ -1158,12 +1245,28 @@ try:
                 if experience_submitted and experience_text:
                     try:
                         # 경력기간 계산
-                        total_years, experience_periods = calculate_experience(experience_text)
-                        st.write(f"총 경력기간: {total_years:.1f}년")
-                        for period in experience_periods:
-                            st.write(period)
-                        # 인정경력(년) 필드의 디폴트 값 업데이트 (숫자값만)
-                        st.session_state['years'] = float(f"{total_years:.1f}")
+                        experience_result = calculate_experience(experience_text)
+                        if experience_result:
+                            # 경력기간과 총 경력기간 분리
+                            experience_lines = experience_result.split('\n')
+                            total_experience = experience_lines[-1]  # 마지막 줄이 총 경력기간
+                            experience_periods = experience_lines[:-2]  # 마지막 두 줄(총 경력기간과 빈 줄) 제외
+                            
+                            # 총 경력기간을 소수점으로 변환
+                            total_match = re.search(r'총 경력기간: (\d+)년 (\d+)개월', total_experience)
+                            if total_match:
+                                years, months = map(int, total_match.groups())
+                                total_years = years + months / 12
+                                total_experience = f"총 경력기간: {total_years:.1f}년"
+                            
+                            # 경력기간 표시
+                            st.markdown(f"**{total_experience}**")
+                            st.markdown("**경력기간:**")
+                            for period in experience_periods:
+                                st.markdown(period)
+                        else:
+                            st.markdown("**경력기간:** 경력 정보가 없습니다.")
+                            st.session_state['years'] = 0.0
                         # 인정경력(년) 필드 업데이트
                         st.query_params["years"] = float(f"{total_years:.1f}")
                     except Exception as e:
