@@ -1847,15 +1847,20 @@ try:
                 if col in df_display.columns:
                     df_display[col] = pd.to_datetime(df_display[col]).dt.date
             
+            # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
+            row_height = 35  # 각 행의 예상 높이
+            dynamic_height = min(len(df_display) * row_height + 40, 600)  # 헤더 높이 추가, 최대 600픽셀로 제한
+            
             st.dataframe(
                 df_display,
                 use_container_width=True,
                 hide_index=True,
-                 column_config={
+                height=dynamic_height,
+                column_config={
                    "최종학교": st.column_config.Column(width=70),
                    "전공": st.column_config.Column(width=70),
                    "경력사항": st.column_config.Column(width=70)
-                    }
+                }
             )
             
             # 엑셀 다운로드 버튼
