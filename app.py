@@ -1688,7 +1688,7 @@ try:
             st.title("😊 임직원 명부")
             
             # 조회 조건
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4, col5 = st.columns(5)
             
             with col1:
                 query_date = st.date_input("조회일자", datetime.now())
@@ -1703,6 +1703,12 @@ try:
                 )
             
             with col4:
+                employment_status = st.selectbox(
+                    "재직상태",
+                    ["전체", "재직", "퇴직"]
+                )
+            
+            with col5:
                 show_department_history = st.checkbox("해당 시점부서 추가여부")
             
             # 데이터 로드
@@ -1777,6 +1783,9 @@ try:
             
             if employment_type != "전체":
                 df = df[df['고용구분'] == employment_type]
+            
+            if employment_status != "전체":
+                df = df[df['재직상태'] == employment_status]
             
             # 재직기간 계산
             df['재직기간'] = df.apply(calculate_employment_period, axis=1)
