@@ -1899,6 +1899,9 @@ try:
                     # None 값 처리
                     df_promotion = df_promotion.fillna('')
                     
+                    # 발령일이 유효한 날짜인 행만 필터링
+                    df_promotion = df_promotion[df_promotion['발령일'] != '']
+                    
                     return df_promotion
                 except Exception as e:
                     st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
