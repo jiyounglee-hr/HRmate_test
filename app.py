@@ -1699,7 +1699,7 @@ try:
             with col3:
                 employment_type = st.selectbox(
                     "고용구분",
-                    ["전체", "정규직", "계약직", "인턴", "파견", "기타"]
+                    ["전체", "정규직", "계약직"]
                 )
             
             with col4:
