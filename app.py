@@ -1752,6 +1752,15 @@ try:
             
             df, df_history = load_employee_data()
             
+            # 조회일자 기준으로 재직중인 직원 필터링
+            df = df[
+                (df['입사일'] <= pd.Timestamp(query_date)) &  # 입사일이 조회일자 이전
+                (
+                    (df['퇴사일'].isna()) |  # 퇴사일이 없는 경우
+                    (df['퇴사일'] > pd.Timestamp(query_date))  # 퇴사일이 조회일자 이후
+                )
+            ]
+            
             # 조회일자 기준으로 인사발령 데이터 필터링
             df_history_filtered = df_history[df_history['발령일'] <= pd.Timestamp(query_date)]
             
