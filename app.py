@@ -1757,7 +1757,7 @@ try:
                 (df['입사일'] <= pd.Timestamp(query_date)) &  # 입사일이 조회일자 이전
                 (
                     (df['퇴사일'].isna()) |  # 퇴사일이 없는 경우
-                    (df['퇴사일'] > pd.Timestamp(query_date))  # 퇴사일이 조회일자 이후
+                    (df['퇴사일'] >= pd.Timestamp(query_date))  # 퇴사일이 조회일자 이후
                 )
             ]
             
