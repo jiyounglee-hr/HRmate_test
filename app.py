@@ -1960,12 +1960,20 @@ try:
                 # 날짜 컬럼의 시간 제거
                 df_display['발령일'] = pd.to_datetime(df_display['발령일']).dt.date
                 
-                st.dataframe(
-                    df_display,
-                    use_container_width=True,
-                    hide_index=True,
-                    height=600  # 높이를 800픽셀로 설정
-                )
+                # 데이터프레임 표시
+                if not filtered_df.empty:
+                    st.dataframe(
+                        filtered_df[display_columns].sort_values('발령일', ascending=False),
+                        use_container_width=True,
+                        height=600,  # 높이를 600픽셀로 설정
+                        column_config={
+                            "최종학교": st.column_config.Column(width=70),
+                            "전공": st.column_config.Column(width=70),
+                            "경력사항": st.column_config.Column(width=70)
+                        }
+                    )
+                else:
+                    st.warning("조회된 데이터가 없습니다.")
                 
                 # 엑셀 다운로드 버튼
                 @st.cache_data
