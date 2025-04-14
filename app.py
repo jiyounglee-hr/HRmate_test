@@ -1685,7 +1685,8 @@ try:
                 st.info("초과근무 엑셀 파일을 업로드하세요.")
 
         elif menu == "😊 임직원 명부":
-            st.markdown("##### 😊 임직원 명부")            
+            st.title("😊 임직원 명부")
+            
             # 조회 조건
             col1, col2, col3, col4 = st.columns(4)
             
@@ -1746,13 +1747,12 @@ try:
             
             # 기본 컬럼 설정
             se_columns = [
-                "No", "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
+                "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
                 "재직기간", "정규직전환일", "고용구분", "재직상태", "생년월일", 
                 "남/여", "만나이", "퇴사일", "학력", "최종학교", "전공", 
                 "경력사항", "휴직상태"
             ]
             
-            # 부서 이력 컬럼
             history_columns = [
                 "발령일", "구분", "성명", "변경전_본부", "변경전_실", "변경전_팀", 
                 "변경전_직책", "변경후_본부", "변경후_실", "변경후_팀", "변경후_직책", "비고"
@@ -1799,12 +1799,6 @@ try:
                 df_display = df[se_columns]
             
             # 데이터 표시
-            df_display = df_display.copy()
-            df_display = df_display.reset_index(drop=True)
-            df_display.index = df_display.index + 1
-            df_display = df_display.reset_index()
-            df_display = df_display.rename(columns={'index': 'No'})
-            
             st.dataframe(
                 df_display,
                 use_container_width=True,
@@ -1829,6 +1823,4 @@ try:
             )
 
 except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
