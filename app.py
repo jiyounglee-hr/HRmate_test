@@ -1785,3 +1785,62 @@ try:
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+
+# 날짜 형식 통일 함수
+def normalize_date(date_str):
+    if pd.isna(date_str) or date_str == '':
+        return ''
+    try:
+        # 날짜 형식 변환
+        if isinstance(date_str, str):
+            # YYYY.MM.DD 형식
+            if '.' in date_str:
+                date_parts = date_str.split('.')
+                if len(date_parts) == 3:
+                    return f"{date_parts[0]}-{date_parts[1].zfill(2)}-{date_parts[2].zfill(2)}"
+                elif len(date_parts) == 2:
+                    return f"{date_parts[0]}-{date_parts[1].zfill(2)}"
+            # YYYY-MM-DD 형식
+            elif '-' in date_str:
+                return date_str
+        return str(date_str)
+    except:
+        return ''
+
+@st.cache_data
+def load_employee_data():
+    try:
+        # 현재 파일의 절대 경로
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+        
+        # 파일 존재 확인
+        if not os.path.exists(file_path):
+            st.error(f"파일을 찾을 수 없습니다: {file_path}")
+            return None, None
+            
+        # Excel 파일 읽기
+        df = pd.read_excel(file_path, sheet_name=0)  # 첫 번째 시트
+        df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트
+        
+        # 컬럼명 확인
+        st.write("첫 번째 시트 컬럼:", df.columns.tolist())
+        st.write("두 번째 시트 컬럼:", df_history.columns.tolist())
+        
+        # 날짜 컬럼 형식 통일
+        date_columns = ['입사일', '퇴사일', '발령일']
+        for col in date_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(normalize_date)
+            if col in df_history.columns:
+                df_history[col] = df_history[col].apply(normalize_date)
+        
+        # None 값 처리
+        df = df.fillna('')
+        df_history = df_history.fillna('')
+        
+        return df, df_history
+        
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None, None
