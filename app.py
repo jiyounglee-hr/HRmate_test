@@ -1808,11 +1808,12 @@ try:
                     df_history_filtered, 
                     left_on='성명', 
                     right_on='성명', 
-                    how='left'
+                    how='left',
+                    suffixes=('', '_history')  # 중복 컬럼에 접미사 추가
                 )
                 
                 # 컬럼 순서 조정
-                display_columns = se_columns + history_columns
+                display_columns = se_columns + [col for col in history_columns if col not in se_columns]
                 df_display = df_merged[display_columns]
             else:
                 df_display = df[se_columns]
