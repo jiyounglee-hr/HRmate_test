@@ -1755,6 +1755,9 @@ try:
             # 조회일자 기준으로 인사발령 데이터 필터링
             df_history_filtered = df_history[df_history['발령일'] <= pd.Timestamp(query_date)]
             
+            # 각 직원별 가장 최근 발령 데이터만 선택
+            df_history_filtered = df_history_filtered.sort_values('발령일').groupby('성명').last().reset_index()
+            
             # 기본 컬럼 설정
             se_columns = [
                 "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
@@ -1764,8 +1767,7 @@ try:
             ]
             
             history_columns = [
-                "발령일", "구분", "성명", "변경전_본부", "변경전_실", "변경전_팀", 
-                "변경전_직책", "변경후_본부", "변경후_실", "변경후_팀", "변경후_직책", "비고"
+                "발령일", "구분", "성명", "변경후_본부",  "변경후_팀", "변경후_직책"
             ]
             
             # 재직기간 계산 함수
@@ -1811,6 +1813,11 @@ try:
                     how='left',
                     suffixes=('', '_history')  # 중복 컬럼에 접미사 추가
                 )
+                
+                # 발령이 없는 경우 기본값 설정
+                df_merged['변경후_본부'] = df_merged['변경후_본부'].fillna(df_merged['본부'])
+                df_merged['변경후_팀'] = df_merged['변경후_팀'].fillna(df_merged['팀'])
+                df_merged['변경후_직책'] = df_merged['변경후_직책'].fillna(df_merged['직위'])
                 
                 # 컬럼 순서 조정
                 display_columns = se_columns + [col for col in history_columns if col not in se_columns]
