@@ -1967,11 +1967,14 @@ try:
                 
                 # 데이터프레임 표시
                 if not filtered_df.empty:
+                    # 데이터 정렬 및 인덱스 설정
+                    display_df = filtered_df[display_columns].sort_values('발령일', ascending=False).reset_index(drop=True)
+                    display_df.index = display_df.index + 1  # 인덱스를 1부터 시작하도록 설정
+                    
                     st.dataframe(
-                        filtered_df[display_columns].sort_values('발령일', ascending=False),
+                        display_df,
                         use_container_width=True,
                         height=600,  # 높이를 600픽셀로 설정
-
                     )
                 else:
                     st.warning("조회된 데이터가 없습니다.")
