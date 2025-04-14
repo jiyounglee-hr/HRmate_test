@@ -1668,9 +1668,24 @@ try:
             # 데이터 로드
             @st.cache_data
             def load_employee_data():
-                df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="sheet1")
-                df_history = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="sheet2")
-                return df, df_history
+                try:
+                    # 파일 경로를 절대 경로로 변경
+                    import os
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    
+                    # 파일이 존재하는지 확인
+                    if not os.path.exists(file_path):
+                        st.error(f"파일을 찾을 수 없습니다: {file_path}")
+                        return None, None
+                    
+                    # 파일 읽기
+                    df = pd.read_excel(file_path, sheet_name=0)  # 첫 번째 시트 사용
+                    df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트 사용
+                    return df, df_history
+                except Exception as e:
+                    st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None, None
             
             df, df_history = load_employee_data()
             
