@@ -1975,7 +1975,7 @@ try:
                     
                     # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
                     row_height = 35  # 각 행의 예상 높이
-                    dynamic_height = len(display_df) * row_height + 40  # 헤더 높이 추가
+                    dynamic_height = min(len(display_df) * row_height + 40, 600)  # 헤더 높이 추가, 최대 600픽셀로 제한
                     
                     st.dataframe(
                         display_df,
