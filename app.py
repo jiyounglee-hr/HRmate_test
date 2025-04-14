@@ -1770,7 +1770,13 @@ try:
                     return None
                 
                 start_date = pd.to_datetime(row['입사일'])
-                end_date = pd.to_datetime(row['퇴사일']) if pd.notna(row['퇴사일']) else pd.Timestamp(query_date)
+                
+                # 재직상태가 '퇴직'인 경우 퇴사일을 기준으로 계산
+                if row['재직상태'] == '퇴직' and pd.notna(row['퇴사일']):
+                    end_date = pd.to_datetime(row['퇴사일'])
+                else:
+                    # 그 외의 경우 조회일자를 기준으로 계산
+                    end_date = pd.Timestamp(query_date)
                 
                 years = (end_date - start_date).days // 365
                 months = ((end_date - start_date).days % 365) // 30
