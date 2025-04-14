@@ -1688,7 +1688,7 @@ try:
             st.title("😊 임직원 명부")
             
             # 조회 조건
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4, col4 = st.columns(4)
             
             with col1:
                 query_date = st.date_input("조회일자", datetime.now())
@@ -1699,7 +1699,7 @@ try:
             with col3:
                 employment_type = st.selectbox(
                     "고용구분",
-                    ["전체", "정규직", "계약직", "인턴", "파견", "기타"]
+                    ["전체", "정규직", "계약직"]
                 )
             
             with col4:
