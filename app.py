@@ -1900,10 +1900,11 @@ try:
                     df_promotion = df_promotion.fillna('')
                     
                     # 발령일이 유효한 날짜인 행만 필터링
-                    df_promotion = df_promotion[df_promotion['발령일'] != '']
+                    df_promotion = df_promotion[pd.notna(df_promotion['발령일'])]
                     
-                    # 발령년도 추출 및 정수형으로 변환
-                    df_promotion['발령년도'] = df_promotion['발령일'].dt.year.astype(int)
+                    # 발령년도 추출 (NA 값 처리)
+                    df_promotion['발령년도'] = df_promotion['발령일'].dt.year
+                    df_promotion['발령년도'] = df_promotion['발령년도'].fillna(0).astype(int)
                     
                     return df_promotion
                 except Exception as e:
