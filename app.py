@@ -1685,8 +1685,7 @@ try:
                 st.info("초과근무 엑셀 파일을 업로드하세요.")
 
         elif menu == "😊 임직원 명부":
-            st.title("😊 임직원 명부")
-            
+            st.markdown("##### 😊 임직원 명부")            
             # 조회 조건
             col1, col2, col3, col4 = st.columns(4)
             
@@ -1800,9 +1799,11 @@ try:
                 df_display = df[se_columns]
             
             # 데이터 표시
+            df_display = df_display.copy()
             df_display = df_display.reset_index(drop=True)
             df_display.index = df_display.index + 1
-            df_display = df_display.rename_axis('No').reset_index()
+            df_display = df_display.reset_index()
+            df_display = df_display.rename(columns={'index': 'No'})
             
             st.dataframe(
                 df_display,
@@ -1828,4 +1829,6 @@ try:
             )
 
 except Exception as e:
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
