@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
 from datetime import datetime
 import os
 from office365.runtime.auth.authentication_context import AuthenticationContext
