@@ -1964,7 +1964,7 @@ try:
                     df_display,
                     use_container_width=True,
                     hide_index=True,
-                    height=800  # 높이를 800픽셀로 설정
+                    height=600  # 높이를 800픽셀로 설정
                 )
                 
                 # 엑셀 다운로드 버튼
