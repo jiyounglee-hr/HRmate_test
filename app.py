@@ -1851,7 +1851,7 @@ try:
                 df_display,
                 use_container_width=True,
                 hide_index=True,
-                height=600  # 높이를 600픽셀로 설정
+                height=600,  # 높이를 600픽셀로 설정
                  column_config={
                    "최종학교": st.column_config.Column(width=70),
                    "전공": st.column_config.Column(width=70),
