@@ -1920,7 +1920,7 @@ try:
                 with col1:
                     current_year = datetime.now().year
                     years = sorted(df_promotion['발령일'].dt.year.unique(), reverse=True)
-                    selected_year = st.selectbox("발령 연도", years, index=0)
+                    selected_year = st.selectbox("발령 연도", ["전체"] + list(years), index=0)
                 
                 with col2:
                     departments = sorted(df_promotion['변경후_본부'].unique())
@@ -1934,7 +1934,10 @@ try:
                     selected_type = st.selectbox("발령구분", ["전체"] + promotion_types)
                 
                 # 데이터 필터링
-                filtered_df = df_promotion[df_promotion['발령일'].dt.year == selected_year]
+                filtered_df = df_promotion.copy()
+                
+                if selected_year != "전체":
+                    filtered_df = filtered_df[filtered_df['발령일'].dt.year == selected_year]
                 
                 if selected_department != "전체":
                     filtered_df = filtered_df[filtered_df['변경후_본부'] == selected_department]
