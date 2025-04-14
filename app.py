@@ -1724,7 +1724,7 @@ try:
                     df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트 사용
                     
                     # 날짜 컬럼 형식 통일
-                    date_columns = ['입사일', '퇴사일', '인사발령일']
+                    date_columns = ['입사일', '퇴사일', '발령일']
                     for col in date_columns:
                         if col in df.columns:
                             df[col] = pd.to_datetime(df[col], errors='coerce')
@@ -1743,7 +1743,7 @@ try:
             df, df_history = load_employee_data()
             
             # 조회일자 기준으로 인사발령 데이터 필터링
-            df_history_filtered = df_history[df_history['인사발령일'] <= query_date]
+            df_history_filtered = df_history[df_history['발령일'] <= query_date]
             
             # 기본 컬럼 설정
             base_columns = [
@@ -1755,7 +1755,7 @@ try:
             
             # 부서 이력 컬럼
             history_columns = [
-                "인사발령일", "구분", "성명", "변경전_본부", "변경전_실", "변경전_팀", 
+                "발령일", "구분", "성명", "변경전_본부", "변경전_실", "변경전_팀", 
                 "변경전_직책", "변경후_본부", "변경후_실", "변경후_팀", "변경후_직책", "비고"
             ]
             
