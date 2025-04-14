@@ -1691,6 +1691,10 @@ try:
                         if col in df_history.columns:
                             df_history[col] = df_history[col].apply(normalize_date)
                     
+                    # None 값 처리
+                    df = df.fillna('')
+                    df_history = df_history.fillna('')
+                    
                     return df, df_history
                 except Exception as e:
                     st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
