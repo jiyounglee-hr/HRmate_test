@@ -1840,6 +1840,12 @@ try:
             df_display = df_display.reset_index()
             df_display = df_display.rename(columns={'index': 'No'})
             
+            # 날짜 컬럼의 시간 제거
+            date_columns = ['정규직전환일', '입사일', '퇴사일', '생년월일', '발령일']
+            for col in date_columns:
+                if col in df_display.columns:
+                    df_display[col] = pd.to_datetime(df_display[col]).dt.date
+            
             st.dataframe(
                 df_display,
                 use_container_width=True,
