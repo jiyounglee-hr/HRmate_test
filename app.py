@@ -1687,8 +1687,7 @@ try:
                 st.info("초과근무 엑셀 파일을 업로드하세요.")
 
         elif menu == "😊 임직원 명부":
-            st.title("😊 임직원 명부")
-            
+            st.markdown("##### 😊 임직원 명부")
             # 조회 조건
             col1, col2, col3, col4, col5 = st.columns(5)
             
@@ -1872,7 +1871,7 @@ try:
             )
 
         elif menu == "📅 인사발령 내역":
-            st.title("📅 인사발령 내역")
+            st.markdown("##### 📅 인사발령 내역")
             
             # 데이터 로드
             @st.cache_data
