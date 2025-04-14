@@ -1852,6 +1852,11 @@ try:
                 use_container_width=True,
                 hide_index=True,
                 height=600  # 높이를 600픽셀로 설정
+                 column_config={
+                   "최종학교": st.column_config.Column(width=70),
+                   "전공": st.column_config.Column(width=70),
+                   "경력사항": st.column_config.Column(width=70)
+                    }
             )
             
             # 엑셀 다운로드 버튼
@@ -1966,11 +1971,7 @@ try:
                         filtered_df[display_columns].sort_values('발령일', ascending=False),
                         use_container_width=True,
                         height=600,  # 높이를 600픽셀로 설정
-                        column_config={
-                            "최종학교": st.column_config.Column(width=70),
-                            "전공": st.column_config.Column(width=70),
-                            "경력사항": st.column_config.Column(width=70)
-                        }
+
                     )
                 else:
                     st.warning("조회된 데이터가 없습니다.")
