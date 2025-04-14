@@ -1743,7 +1743,7 @@ try:
             df, df_history = load_employee_data()
             
             # 조회일자 기준으로 인사발령 데이터 필터링
-            df_history_filtered = df_history[df_history['발령일'] <= query_date]
+            df_history_filtered = df_history[df_history['발령일'] <= pd.Timestamp(query_date)]
             
             # 기본 컬럼 설정
             base_columns = [
@@ -1765,7 +1765,7 @@ try:
                     return None
                 
                 start_date = pd.to_datetime(row['입사일'])
-                end_date = pd.to_datetime(row['퇴사일']) if pd.notna(row['퇴사일']) else pd.to_datetime(query_date)
+                end_date = pd.to_datetime(row['퇴사일']) if pd.notna(row['퇴사일']) else pd.Timestamp(query_date)
                 
                 years = (end_date - start_date).days // 365
                 months = ((end_date - start_date).days % 365) // 30
