@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from office365.runtime.auth.authentication_context import AuthenticationContext
 from office365.sharepoint.client_context import ClientContext
@@ -12,6 +12,46 @@ import requests
 from PIL import Image
 from io import BytesIO
 import re
+import plotly.io as pio
+import numpy as np
+from dateutil.relativedelta import relativedelta
+
+# 날짜 정규화 함수
+def normalize_date(date_str):
+    if pd.isna(date_str) or date_str == '':
+        return None
+    
+    # 이미 datetime 객체인 경우
+    if isinstance(date_str, (datetime, pd.Timestamp)):
+        return date_str
+    
+    # 문자열인 경우
+    if isinstance(date_str, str):
+        # 공백 제거
+        date_str = date_str.strip()
+        
+        # 빈 문자열 처리
+        if not date_str:
+            return None
+            
+        # 날짜 형식 변환 시도
+        try:
+            # YYYY-MM-DD 형식
+            if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
+                return datetime.strptime(date_str, '%Y-%m-%d')
+            # YYYY.MM.DD 형식
+            elif re.match(r'^\d{4}\.\d{2}\.\d{2}$', date_str):
+                return datetime.strptime(date_str, '%Y.%m.%d')
+            # YYYY/MM/DD 형식
+            elif re.match(r'^\d{4}/\d{2}/\d{2}$', date_str):
+                return datetime.strptime(date_str, '%Y/%m/%d')
+            # YYYYMMDD 형식
+            elif re.match(r'^\d{8}$', date_str):
+                return datetime.strptime(date_str, '%Y%m%d')
+        except ValueError:
+            return None
+    
+    return None
 
 def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
