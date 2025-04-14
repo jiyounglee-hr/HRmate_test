@@ -1,40 +1,17 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import os
-from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import plotly.io as pio
-import matplotlib.pyplot as plt
-import seaborn as sns
+from datetime import datetime
+import os
+from office365.runtime.auth.authentication_context import AuthenticationContext
+from office365.sharepoint.client_context import ClientContext
+from office365.sharepoint.files.file import File
+import io
+import requests
+from PIL import Image
 from io import BytesIO
-import base64
 import re
-import math
-from dateutil.relativedelta import relativedelta
-
-# 날짜 형식 통일 함수
-def normalize_date(date_str):
-    if pd.isna(date_str) or date_str == '':
-        return ''
-    try:
-        # 날짜 형식 변환
-        if isinstance(date_str, str):
-            # YYYY.MM.DD 형식
-            if '.' in date_str:
-                date_parts = date_str.split('.')
-                if len(date_parts) == 3:
-                    return f"{date_parts[0]}-{date_parts[1].zfill(2)}-{date_parts[2].zfill(2)}"
-                elif len(date_parts) == 2:
-                    return f"{date_parts[0]}-{date_parts[1].zfill(2)}"
-            # YYYY-MM-DD 형식
-            elif '-' in date_str:
-                return date_str
-        return str(date_str)
-    except:
-        return ''
 
 def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
