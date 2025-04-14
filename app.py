@@ -1926,7 +1926,7 @@ try:
                 with col1:
                     current_year = datetime.now().year
                     years = sorted(df_promotion['발령일'].dt.year.unique(), reverse=True)
-                    selected_year = st.selectbox("발령 연도", years, index=0)
+                    selected_year = st.selectbox("발령 연도", ["전체"] + years, index=0)
                 
                 with col2:
                     name = st.text_input("성명")
