@@ -1851,7 +1851,6 @@ try:
                 df_display,
                 use_container_width=True,
                 hide_index=True,
-                height=600,  # 높이를 600픽셀로 설정
                  column_config={
                    "최종학교": st.column_config.Column(width=70),
                    "전공": st.column_config.Column(width=70),
@@ -1974,9 +1973,9 @@ try:
                     # 발령일 컬럼의 시간 제거
                     display_df['발령일'] = pd.to_datetime(display_df['발령일']).dt.strftime('%Y-%m-%d')
                     
-                    # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀, 최소 400px, 최대 600px)
+                    # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
                     row_height = 35  # 각 행의 예상 높이
-                    dynamic_height = min(max(len(display_df) * row_height, 400), 600)
+                    dynamic_height = len(display_df) * row_height + 40  # 헤더 높이 추가
                     
                     st.dataframe(
                         display_df,
