@@ -465,6 +465,8 @@ if st.sidebar.button("📋 채용_처우협상", use_container_width=True):
     st.session_state.menu = "📋 채용_처우협상"
 if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
     st.session_state.menu = "⏰ 초과근무 조회"
+if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+    st.session_state.menu = "📅 인사발령 내역"
 
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
@@ -1868,6 +1870,115 @@ try:
                 file_name=f"임직원명부_{query_date.strftime('%Y%m%d')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
+        elif menu == "📅 인사발령 내역":
+            st.title("📅 인사발령 내역")
+            
+            # 데이터 로드
+            @st.cache_data
+            def load_promotion_data():
+                try:
+                    # 파일 경로를 절대 경로로 변경
+                    import os
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    
+                    # 파일이 존재하는지 확인
+                    if not os.path.exists(file_path):
+                        st.error(f"파일을 찾을 수 없습니다: {file_path}")
+                        return None
+                    
+                    # 파일 읽기 (sheet2)
+                    df_promotion = pd.read_excel(file_path, sheet_name=1)
+                    
+                    # 컬럼 이름 재정의
+                    df_promotion.columns = df_promotion.columns.str.strip()
+                    
+                    # 날짜 컬럼 형식 통일
+                    df_promotion['발령일'] = pd.to_datetime(df_promotion['발령일'], errors='coerce')
+                    
+                    # None 값 처리
+                    df_promotion = df_promotion.fillna('')
+                    
+                    return df_promotion
+                except Exception as e:
+                    st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None
+            
+            df_promotion = load_promotion_data()
+            
+            if df_promotion is not None:
+                # 조회 조건
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    current_year = datetime.now().year
+                    years = sorted(df_promotion['발령일'].dt.year.unique(), reverse=True)
+                    selected_year = st.selectbox("발령 연도", years, index=0)
+                
+                with col2:
+                    departments = sorted(df_promotion['변경후_본부'].unique())
+                    selected_department = st.selectbox("본부", ["전체"] + departments)
+                
+                with col3:
+                    name = st.text_input("성명")
+                
+                with col4:
+                    promotion_types = sorted(df_promotion['구분'].unique())
+                    selected_type = st.selectbox("발령구분", ["전체"] + promotion_types)
+                
+                # 데이터 필터링
+                filtered_df = df_promotion[df_promotion['발령일'].dt.year == selected_year]
+                
+                if selected_department != "전체":
+                    filtered_df = filtered_df[filtered_df['변경후_본부'] == selected_department]
+                
+                if name:
+                    filtered_df = filtered_df[filtered_df['성명'].str.contains(name, na=False)]
+                
+                if selected_type != "전체":
+                    filtered_df = filtered_df[filtered_df['구분'] == selected_type]
+                
+                # 표시할 컬럼 설정
+                display_columns = [
+                    "발령일", "구분", "성명", 
+                    "변경전_본부", "변경전_실", "변경전_팀", "변경전_직책",
+                    "변경후_본부", "변경후_실", "변경후_팀", "변경후_직책", "비고"
+                ]
+                
+                # 데이터 표시
+                df_display = filtered_df[display_columns].copy()
+                df_display = df_display.sort_values('발령일', ascending=False)
+                df_display = df_display.reset_index(drop=True)
+                df_display.index = df_display.index + 1
+                df_display = df_display.reset_index()
+                df_display = df_display.rename(columns={'index': 'No'})
+                
+                # 날짜 컬럼의 시간 제거
+                df_display['발령일'] = pd.to_datetime(df_display['발령일']).dt.date
+                
+                st.dataframe(
+                    df_display,
+                    use_container_width=True,
+                    hide_index=True
+                )
+                
+                # 엑셀 다운로드 버튼
+                @st.cache_data
+                def convert_df_to_excel(df):
+                    output = BytesIO()
+                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                        df.to_excel(writer, index=False, sheet_name='인사발령내역')
+                    processed_data = output.getvalue()
+                    return processed_data
+                
+                excel_data = convert_df_to_excel(df_display)
+                st.download_button(
+                    label="📥 엑셀 다운로드",
+                    data=excel_data,
+                    file_name=f"인사발령내역_{selected_year}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
