@@ -1971,6 +1971,9 @@ try:
                     display_df = filtered_df[display_columns].sort_values('발령일', ascending=False).reset_index(drop=True)
                     display_df.index = display_df.index + 1  # 인덱스를 1부터 시작하도록 설정
                     
+                    # 발령일 컬럼의 시간 제거
+                    display_df['발령일'] = pd.to_datetime(display_df['발령일']).dt.strftime('%Y-%m-%d')
+                    
                     st.dataframe(
                         display_df,
                         use_container_width=True,
