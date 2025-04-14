@@ -1799,6 +1799,11 @@ try:
                 df_display = df[se_columns]
             
             # 데이터 표시
+            df_display = df_display.reset_index(drop=True)
+            df_display.index = df_display.index + 1
+            df_display = df_display.reset_index()
+            df_display = df_display.rename(columns={'index': 'No'})
+            
             st.dataframe(
                 df_display,
                 use_container_width=True,
