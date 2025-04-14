@@ -1727,9 +1727,9 @@ try:
                     date_columns = ['입사일', '퇴사일', '인사발령일']
                     for col in date_columns:
                         if col in df.columns:
-                            df[col] = df[col].apply(normalize_date)
+                            df[col] = pd.to_datetime(df[col], errors='coerce')
                         if col in df_history.columns:
-                            df_history[col] = df_history[col].apply(normalize_date)
+                            df_history[col] = pd.to_datetime(df_history[col], errors='coerce')
                     
                     # None 값 처리
                     df = df.fillna('')
