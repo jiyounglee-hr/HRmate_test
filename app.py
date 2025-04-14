@@ -1816,9 +1816,9 @@ try:
                 )
                 
                 # 발령이 없는 경우 기본값 설정
-                df_merged['변경후_본부'] = df_merged['변경후_본부'].fillna(df_merged['변경전_본부']).fillna(df_merged['본부'])
-                df_merged['변경후_팀'] = df_merged['변경후_팀'].fillna(df_merged['변경전_팀']).fillna(df_merged['팀'])
-                df_merged['변경후_직책'] = df_merged['변경후_직책'].fillna(df_merged['변경전_직책']).fillna(df_merged['직위'])
+                df_merged['변경후_본부'] = df_merged['변경후_본부'].fillna(df_merged['본부'])
+                df_merged['변경후_팀'] = df_merged['변경후_팀'].fillna(df_merged['팀'])
+                df_merged['변경후_직책'] = df_merged['변경후_직책'].fillna(df_merged['직위'])
                 
                 # 컬럼 순서 조정
                 display_columns = se_columns + [col for col in history_columns if col not in se_columns]
