@@ -1746,8 +1746,8 @@ try:
             df_history_filtered = df_history[df_history['발령일'] <= pd.Timestamp(query_date)]
             
             # 기본 컬럼 설정
-            base_columns = [
-                "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
+            se_columns = [
+                "No", "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
                 "재직기간", "정규직전환일", "고용구분", "재직상태", "생년월일", 
                 "남/여", "만나이", "퇴사일", "학력", "최종학교", "전공", 
                 "경력사항", "휴직상태"
@@ -1794,10 +1794,10 @@ try:
                 )
                 
                 # 컬럼 순서 조정
-                display_columns = base_columns + history_columns
+                display_columns = se_columns + history_columns
                 df_display = df_merged[display_columns]
             else:
-                df_display = df[base_columns]
+                df_display = df[se_columns]
             
             # 데이터 표시
             st.dataframe(
