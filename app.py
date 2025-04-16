@@ -200,18 +200,21 @@ def calculate_experience(experience_text):
                     months -= 1
                 if months < 0:
                     months = 0
-                # 종료일이 현재 날짜로 잘못 계산되는 문제 수정
-                period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
             else:
                 # 다른 패턴의 경우 기존 로직 유지
                 months = (end.year - start.year) * 12 + (end.month - start.month) + 1
-                period_str = f"{start_year}-{start_month.zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
             
             total_months += months
             
             years = months // 12
             remaining_months = months % 12
             decimal_years = round(months / 12, 1)
+            
+            # 결과 문자열 생성
+            if pattern == pattern10:
+                period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            else:
+                period_str = f"{start_year}-{start_month.zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
             
             if current_company:
                 period_str = f"{current_company}: {period_str}"
