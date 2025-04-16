@@ -339,7 +339,7 @@ if not check_password():
     st.stop()  # Do not continue if check_password() returned False.
 
 # 데이터 로드 함수
-@st.cache_data(ttl=60)  # 60초마다 캐시 갱신
+@st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_data():
     try:
         # 엑셀 파일 경로
@@ -363,6 +363,41 @@ def load_data():
     except Exception as e:
         st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
+
+# 날짜 변환 함수 캐싱
+@st.cache_data(ttl=3600)  # 1시간 캐시 유지
+def convert_date(date_value):
+    if pd.isna(date_value):
+        return pd.NaT
+    try:
+        # 엑셀 숫자 형식의 날짜 처리
+        if isinstance(date_value, (int, float)):
+            return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(date_value))
+        
+        # 문자열로 변환
+        date_str = str(date_value)
+        
+        # 여러 날짜 형식 시도
+        formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
+        for fmt in formats:
+            try:
+                return pd.to_datetime(date_str, format=fmt)
+            except:
+                continue
+        
+        # 모든 형식이 실패하면 기본 변환 시도
+        return pd.to_datetime(date_str)
+    except:
+        return pd.NaT
+
+# 엑셀 다운로드 함수 캐싱
+@st.cache_data(ttl=3600)  # 1시간 캐시 유지
+def convert_df_to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='임직원명부')
+    processed_data = output.getvalue()
+    return processed_data
 
 # CSS 스타일 추가
 st.markdown("""
@@ -657,13 +692,13 @@ try:
                 
                 with list_col1:
                     st.markdown("##### ㆍ2025년 입사자")
-                    입사자_df = df[df['정규직전환연도'] == 2025][['성명', '팀', '직위', '정규직전환일']]
+                    입사자_df = df[df['정규직전환연도'] == 2025][['성명', '팀', '직위', '입사일']]
                     if not 입사자_df.empty:
-                        입사자_df = 입사자_df.sort_values('정규직전환일')
+                        입사자_df = 입사자_df.sort_values('입사일')
                         입사자_df = 입사자_df.reset_index(drop=True)
                         입사자_df.index = 입사자_df.index + 1
                         입사자_df = 입사자_df.rename_axis('No.')
-                        st.dataframe(입사자_df.style.format({'정규직전환일': lambda x: x.strftime('%Y-%m-%d')}),
+                        st.dataframe(입사자_df.style.format({'입사일': lambda x: x.strftime('%Y-%m-%d')}),
                                    use_container_width=True)
                     else:
                         st.info("2025년 입사 예정자가 없습니다.")
@@ -691,7 +726,7 @@ try:
                 
                 with col1:
                     # 퇴사연도 선택 드롭다운
-                    available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().unique())
+                    available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().astype(int).unique())
                     default_index = list(['전체'] + list(available_years)).index(2025) if 2025 in available_years else 0
                     selected_year = st.selectbox(
                         "퇴사연도 선택",
@@ -936,13 +971,40 @@ try:
                 
                 return total, regular, contract
             
-            # 하드코딩된 데이터로 DataFrame 생성
+            # 연도별 입/퇴사 인원 계산 함수 (get_year_end_headcount 함수 다음에 추가)
+            @st.cache_data(ttl=3600)  # 1시간 캐시 유지
+            def get_year_employee_stats(df, year):
+                # 정규직 입사
+                reg_join = len(df[(df['고용구분'] == '정규직') & 
+                                  (df['입사일'].dt.year == year)])
+                
+                # 정규직 퇴사
+                reg_leave = len(df[(df['고용구분'] == '정규직') & 
+                                   (df['퇴사일'].dt.year == year)])
+                
+                # 계약직 입사
+                contract_join = len(df[(df['고용구분'] == '계약직') & 
+                                      (df['입사일'].dt.year == year)])
+                
+                # 계약직 퇴사
+                contract_leave = len(df[(df['고용구분'] == '계약직') & 
+                                       (df['퇴사일'].dt.year == year)])
+                
+                return reg_join, reg_leave, contract_join, contract_leave
+            
+            # stats_df 생성 부분을 다음과 같이 수정
             stats_df = pd.DataFrame([
-                {'연도': 2021, '전체': get_year_end_headcount(df, 2021)[0], '정규직_전체': get_year_end_headcount(df, 2021)[1], '계약직_전체': get_year_end_headcount(df, 2021)[2], '정규직_입사': 40, '정규직_퇴사': 24, '계약직_입사': 6, '계약직_퇴사': 6},
-                {'연도': 2022, '전체': get_year_end_headcount(df, 2022)[0], '정규직_전체': get_year_end_headcount(df, 2022)[1], '계약직_전체': get_year_end_headcount(df, 2022)[2], '정규직_입사': 46, '정규직_퇴사': 16, '계약직_입사': 12, '계약직_퇴사': 11},
-                {'연도': 2023, '전체': get_year_end_headcount(df, 2023)[0], '정규직_전체': get_year_end_headcount(df, 2023)[1], '계약직_전체': get_year_end_headcount(df, 2023)[2], '정규직_입사': 30, '정규직_퇴사': 14, '계약직_입사': 21, '계약직_퇴사': 19},
-                {'연도': 2024, '전체': get_year_end_headcount(df, 2024)[0], '정규직_전체': get_year_end_headcount(df, 2024)[1], '계약직_전체': get_year_end_headcount(df, 2024)[2], '정규직_입사': 55, '정규직_퇴사': 23, '계약직_입사': 6, '계약직_퇴사': 10},
-                {'연도': 2025, '전체': get_year_end_headcount(df, 2025)[0], '정규직_전체': get_year_end_headcount(df, 2025)[1], '계약직_전체': get_year_end_headcount(df, 2025)[2], '정규직_입사': 7, '정규직_퇴사': 3, '계약직_입사': 1, '계약직_퇴사': 1}
+                {
+                    '연도': year,
+                    '전체': get_year_end_headcount(df, year)[0],
+                    '정규직_전체': get_year_end_headcount(df, year)[1],
+                    '계약직_전체': get_year_end_headcount(df, year)[2],
+                    '정규직_입사': get_year_employee_stats(df, year)[0],
+                    '정규직_퇴사': get_year_employee_stats(df, year)[1],
+                    '계약직_입사': get_year_employee_stats(df, year)[2],
+                    '계약직_퇴사': get_year_employee_stats(df, year)[3]
+                }
+                for year in range(2021, 2026)  # 2021년부터 2025년까지
             ])
             
             # 그래프를 위한 컬럼 생성 (50:50 비율)
@@ -1857,6 +1919,7 @@ try:
                 hide_index=True,
                 height=dynamic_height,
                 column_config={
+                   "직무": st.column_config.Column(width=70),
                    "최종학교": st.column_config.Column(width=70),
                    "전공": st.column_config.Column(width=70),
                    "경력사항": st.column_config.Column(width=70)
@@ -1884,7 +1947,7 @@ try:
             st.markdown("##### 📅 인사발령 내역")
             
             # 데이터 로드
-            @st.cache_data
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_promotion_data():
                 try:
                     # 파일 경로를 절대 경로로 변경
