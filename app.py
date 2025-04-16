@@ -73,7 +73,8 @@ def calculate_experience(experience_text):
     current_company = None
     
     for line in lines:
-        line = line.strip()
+        # 같은 줄의 공백을 제거
+        line = ' '.join(line.split())
         if not line:
             continue
             
