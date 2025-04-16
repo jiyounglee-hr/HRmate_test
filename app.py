@@ -159,11 +159,14 @@ def calculate_experience(experience_text):
         # 12. 2021-03~2022-08 형식
         pattern12 = r'(\d{4})-(\d{1,2})\s*[~-–]\s*(\d{4})-(\d{1,2})'
         
-        match = None
-        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10, pattern11, pattern12]:
-            match = re.search(pattern, line)
-            if match:
-                break
+        # 먼저 패턴 12로 시도 (2021-03~2022-08 형식)
+        match = re.search(pattern12, line)
+        if not match:
+            # 패턴 12가 매칭되지 않으면 다른 패턴 시도
+            for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10, pattern11]:
+                match = re.search(pattern, line)
+                if match:
+                    break
                 
         if match:
             if pattern in [pattern1, pattern2, pattern9]:
