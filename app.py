@@ -155,9 +155,11 @@ def calculate_experience(experience_text):
         pattern10 = r'(\d{4})-(\d{1,2})-(\d{1,2})\s*[~-–]\s*(\d{4})-(\d{1,2})-(\d{1,2})'
         # 11. 2021-03-2026-08 형식
         pattern11 = r'(\d{4})-(\d{1,2})-(\d{4})-(\d{1,2})'
+        # 12. 2021-03~2022-08 형식
+        pattern12 = r'(\d{4})-(\d{1,2})\s*[~-–]\s*(\d{4})-(\d{1,2})'
         
         match = None
-        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10, pattern11]:
+        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10, pattern11, pattern12]:
             match = re.search(pattern, line)
             if match:
                 break
@@ -175,7 +177,7 @@ def calculate_experience(experience_text):
                 end_date = f"{end_year}-{end_month.zfill(2)}-{end_day.zfill(2)}"
                 start = datetime.strptime(start_date, "%Y-%m-%d")
                 end = datetime.strptime(end_date, "%Y-%m-%d")
-            elif pattern == pattern11:
+            elif pattern in [pattern11, pattern12]:
                 start_year, start_month, end_year, end_month = match.groups()
                 start_date = f"{start_year}-{start_month.zfill(2)}-01"
                 end_date = f"{end_year}-{end_month.zfill(2)}-01"
@@ -187,7 +189,7 @@ def calculate_experience(experience_text):
                 start = datetime.strptime(start_date, "%Y-%m-%d")
                 
                 # 종료일 처리
-                if '현재' in line or '재직중' in line or not re.search(r'[~-–]\s*\d', line):
+                if '현재' in line or '재직중' in line:
                     end = datetime.now()
                 else:
                     # 종료일 패턴 처리 (일 부분 무시)
@@ -198,11 +200,16 @@ def calculate_experience(experience_text):
                         end_date = f"{end_year}-{end_month.zfill(2)}-01"
                         end = datetime.strptime(end_date, "%Y-%m-%d")
                     else:
-                        end = datetime.now()
+                        # 종료일이 없는 경우
+                        period_str = f"{start_year}-{start_month.zfill(2)}~종료일 입력 필요"
+                        if current_company:
+                            period_str = f"{current_company}: {period_str}"
+                        experience_periods.append(period_str)
+                        continue
             
             # 경력기간 계산
-            if pattern in [pattern10, pattern11]:
-                # 패턴 10, 11의 경우 정확한 일자 계산
+            if pattern in [pattern10, pattern11, pattern12]:
+                # 패턴 10, 11, 12의 경우 정확한 일자 계산
                 months = (end.year - start.year) * 12 + (end.month - start.month)
                 if end.day < start.day:
                     months -= 1
@@ -221,7 +228,7 @@ def calculate_experience(experience_text):
             # 결과 문자열 생성
             if pattern == pattern10:
                 period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
-            elif pattern == pattern11:
+            elif pattern in [pattern11, pattern12]:
                 period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
             else:
                 period_str = f"{start_year}-{start_month.zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
