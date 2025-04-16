@@ -192,9 +192,18 @@ def calculate_experience(experience_text):
                     else:
                         end = datetime.now()
             
-            months = (end.year - start.year) * 12 + (end.month - start.month)
-            if end.day < start.day:
-                months -= 1
+            # 경력기간 계산
+            if pattern == pattern10:
+                # 패턴 10의 경우 정확한 일자 계산
+                months = (end.year - start.year) * 12 + (end.month - start.month)
+                if end.day < start.day:
+                    months -= 1
+                if months < 0:
+                    months = 0
+            else:
+                # 다른 패턴의 경우 기존 로직 유지
+                months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            
             total_months += months
             
             years = months // 12
