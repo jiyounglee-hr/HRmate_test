@@ -192,14 +192,19 @@ def calculate_experience(experience_text):
                     else:
                         end = datetime.now()
             
-            months = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            months = (end.year - start.year) * 12 + (end.month - start.month)
+            if end.day < start.day:
+                months -= 1
             total_months += months
             
             years = months // 12
             remaining_months = months % 12
             decimal_years = round(months / 12, 1)
             
-            period_str = f"{start.year}-{str(start.month).zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            if pattern == pattern10:
+                period_str = f"{start_year}-{start_month.zfill(2)}~{end_year}-{end_month.zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
+            else:
+                period_str = f"{start_year}-{start_month.zfill(2)}~{end.year}-{str(end.month).zfill(2)} ({years}년 {remaining_months}개월, {decimal_years}년)"
             if current_company:
                 period_str = f"{current_company}: {period_str}"
             experience_periods.append(period_str)
