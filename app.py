@@ -151,9 +151,11 @@ def calculate_experience(experience_text):
         pattern8 = r'(\d{4})/(\d{1,2})/\d{1,2}\s*[~-–]'
         # 9. 2023/05 - 2024.04 형식
         pattern9 = r'(\d{4})[/\.](\d{1,2})\s*[-]\s*(\d{4})[/\.](\d{1,2})'
+        # 10. 2023-04-24 ~ 2024-05-10 형식
+        pattern10 = r'(\d{4})-(\d{1,2})-(\d{1,2})\s*[~-–]\s*(\d{4})-(\d{1,2})-(\d{1,2})'
         
         match = None
-        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9]:
+        for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10]:
             match = re.search(pattern, line)
             if match:
                 break
@@ -163,6 +165,12 @@ def calculate_experience(experience_text):
                 start_year, start_month, end_year, end_month = match.groups()
                 start_date = f"{start_year}-{start_month.zfill(2)}-01"
                 end_date = f"{end_year}-{end_month.zfill(2)}-01"
+                start = datetime.strptime(start_date, "%Y-%m-%d")
+                end = datetime.strptime(end_date, "%Y-%m-%d")
+            elif pattern == pattern10:
+                start_year, start_month, start_day, end_year, end_month, end_day = match.groups()
+                start_date = f"{start_year}-{start_month.zfill(2)}-{start_day.zfill(2)}"
+                end_date = f"{end_year}-{end_month.zfill(2)}-{end_day.zfill(2)}"
                 start = datetime.strptime(start_date, "%Y-%m-%d")
                 end = datetime.strptime(end_date, "%Y-%m-%d")
             else:
