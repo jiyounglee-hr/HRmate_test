@@ -73,8 +73,8 @@ def calculate_experience(experience_text):
     current_company = None
     
     for line in lines:
-        # 같은 줄의 공백을 제거
-        line = ' '.join(line.split())
+        # 공백과 탭 문자를 모두 일반 공백으로 변환하고 연속된 공백을 하나로 처리
+        line = re.sub(r'[\s\t]+', ' ', line.strip())
         if not line:
             continue
             
@@ -163,13 +163,17 @@ def calculate_experience(experience_text):
         match = None
         current_pattern = None
         
-        # 먼저 패턴 12로 시도 (2021-03~2022-08 형식)
-        match = re.search(pattern12, line)
+        # 먼저 패턴 10으로 시도 (2023-04-24 ~ 2024-05-10 형식)
+        match = re.search(pattern10, line)
         if match:
+            current_pattern = pattern10
+        # 다음으로 패턴 12로 시도 (2021-03~2022-08 형식)
+        elif re.search(pattern12, line):
+            match = re.search(pattern12, line)
             current_pattern = pattern12
         else:
-            # 패턴 12가 매칭되지 않으면 다른 패턴 시도
-            for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern10, pattern11]:
+            # 다른 패턴 시도
+            for pattern in [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8, pattern9, pattern11]:
                 match = re.search(pattern, line)
                 if match:
                     current_pattern = pattern
