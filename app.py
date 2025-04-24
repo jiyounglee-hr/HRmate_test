@@ -2202,27 +2202,6 @@ try:
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
 
-def get_libreoffice_path():
-    if platform.system() == "Windows":
-        # Windows에서 LibreOffice 기본 설치 경로
-        paths = [
-            r"C:\Program Files\LibreOffice\program\soffice.exe",
-            r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
-        ]
-        for path in paths:
-            if os.path.exists(path):
-                return path
-        return "soffice"  # PATH에 등록된 경우
-    return "soffice"  # Linux/Mac의 경우
-
-def convert_to_pdf(input_path, output_path):
-    try:
-        unoconv.convert(input_path, output_path)
-        return True
-    except Exception as e:
-        st.error(f"변환 중 오류 발생: {str(e)}")
-        return False
-
 def docx_to_pdf(docx_path, pdf_path):
     try:
         # Word 문서 읽기
