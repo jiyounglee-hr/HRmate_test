@@ -24,10 +24,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
-import comtypes.client
 import subprocess
 import platform
-import unoconv
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
