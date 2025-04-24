@@ -30,7 +30,6 @@ from reportlab.platypus import Table, TableStyle, Spacer
 from reportlab.lib import colors
 from docx.enum.shape import WD_INLINE_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
-from ilovepdf import ILovePdf
 from pylovepdf.tools.officepdf import OfficeToPdf
 
 # 나눔고딕 폰트 등록
