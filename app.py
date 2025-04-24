@@ -25,6 +25,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import comtypes.client
+import subprocess
+import platform
+import unoconv
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -2144,57 +2147,78 @@ try:
             st.markdown("---")
             
             # 파일 업로드 섹션
-            uploaded_file = st.file_uploader("이력서 파일을 업로드하세요 (PDF, DOC, DOCX)", type=['pdf', 'doc', 'docx'])
+            uploaded_files = st.file_uploader(
+                "이력서 파일을 업로드하세요 (PDF, DOCX, PPTX)",
+                type=['pdf', 'docx', 'pptx'],
+                accept_multiple_files=True
+            )
             
-            if uploaded_file is not None:
-                # 파일 확장자 확인
-                file_extension = uploaded_file.name.split('.')[-1].lower()
-                
-                if file_extension == 'pdf':
-                    st.success("PDF 파일이 업로드되었습니다.")
-                    # PDF 파일 처리
-                    try:
-                        # PDF 파일 읽기
-                        pdf_reader = PyPDF2.PdfReader(uploaded_file)
-                        num_pages = len(pdf_reader.pages)
-                        st.info(f"총 {num_pages}페이지의 PDF 파일입니다.")
+            if uploaded_files:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    pdf_paths = []
+                    for file in uploaded_files:
+                        st.write(f"파일 처리 중: {file.name}")
                         
-                        # PDF 파일 다운로드 버튼
-                        st.download_button(
-                            label="PDF 파일 다운로드",
-                            data=uploaded_file.getvalue(),
-                            file_name=uploaded_file.name,
-                            mime="application/pdf"
-                        )
-                    except Exception as e:
-                        st.error(f"PDF 파일 처리 중 오류가 발생했습니다: {str(e)}")
-                        
-                elif file_extension in ['doc', 'docx']:
-                    st.success("Word 파일이 업로드되었습니다.")
-                    try:
                         # 임시 파일 생성
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}') as tmp_file:
-                            tmp_file.write(uploaded_file.getvalue())
-                            tmp_file_path = tmp_file.name
+                        input_path = os.path.join(tmpdir, file.name)
+                        with open(input_path, "wb") as f:
+                            f.write(file.getvalue())
                         
-                        # Word 파일을 PDF로 변환
-                        pdf_data = docx_to_pdf(tmp_file_path)
+                        # 파일 확장자 확인
+                        ext = os.path.splitext(file.name)[1].lower()
                         
-                        # 임시 파일 삭제
-                        os.unlink(tmp_file_path)
-                        
-                        # PDF 파일 다운로드 버튼
-                        st.download_button(
-                            label="PDF 파일 다운로드",
-                            data=pdf_data,
-                            file_name=uploaded_file.name.replace(f'.{file_extension}', '.pdf'),
-                            mime="application/pdf"
-                        )
-                        
-                    except Exception as e:
-                        st.error(str(e))
-                else:
-                    st.error("지원하지 않는 파일 형식입니다.")
+                        if ext == '.pdf':
+                            pdf_paths.append(input_path)
+                            st.success(f"PDF 파일 처리 완료: {file.name}")
+                        else:
+                            # unoconv를 사용하여 PDF로 변환
+                            output_path = os.path.join(tmpdir, f"{os.path.splitext(file.name)[0]}.pdf")
+                            if convert_to_pdf(input_path, output_path):
+                                pdf_paths.append(output_path)
+                                st.success(f"PDF 변환 완료: {file.name}")
+                            else:
+                                st.error(f"변환 실패: {file.name}")
+                
+                if pdf_paths:
+                    # PDF 병합
+                    merger = PyPDF2.PdfMerger()
+                    for pdf_path in pdf_paths:
+                        merger.append(pdf_path)
+                    
+                    # 병합된 PDF를 메모리에 저장
+                    output = io.BytesIO()
+                    merger.write(output)
+                    merger.close()
+                    output.seek(0)
+                    
+                    # 다운로드 버튼
+                    st.download_button(
+                        label="📥 병합된 PDF 다운로드",
+                        data=output,
+                        file_name="merged_resume.pdf",
+                        mime="application/pdf"
+                    )
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+
+def get_libreoffice_path():
+    if platform.system() == "Windows":
+        # Windows에서 LibreOffice 기본 설치 경로
+        paths = [
+            r"C:\Program Files\LibreOffice\program\soffice.exe",
+            r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
+        ]
+        for path in paths:
+            if os.path.exists(path):
+                return path
+        return "soffice"  # PATH에 등록된 경우
+    return "soffice"  # Linux/Mac의 경우
+
+def convert_to_pdf(input_path, output_path):
+    try:
+        unoconv.convert(input_path, output_path)
+        return True
+    except Exception as e:
+        st.error(f"변환 중 오류 발생: {str(e)}")
+        return False
