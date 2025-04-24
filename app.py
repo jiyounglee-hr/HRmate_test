@@ -2472,3 +2472,5 @@ def convert_to_pdf_with_ilovepdf(file, tempdir):
             st.warning(f"지원하지 않는 형식입니다: {ext}")
             return None
     except Exception as e:
+        st.error(f"파일 변환 중 오류 발생: {str(e)}")
+        return None
