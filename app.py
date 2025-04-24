@@ -15,6 +15,18 @@ import re
 import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
+import tempfile
+from pathlib import Path
+from docx import Document
+from pptx import Presentation
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from PyPDF2 import PdfMerger
+
+# 나눔고딕 폰트 등록
+pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -2131,8 +2143,33 @@ try:
                 )
 
         elif menu == "🔗 채용_이력서 pdf변환":
-            st.title("🔗 채용_이력서 pdf변환")
-            st.info("🚧 개발 예정입니다. 곧 만나요! 🚧")
+            st.title("📄 이력서 PDF 변환 및 병합")
+            st.write("이력서 파일을 PDF로 변환하고 하나의 파일로 병합합니다.")
+            
+            uploaded_files = st.file_uploader(
+                "이력서를 업로드하세요 (PDF, DOCX, PPTX, PNG, JPG)",
+                type=["pdf", "docx", "pptx", "png", "jpg", "jpeg"],
+                accept_multiple_files=True
+            )
+
+            if uploaded_files:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    pdf_paths = []
+                    for file in uploaded_files:
+                        st.write(f"파일 처리 중: {file.name}")
+                        pdf_path = convert_to_pdf(file, tmpdir)
+                        if pdf_path:
+                            pdf_paths.append(pdf_path)
+                            st.success(f"✅ 변환 완료: {file.name}")
+
+                    if pdf_paths:
+                        merged_pdf = merge_pdfs(pdf_paths)
+                        st.download_button(
+                            label="📥 병합된 PDF 다운로드",
+                            data=merged_pdf,
+                            file_name="merged_resume.pdf",
+                            mime="application/pdf"
+                        )
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
