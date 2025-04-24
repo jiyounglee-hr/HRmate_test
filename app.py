@@ -27,6 +27,42 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 import subprocess
 import platform
 
+def docx_to_pdf(docx_path, pdf_path):
+    try:
+        # Word 문서 읽기
+        doc = Document(docx_path)
+        
+        # PDF 생성
+        c = canvas.Canvas(pdf_path, pagesize=letter)
+        width, height = letter
+        
+        # 한글 폰트 등록
+        try:
+            pdfmetrics.registerFont(TTFont('HanSans', 'NanumGothic.ttf'))
+            c.setFont('HanSans', 12)
+        except:
+            c.setFont('Helvetica', 12)
+        
+        y = height - 50
+        for para in doc.paragraphs:
+            if y < 50:
+                c.showPage()
+                y = height - 50
+                try:
+                    c.setFont('HanSans', 12)
+                except:
+                    c.setFont('Helvetica', 12)
+            
+            text = para.text
+            c.drawString(50, y, text)
+            y -= 20
+        
+        c.save()
+        return True
+    except Exception as e:
+        st.error(f"변환 중 오류 발생: {str(e)}")
+        return False
+
 # 날짜 정규화 함수
 def normalize_date(date_str):
     if pd.isna(date_str) or date_str == '':
@@ -2201,39 +2237,3 @@ try:
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
-
-def docx_to_pdf(docx_path, pdf_path):
-    try:
-        # Word 문서 읽기
-        doc = Document(docx_path)
-        
-        # PDF 생성
-        c = canvas.Canvas(pdf_path, pagesize=letter)
-        width, height = letter
-        
-        # 한글 폰트 등록
-        try:
-            pdfmetrics.registerFont(TTFont('HanSans', 'NanumGothic.ttf'))
-            c.setFont('HanSans', 12)
-        except:
-            c.setFont('Helvetica', 12)
-        
-        y = height - 50
-        for para in doc.paragraphs:
-            if y < 50:
-                c.showPage()
-                y = height - 50
-                try:
-                    c.setFont('HanSans', 12)
-                except:
-                    c.setFont('Helvetica', 12)
-            
-            text = para.text
-            c.drawString(50, y, text)
-            y -= 20
-        
-        c.save()
-        return True
-    except Exception as e:
-        st.error(f"변환 중 오류 발생: {str(e)}")
-        return False
