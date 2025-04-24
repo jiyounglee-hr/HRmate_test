@@ -2188,33 +2188,7 @@ try:
             )
             
             if uploaded_files:
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    pdf_paths = []
-                    for file in uploaded_files:
-                        st.write(f"파일 처리 중: {file.name}")
-                        
-                        # 임시 파일 생성
-                        input_path = os.path.join(tmpdir, f"input_{i}.{ext[1:]}")
-                        with open(input_path, "wb") as f:
-                            f.write(file.getvalue())
-                        
-                        # 파일 확장자 확인
-                        ext = os.path.splitext(file.name)[1].lower()
-                        
-                        if ext == '.pdf':
-                            pdf_paths.append(input_path)
-                            st.success(f"PDF 파일 처리 완료: {file.name}")
-                        elif ext == '.docx':
-                            # Word 파일을 PDF로 변환
-                            output_path = os.path.join(tmpdir, f"output_{i}.pdf")
-                            if docx_to_pdf(input_path, output_path):
-                                pdf_paths.append(output_path)
-                                st.success(f"PDF 변환 완료: {file.name}")
-                            else:
-                                st.error(f"변환 실패: {file.name}")
-                        else:
-                            st.error(f"지원하지 않는 파일 형식입니다: {file.name}")
-                
+                pdf_paths = convert_to_pdf(uploaded_files)
                 if pdf_paths:
                     # PDF 병합
                     merger = PyPDF2.PdfMerger()
@@ -2234,6 +2208,42 @@ try:
                         file_name="merged_resume.pdf",
                         mime="application/pdf"
                     )
+
+def convert_to_pdf(uploaded_files):
+    pdf_paths = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        for i, file in enumerate(uploaded_files):
+            # 임시 파일 경로 생성 (영문으로)
+            ext = os.path.splitext(file.name)[1]
+            input_path = os.path.join(temp_dir, f"input_{i}{ext}")
+            output_path = os.path.join(temp_dir, f"output_{i}.pdf")
+            
+            # 파일 저장
+            with open(input_path, "wb") as f:
+                f.write(file.getbuffer())
+            
+            # LibreOffice로 변환
+            if platform.system() == "Windows":
+                subprocess.run([
+                    "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
+                    "--headless",
+                    "--convert-to", "pdf",
+                    "--outdir", temp_dir,
+                    input_path
+                ], check=True)
+            else:
+                subprocess.run([
+                    "libreoffice",
+                    "--headless",
+                    "--convert-to", "pdf",
+                    "--outdir", temp_dir,
+                    input_path
+                ], check=True)
+            
+            # 변환된 PDF 파일 경로 저장
+            pdf_paths.append(output_path)
+    
+    return pdf_paths
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
