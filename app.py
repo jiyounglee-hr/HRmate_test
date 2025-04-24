@@ -41,24 +41,34 @@ def extract_tables_from_docx(doc, c, y, height):
     for table in doc.tables:
         # 표 데이터 추출
         data = []
+        max_cols = 0
         for row in table.rows:
             row_data = []
             for cell in row.cells:
-                # 셀 내의 모든 텍스트 추출
+                # 셀 내의 모든 텍스트와 서식 추출
                 cell_text = ""
                 for paragraph in cell.paragraphs:
-                    cell_text += (paragraph.text or "").strip() + " "
-                row_data.append(cell_text.strip() or " ")  # 빈 셀은 공백으로 처리
+                    for run in paragraph.runs:
+                        # 볼드, 이탤릭 등 서식 유지
+                        if run.bold:
+                            cell_text += f"**{run.text}**"
+                        elif run.italic:
+                            cell_text += f"*{run.text}*"
+                        else:
+                            cell_text += run.text
+                    cell_text += " "
+                row_data.append(cell_text.strip() or " ")
             data.append(row_data)
+            max_cols = max(max_cols, len(row_data))
         
-        if not data:  # 빈 표인 경우 건너뛰기
+        if not data:
             continue
             
         # 표의 높이와 너비 계산
         num_rows = len(data)
-        num_cols = max(len(row) for row in data) if data else 0
-        cell_height = 20
-        cell_width = 100
+        num_cols = max_cols
+        cell_height = 25  # 셀 높이 증가
+        cell_width = 120  # 셀 너비 증가
         table_height = num_rows * cell_height
         table_width = num_cols * cell_width
         
@@ -70,7 +80,7 @@ def extract_tables_from_docx(doc, c, y, height):
         
         # 표 테두리 그리기
         c.setStrokeColor(colors.black)
-        c.setLineWidth(0.5)
+        c.setLineWidth(0.8)  # 테두리 두께 증가
         
         # 가로선 그리기
         for i in range(num_rows + 1):
@@ -83,20 +93,31 @@ def extract_tables_from_docx(doc, c, y, height):
             c.line(line_x, y, line_x, y - table_height)
         
         # 셀 내용 그리기
-        c.setFont("NanumGothic", 10)
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
                 # 셀 내용이 없는 경우 공백으로 처리
                 cell_text = cell if cell is not None else " "
+                
+                # 볼드 처리
+                if "**" in cell_text:
+                    c.setFont("NanumGothic-Bold", 10)
+                    cell_text = cell_text.replace("**", "")
+                # 이탤릭 처리
+                elif "*" in cell_text:
+                    c.setFont("NanumGothic-Italic", 10)
+                    cell_text = cell_text.replace("*", "")
+                else:
+                    c.setFont("NanumGothic", 10)
+                
                 # 셀 내용을 여러 줄로 나누기
-                lines = split_text(cell_text, 15)  # 셀당 최대 15자
+                lines = split_text(cell_text, 20)  # 셀당 최대 20자
                 for k, line in enumerate(lines):
-                    if k < 2:  # 최대 2줄만 표시
+                    if k < 3:  # 최대 3줄까지 표시
                         text_y = y - (i * cell_height) - (k * 10) - 5
                         c.drawString(55 + (j * cell_width), text_y, line)
         
-        y -= table_height + 20  # 표 높이 + 여백
-        return y  # 수정된 y 좌표 반환
+        y -= table_height + 30  # 표 높이 + 여백 증가
+        return y
 
 def extract_images_from_docx(doc, c, y, height, tempdir):
     for shape in doc.inline_shapes:
@@ -136,7 +157,7 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
         # 표 처리
         for table in doc.tables:
             y = extract_tables_from_docx(doc, c, y, height)
-            if y is None:  # 표 처리 중 오류 발생 시 건너뛰기
+            if y is None:
                 continue
             if y < 50:
                 c.showPage()
@@ -145,9 +166,15 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
         
         # 텍스트 처리
         for para in doc.paragraphs:
-            # 표가 아닌 경우에만 텍스트 처리
             if not para._element.xpath('.//w:tbl'):
-                text = para.text or ""  # None 값 처리
+                # 단락 스타일 처리
+                style = para.style.name
+                if "Heading" in style:
+                    c.setFont("NanumGothic-Bold", 14)
+                else:
+                    c.setFont("NanumGothic", 11)
+                
+                text = para.text or ""
                 for line in split_text(text.strip(), 90):
                     if y < 50:
                         c.showPage()
@@ -155,6 +182,8 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
                         y = height - 50
                     c.drawString(50, y, line)
                     y -= 15
+                
+                y -= 5  # 단락 간 여백
         
         # 이미지 처리
         extract_images_from_docx(doc, c, y, height, tempdir)
