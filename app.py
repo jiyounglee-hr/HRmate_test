@@ -15,6 +15,9 @@ import re
 import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
+from docx2pdf import convert
+import tempfile
+import PyPDF2
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -558,6 +561,8 @@ if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
     st.session_state.menu = "⏰ 초과근무 조회"
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
+if st.sidebar.button("🔗 채용_이력서 pdf변환", use_container_width=True):
+    st.session_state.menu = "🔗 채용_이력서 pdf변환"
 
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
@@ -2126,6 +2131,69 @@ try:
                     file_name=f"인사발령내역_{selected_year}.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+
+        elif menu == "🔗 채용_이력서 pdf변환":
+            st.title("🔗 채용_이력서 pdf변환")
+            st.markdown("---")
+            
+            # 파일 업로드 섹션
+            uploaded_file = st.file_uploader("이력서 파일을 업로드하세요 (PDF, DOC, DOCX)", type=['pdf', 'doc', 'docx'])
+            
+            if uploaded_file is not None:
+                # 파일 확장자 확인
+                file_extension = uploaded_file.name.split('.')[-1].lower()
+                
+                if file_extension == 'pdf':
+                    st.success("PDF 파일이 업로드되었습니다.")
+                    # PDF 파일 처리
+                    try:
+                        # PDF 파일 읽기
+                        pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                        num_pages = len(pdf_reader.pages)
+                        st.info(f"총 {num_pages}페이지의 PDF 파일입니다.")
+                        
+                        # PDF 파일 다운로드 버튼
+                        st.download_button(
+                            label="PDF 파일 다운로드",
+                            data=uploaded_file.getvalue(),
+                            file_name=uploaded_file.name,
+                            mime="application/pdf"
+                        )
+                    except Exception as e:
+                        st.error(f"PDF 파일 처리 중 오류가 발생했습니다: {str(e)}")
+                        
+                elif file_extension in ['doc', 'docx']:
+                    st.success("Word 파일이 업로드되었습니다.")
+                    try:
+                        # 임시 파일 생성
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}') as tmp_file:
+                            tmp_file.write(uploaded_file.getvalue())
+                            tmp_file_path = tmp_file.name
+                        
+                        # PDF로 변환
+                        pdf_path = tmp_file_path.replace(f'.{file_extension}', '.pdf')
+                        convert(tmp_file_path, pdf_path)
+                        
+                        # 변환된 PDF 파일 읽기
+                        with open(pdf_path, 'rb') as f:
+                            pdf_data = f.read()
+                        
+                        # PDF 파일 다운로드 버튼
+                        st.download_button(
+                            label="PDF 파일 다운로드",
+                            data=pdf_data,
+                            file_name=uploaded_file.name.replace(f'.{file_extension}', '.pdf'),
+                            mime="application/pdf"
+                        )
+                        
+                        # 임시 파일 삭제
+                        os.unlink(tmp_file_path)
+                        os.unlink(pdf_path)
+                        
+                    except Exception as e:
+                        st.error(f"Word 파일을 PDF로 변환하는 중 오류가 발생했습니다: {str(e)}")
+                else:
+                    st.error("지원하지 않는 파일 형식입니다.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
