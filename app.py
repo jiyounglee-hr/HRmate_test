@@ -2210,39 +2210,43 @@ try:
                     )
 
 def convert_to_pdf(uploaded_files):
-    pdf_paths = []
-    with tempfile.TemporaryDirectory() as temp_dir:
-        for uploaded_file in uploaded_files:
-            # 임시 파일 경로 생성
-            input_path = os.path.join(temp_dir, uploaded_file.name)
-            output_path = os.path.join(temp_dir, f"{os.path.splitext(uploaded_file.name)[0]}.pdf")
-            
-            # 파일 저장
-            with open(input_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            
-            # LibreOffice로 변환
-            if platform.system() == "Windows":
-                subprocess.run([
-                    "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
-                    "--headless",
-                    "--convert-to", "pdf",
-                    "--outdir", temp_dir,
-                    input_path
-                ], check=True)
-            else:
-                subprocess.run([
-                    "libreoffice",
-                    "--headless",
-                    "--convert-to", "pdf",
-                    "--outdir", temp_dir,
-                    input_path
-                ], check=True)
-            
-            # 변환된 PDF 파일 경로 저장
-            pdf_paths.append(output_path)
-    
-    return pdf_paths
+    try:
+        pdf_paths = []
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for uploaded_file in uploaded_files:
+                # 임시 파일 경로 생성
+                input_path = os.path.join(temp_dir, uploaded_file.name)
+                output_path = os.path.join(temp_dir, f"{os.path.splitext(uploaded_file.name)[0]}.pdf")
+                
+                # 파일 저장
+                with open(input_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                
+                # LibreOffice로 변환
+                if platform.system() == "Windows":
+                    subprocess.run([
+                        "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
+                        "--headless",
+                        "--convert-to", "pdf",
+                        "--outdir", temp_dir,
+                        input_path
+                    ], check=True)
+                else:
+                    subprocess.run([
+                        "libreoffice",
+                        "--headless",
+                        "--convert-to", "pdf",
+                        "--outdir", temp_dir,
+                        input_path
+                    ], check=True)
+                
+                # 변환된 PDF 파일 경로 저장
+                pdf_paths.append(output_path)
+        
+        return pdf_paths
+    except Exception as e:
+        st.error(f"PDF 변환 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 def main():
     try:
