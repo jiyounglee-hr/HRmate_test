@@ -2177,62 +2177,22 @@ try:
                             tmp_file.write(uploaded_file.getvalue())
                             tmp_file_path = tmp_file.name
                         
-                        # Word 문서 읽기
-                        doc = Document(tmp_file_path)
+                        # Word 파일을 PDF로 변환
+                        pdf_data = docx_to_pdf(tmp_file_path)
                         
-                        # 임시 PDF 파일 생성
-                        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
-                            pdf_path = tmp_pdf.name
-                            
-                            # PDF 생성
-                            pdf_doc = SimpleDocTemplate(
-                                pdf_path,
-                                pagesize=letter,
-                                rightMargin=72,
-                                leftMargin=72,
-                                topMargin=72,
-                                bottomMargin=72
-                            )
-                            
-                            # 스타일 정의
-                            styles = getSampleStyleSheet()
-                            style = ParagraphStyle(
-                                'Custom',
-                                parent=styles['Normal'],
-                                fontSize=12,
-                                leading=14,
-                                spaceAfter=10
-                            )
-                            
-                            # 문서 내용 변환
-                            story = []
-                            for para in doc.paragraphs:
-                                if para.text.strip():
-                                    p = Paragraph(para.text, style)
-                                    story.append(p)
-                                    story.append(Spacer(1, 12))
-                            
-                            # PDF 생성
-                            pdf_doc.build(story)
-                            
-                            # PDF 파일 읽기
-                            with open(pdf_path, 'rb') as f:
-                                pdf_data = f.read()
-                            
-                            # 임시 파일 삭제
-                            os.unlink(tmp_file_path)
-                            os.unlink(pdf_path)
-                            
-                            # PDF 파일 다운로드 버튼
-                            st.download_button(
-                                label="PDF 파일 다운로드",
-                                data=pdf_data,
-                                file_name=uploaded_file.name.replace(f'.{file_extension}', '.pdf'),
-                                mime="application/pdf"
-                            )
-                            
+                        # 임시 파일 삭제
+                        os.unlink(tmp_file_path)
+                        
+                        # PDF 파일 다운로드 버튼
+                        st.download_button(
+                            label="PDF 파일 다운로드",
+                            data=pdf_data,
+                            file_name=uploaded_file.name.replace(f'.{file_extension}', '.pdf'),
+                            mime="application/pdf"
+                        )
+                        
                     except Exception as e:
-                        st.error(f"Word 파일을 PDF로 변환하는 중 오류가 발생했습니다: {str(e)}")
+                        st.error(str(e))
                 else:
                     st.error("지원하지 않는 파일 형식입니다.")
 
