@@ -2194,7 +2194,7 @@ try:
                         st.write(f"파일 처리 중: {file.name}")
                         
                         # 임시 파일 생성
-                        input_path = os.path.join(tmpdir, file.name)
+                        input_path = os.path.join(tmpdir, f"input_{i}.{ext[1:]}")
                         with open(input_path, "wb") as f:
                             f.write(file.getvalue())
                         
@@ -2206,7 +2206,7 @@ try:
                             st.success(f"PDF 파일 처리 완료: {file.name}")
                         elif ext == '.docx':
                             # Word 파일을 PDF로 변환
-                            output_path = os.path.join(tmpdir, f"{os.path.splitext(file.name)[0]}.pdf")
+                            output_path = os.path.join(tmpdir, f"output_{i}.pdf")
                             if docx_to_pdf(input_path, output_path):
                                 pdf_paths.append(output_path)
                                 st.success(f"PDF 변환 완료: {file.name}")
