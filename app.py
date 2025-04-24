@@ -41,38 +41,49 @@ def split_text(text, max_chars):
 
 def extract_tables_from_docx(doc, c, y, height):
     for table in doc.tables:
-        # 표 데이터 추출
+        # 표 데이터 추출 및 최대 길이 계산
         data = []
+        col_widths = []  # 각 열의 최대 너비
         max_cols = 0
+        
         for row in table.rows:
             row_data = []
-            for cell in row.cells:
+            for i, cell in enumerate(row.cells):
                 # 셀 내의 모든 텍스트와 서식 추출
                 cell_text = ""
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
-                        # 볼드, 이탤릭 등 서식 유지
-                        if run.bold:
-                            cell_text += f"**{run.text}**"
-                        elif run.italic:
-                            cell_text += f"*{run.text}*"
-                        else:
-                            cell_text += run.text
+                        cell_text += run.text
                     cell_text += " "
-                row_data.append(cell_text.strip() or " ")
+                cell_text = cell_text.strip() or " "
+                row_data.append(cell_text)
+                
+                # 열 너비 계산 (한글 2자 = 영문 3자 기준)
+                text_width = sum(2 if ord(c) > 128 else 1 for c in cell_text) * 5
+                if i >= len(col_widths):
+                    col_widths.append(text_width)
+                else:
+                    col_widths[i] = max(col_widths[i], text_width)
+            
             data.append(row_data)
             max_cols = max(max_cols, len(row_data))
         
         if not data:
             continue
-            
+        
+        # 열 너비 조정
+        total_width = sum(col_widths)
+        available_width = 500  # 사용 가능한 최대 너비
+        if total_width > available_width:
+            scale = available_width / total_width
+            col_widths = [w * scale for w in col_widths]
+        
         # 표의 높이와 너비 계산
         num_rows = len(data)
         num_cols = max_cols
-        cell_height = 25  # 셀 높이 증가
-        cell_width = 120  # 셀 너비 증가
-        table_height = num_rows * cell_height
-        table_width = num_cols * cell_width
+        row_height = 30  # 기본 행 높이
+        table_height = num_rows * row_height
+        table_width = sum(col_widths)
         
         # 새 페이지가 필요한지 확인
         if y - table_height < 50:
@@ -82,43 +93,38 @@ def extract_tables_from_docx(doc, c, y, height):
         
         # 표 테두리 그리기
         c.setStrokeColor(colors.black)
-        c.setLineWidth(0.8)  # 테두리 두께 증가
+        c.setLineWidth(0.5)
         
         # 가로선 그리기
         for i in range(num_rows + 1):
-            line_y = y - (i * cell_height)
+            line_y = y - (i * row_height)
             c.line(50, line_y, 50 + table_width, line_y)
         
         # 세로선 그리기
-        for i in range(num_cols + 1):
-            line_x = 50 + (i * cell_width)
-            c.line(line_x, y, line_x, y - table_height)
+        x = 50
+        for width in col_widths:
+            c.line(x, y, x, y - table_height)
+            x += width
+        c.line(x, y, x, y - table_height)  # 마지막 세로선
         
         # 셀 내용 그리기
+        x = 50
         for i, row in enumerate(data):
+            cell_x = x
             for j, cell in enumerate(row):
-                # 셀 내용이 없는 경우 공백으로 처리
-                cell_text = cell if cell is not None else " "
-                
-                # 볼드 처리
-                if "**" in cell_text:
-                    c.setFont("NanumGothic-Bold", 10)
-                    cell_text = cell_text.replace("**", "")
-                # 이탤릭 처리
-                elif "*" in cell_text:
-                    c.setFont("NanumGothic-Italic", 10)
-                    cell_text = cell_text.replace("*", "")
-                else:
-                    c.setFont("NanumGothic", 10)
-                
-                # 셀 내용을 여러 줄로 나누기
-                lines = split_text(cell_text, 20)  # 셀당 최대 20자
-                for k, line in enumerate(lines):
-                    if k < 3:  # 최대 3줄까지 표시
-                        text_y = y - (i * cell_height) - (k * 10) - 5
-                        c.drawString(55 + (j * cell_width), text_y, line)
+                if j < len(col_widths):  # 열 개수 체크
+                    # 셀 내용을 여러 줄로 나누기
+                    max_chars = int(col_widths[j] / 5)  # 열 너비에 맞는 최대 문자 수
+                    lines = split_text(cell, max_chars)
+                    
+                    # 최대 2줄까지 표시
+                    for k, line in enumerate(lines[:2]):
+                        text_y = y - (i * row_height) - (k * 15) - 20
+                        c.drawString(cell_x + 5, text_y, line)
+                    
+                    cell_x += col_widths[j]
         
-        y -= table_height + 30  # 표 높이 + 여백 증가
+        y -= table_height + 20
         return y
 
 def extract_images_from_docx(doc, c, y, height, tempdir):
@@ -169,13 +175,6 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
         # 텍스트 처리
         for para in doc.paragraphs:
             if not para._element.xpath('.//w:tbl'):
-                # 단락 스타일 처리
-                style = para.style.name
-                if "Heading" in style:
-                    c.setFont("NanumGothic-Bold", 14)
-                else:
-                    c.setFont("NanumGothic", 11)
-                
                 text = para.text or ""
                 for line in split_text(text.strip(), 90):
                     if y < 50:
@@ -184,8 +183,6 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
                         y = height - 50
                     c.drawString(50, y, line)
                     y -= 15
-                
-                y -= 5  # 단락 간 여백
         
         # 이미지 처리
         extract_images_from_docx(doc, c, y, height, tempdir)
