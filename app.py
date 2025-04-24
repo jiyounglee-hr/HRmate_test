@@ -31,6 +31,7 @@ from reportlab.lib import colors
 from docx.enum.shape import WD_INLINE_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from ilovepdf import ILovePdf
+from pylovepdf.tools.officepdf import OfficeToPdf
 
 # 나눔고딕 폰트 등록
 pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
@@ -2435,10 +2436,10 @@ except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
 
 def convert_to_pdf_with_ilovepdf(file, tempdir):
-    """iLovePDF API를 사용하여 파일을 PDF로 변환"""
+    """pylovepdf API를 사용하여 파일을 PDF로 변환"""
     try:
         # API 클라이언트 초기화
-        ilovepdf = ILovePdf(st.secrets["ILOVEPDF_API_KEY"], verify_ssl=True)
+        t = OfficeToPdf(st.secrets["ILOVEPDF_API_KEY"])
         
         # 파일 저장
         input_path = os.path.join(tempdir, file.name)
@@ -2450,24 +2451,26 @@ def convert_to_pdf_with_ilovepdf(file, tempdir):
         
         if ext == ".pdf":
             return input_path
-        elif ext in [".docx", ".doc"]:
-            # Word to PDF 변환
-            task = ilovepdf.new_task('officepdf')
-            task.add_file(input_path)
-            task.set_export_format("pdf")
-            task.execute()
-            task.download(tempdir)
-            task.delete_current_task()
-            return output_path
-        elif ext in [".pptx", ".ppt"]:
-            # PowerPoint to PDF 변환
-            task = ilovepdf.new_task('officepdf')
-            task.add_file(input_path)
-            task.set_export_format("pdf")
-            task.execute()
-            task.download(tempdir)
-            task.delete_current_task()
-            return output_path
+        elif ext in [".docx", ".doc", ".pptx", ".ppt"]:
+            # 파일 변환
+            t.add_file(input_path)
+            t.set_output_folder(tempdir)
+            t.execute()
+            t.download()
+            t.delete_current_task()
+            
+            # 변환된 파일 찾기
+            converted_file = None
+            for filename in os.listdir(tempdir):
+                if filename.endswith(".pdf") and Path(filename).stem == Path(file.name).stem:
+                    converted_file = os.path.join(tempdir, filename)
+                    break
+            
+            if converted_file and os.path.exists(converted_file):
+                return converted_file
+            else:
+                st.warning("변환된 파일을 찾을 수 없습니다.")
+                return None
         else:
             st.warning(f"지원하지 않는 형식입니다: {ext}")
             return None
