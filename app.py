@@ -30,11 +30,15 @@ from reportlab.platypus import Table, TableStyle, Spacer
 from reportlab.lib import colors
 from docx.enum.shape import WD_INLINE_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
+from ilovepdf import ILovePdf
 
 # 나눔고딕 폰트 등록
 pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
 pdfmetrics.registerFont(TTFont('NanumGothic-Bold', 'font/NanumGothicExtraBold.ttf'))
 pdfmetrics.registerFont(TTFont('NanumGothic-Italic', 'font/NanumGothicLight.ttf'))
+
+# iLovePDF API 키 설정
+ILOVEPDF_API_KEY = "your_api_key_here"
 
 def split_text(text, max_chars):
     return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
@@ -2402,29 +2406,69 @@ try:
             st.write("이력서 파일을 PDF로 변환하고 하나의 파일로 병합합니다.")
             
             uploaded_files = st.file_uploader(
-                "이력서를 업로드하세요 (PDF, DOCX, PPTX, PNG, JPG)",
-                type=["pdf", "docx", "pptx", "png", "jpg", "jpeg"],
+                "이력서를 업로드하세요 (PDF, DOCX, PPTX)",
+                type=["pdf", "docx", "pptx", "doc", "ppt"],
                 accept_multiple_files=True
             )
 
             if uploaded_files:
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    pdf_paths = []
-                    for file in uploaded_files:
-                        st.write(f"파일 처리 중: {file.name}")
-                        pdf_path = convert_to_pdf(file, tmpdir)
-                        if pdf_path:
-                            pdf_paths.append(pdf_path)
-                            st.success(f"✅ 변환 완료: {file.name}")
+                with st.spinner("파일 변환 중..."):
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        pdf_paths = []
+                        for file in uploaded_files:
+                            st.write(f"파일 처리 중: {file.name}")
+                            pdf_path = convert_to_pdf_with_ilovepdf(file, tmpdir)
+                            if pdf_path:
+                                pdf_paths.append(pdf_path)
+                                st.success(f"✅ 변환 완료: {file.name}")
 
-                    if pdf_paths:
-                        merged_pdf = merge_pdfs(pdf_paths)
-                        st.download_button(
-                            label="📥 병합된 PDF 다운로드",
-                            data=merged_pdf,
-                            file_name="merged_resume.pdf",
-                            mime="application/pdf"
-                        )
+                        if pdf_paths:
+                            merged_pdf = merge_pdfs(pdf_paths)
+                            st.download_button(
+                                label="📥 병합된 PDF 다운로드",
+                                data=merged_pdf,
+                                file_name="merged_resume.pdf",
+                                mime="application/pdf"
+                            )
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+
+def convert_to_pdf_with_ilovepdf(file, tempdir):
+    """iLovePDF API를 사용하여 파일을 PDF로 변환"""
+    try:
+        # API 클라이언트 초기화
+        ilovepdf = ILovePdf(st.secrets["ILOVEPDF_API_KEY"], verify_ssl=True)
+        
+        # 파일 저장
+        input_path = os.path.join(tempdir, file.name)
+        with open(input_path, "wb") as f:
+            f.write(file.getbuffer())
+        
+        ext = Path(file.name).suffix.lower()
+        output_path = os.path.join(tempdir, f"{Path(file.name).stem}.pdf")
+        
+        if ext == ".pdf":
+            return input_path
+        elif ext in [".docx", ".doc"]:
+            # Word to PDF 변환
+            task = ilovepdf.new_task('officepdf')
+            task.add_file(input_path)
+            task.set_export_format("pdf")
+            task.execute()
+            task.download(tempdir)
+            task.delete_current_task()
+            return output_path
+        elif ext in [".pptx", ".ppt"]:
+            # PowerPoint to PDF 변환
+            task = ilovepdf.new_task('officepdf')
+            task.add_file(input_path)
+            task.set_export_format("pdf")
+            task.execute()
+            task.download(tempdir)
+            task.delete_current_task()
+            return output_path
+        else:
+            st.warning(f"지원하지 않는 형식입니다: {ext}")
+            return None
+    except Exception as e:
