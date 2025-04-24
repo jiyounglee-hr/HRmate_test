@@ -33,6 +33,8 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 
 # 나눔고딕 폰트 등록
 pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
+pdfmetrics.registerFont(TTFont('NanumGothic-Bold', 'font/NanumGothicExtraBold.ttf'))
+pdfmetrics.registerFont(TTFont('NanumGothic-Italic', 'font/NanumGothicLight.ttf'))
 
 def split_text(text, max_chars):
     return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
