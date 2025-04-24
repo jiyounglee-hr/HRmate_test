@@ -39,13 +39,25 @@ def split_text(text, max_chars):
 
 def extract_tables_from_docx(doc, c, y, height):
     for table in doc.tables:
+        # 표 데이터 추출
         data = []
         for row in table.rows:
-            row_data = [cell.text.strip() for cell in row.cells]
+            row_data = []
+            for cell in row.cells:
+                # 셀 내의 모든 텍스트 추출
+                cell_text = ""
+                for paragraph in cell.paragraphs:
+                    cell_text += paragraph.text.strip() + " "
+                row_data.append(cell_text.strip())
             data.append(row_data)
         
-        # 표의 높이 계산
-        table_height = len(data) * 20  # 행당 20포인트
+        # 표의 높이와 너비 계산
+        num_rows = len(data)
+        num_cols = len(data[0]) if data else 0
+        cell_height = 20
+        cell_width = 100
+        table_height = num_rows * cell_height
+        table_width = num_cols * cell_width
         
         # 새 페이지가 필요한지 확인
         if y - table_height < 50:
@@ -53,15 +65,32 @@ def extract_tables_from_docx(doc, c, y, height):
             c.setFont("NanumGothic", 11)
             y = height - 50
         
-        # 표 그리기
-        for i, row in enumerate(data):
-            x = 50
-            for j, cell in enumerate(row):
-                c.drawString(x, y, cell)
-                x += 100  # 셀 너비
-            y -= 20  # 행 높이
+        # 표 테두리 그리기
+        c.setStrokeColor(colors.black)
+        c.setLineWidth(0.5)
         
-        y -= 20  # 표 다음 여백
+        # 가로선 그리기
+        for i in range(num_rows + 1):
+            line_y = y - (i * cell_height)
+            c.line(50, line_y, 50 + table_width, line_y)
+        
+        # 세로선 그리기
+        for i in range(num_cols + 1):
+            line_x = 50 + (i * cell_width)
+            c.line(line_x, y, line_x, y - table_height)
+        
+        # 셀 내용 그리기
+        c.setFont("NanumGothic", 10)
+        for i, row in enumerate(data):
+            for j, cell in enumerate(row):
+                # 셀 내용을 여러 줄로 나누기
+                lines = split_text(cell, 15)  # 셀당 최대 15자
+                for k, line in enumerate(lines):
+                    if k < 2:  # 최대 2줄만 표시
+                        text_y = y - (i * cell_height) - (k * 10) - 5
+                        c.drawString(55 + (j * cell_width), text_y, line)
+        
+        y -= table_height + 20  # 표 높이 + 여백
 
 def extract_images_from_docx(doc, c, y, height, tempdir):
     for shape in doc.inline_shapes:
@@ -97,20 +126,25 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
     width, height = A4
     y = height - 50
     
+    # 표 처리
+    for table in doc.tables:
+        y = extract_tables_from_docx(doc, c, y, height)
+        if y < 50:
+            c.showPage()
+            c.setFont("NanumGothic", 11)
+            y = height - 50
+    
+    # 텍스트 처리
     for para in doc.paragraphs:
-        # 표 처리
-        if para._element.xpath('.//w:tbl'):
-            extract_tables_from_docx(doc, c, y, height)
-            continue
-        
-        # 텍스트 처리
-        for line in split_text(para.text.strip(), 90):
-            if y < 50:
-                c.showPage()
-                c.setFont("NanumGothic", 11)
-                y = height - 50
-            c.drawString(50, y, line)
-            y -= 15
+        # 표가 아닌 경우에만 텍스트 처리
+        if not para._element.xpath('.//w:tbl'):
+            for line in split_text(para.text.strip(), 90):
+                if y < 50:
+                    c.showPage()
+                    c.setFont("NanumGothic", 11)
+                    y = height - 50
+                c.drawString(50, y, line)
+                y -= 15
     
     # 이미지 처리
     extract_images_from_docx(doc, c, y, height, tempdir)
