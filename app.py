@@ -2417,7 +2417,7 @@ try:
                         pdf_paths = []
                         for file in uploaded_files:
                             st.write(f"파일 처리 중: {file.name}")
-                            pdf_path = convert_to_pdf_with_ilovepdf(file, tmpdir)
+                            pdf_path = convert_to_pdf(file, tmpdir)
                             if pdf_path:
                                 pdf_paths.append(pdf_path)
                                 st.success(f"✅ 변환 완료: {file.name}")
