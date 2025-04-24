@@ -15,9 +15,15 @@ import re
 import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
-from docx2pdf import convert
+from docx import Document
 import tempfile
 import PyPDF2
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
