@@ -2212,15 +2212,14 @@ try:
 def convert_to_pdf(uploaded_files):
     pdf_paths = []
     with tempfile.TemporaryDirectory() as temp_dir:
-        for i, file in enumerate(uploaded_files):
-            # 임시 파일 경로 생성 (영문으로)
-            ext = os.path.splitext(file.name)[1]
-            input_path = os.path.join(temp_dir, f"input_{i}{ext}")
-            output_path = os.path.join(temp_dir, f"output_{i}.pdf")
+        for uploaded_file in uploaded_files:
+            # 임시 파일 경로 생성
+            input_path = os.path.join(temp_dir, uploaded_file.name)
+            output_path = os.path.join(temp_dir, f"{os.path.splitext(uploaded_file.name)[0]}.pdf")
             
             # 파일 저장
             with open(input_path, "wb") as f:
-                f.write(file.getbuffer())
+                f.write(uploaded_file.getbuffer())
             
             # LibreOffice로 변환
             if platform.system() == "Windows":
@@ -2245,5 +2244,48 @@ def convert_to_pdf(uploaded_files):
     
     return pdf_paths
 
-except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+def main():
+    try:
+        # 데이터 로드
+        df = load_data()
+        
+        # 메뉴 선택에 따른 처리
+        if menu == "📊 대시보드":
+            # ... existing code ...
+        elif menu == "📝 이력서 변환":
+            st.title("📝 이력서 변환")
+            st.write("여러 형식의 이력서를 PDF로 변환하고 병합합니다.")
+            
+            # 파일 업로드
+            uploaded_files = st.file_uploader(
+                "이력서 파일을 업로드하세요 (PDF, DOCX, PPTX)",
+                type=["pdf", "docx", "pptx"],
+                accept_multiple_files=True
+            )
+            
+            if uploaded_files:
+                pdf_paths = convert_to_pdf(uploaded_files)
+                if pdf_paths:
+                    # PDF 병합
+                    merger = PyPDF2.PdfMerger()
+                    for pdf_path in pdf_paths:
+                        merger.append(pdf_path)
+                    
+                    # 병합된 PDF를 메모리에 저장
+                    output = io.BytesIO()
+                    merger.write(output)
+                    merger.close()
+                    output.seek(0)
+                    
+                    # 다운로드 버튼
+                    st.download_button(
+                        label="📥 병합된 PDF 다운로드",
+                        data=output,
+                        file_name="merged_resume.pdf",
+                        mime="application/pdf"
+                    )
+    except Exception as e:
+        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+
+if __name__ == "__main__":
+    main()
