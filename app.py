@@ -28,6 +28,81 @@ from PyPDF2 import PdfMerger
 # 나눔고딕 폰트 등록
 pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
 
+def split_text(text, max_chars):
+    return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
+
+def convert_docx_to_pdf(input_path, output_path):
+    doc = Document(input_path)
+    c = canvas.Canvas(output_path, pagesize=A4)
+    c.setFont("NanumGothic", 11)
+    width, height = A4
+    y = height - 50
+    for para in doc.paragraphs:
+        for line in split_text(para.text.strip(), 90):
+            if y < 50:
+                c.showPage()
+                c.setFont("NanumGothic", 11)
+                y = height - 50
+            c.drawString(50, y, line)
+            y -= 15
+    c.save()
+
+def convert_pptx_to_pdf(input_path, output_path):
+    prs = Presentation(input_path)
+    c = canvas.Canvas(output_path, pagesize=A4)
+    c.setFont("NanumGothic", 11)
+    width, height = A4
+    for slide in prs.slides:
+        y = height - 50
+        for shape in slide.shapes:
+            if hasattr(shape, "text"):
+                for line in split_text(shape.text.strip(), 90):
+                    if y < 50:
+                        c.showPage()
+                        c.setFont("NanumGothic", 11)
+                        y = height - 50
+                    c.drawString(50, y, line)
+                    y -= 15
+        c.showPage()
+    c.save()
+
+def convert_image_to_pdf(input_path, output_path):
+    img = Image.open(input_path).convert("RGB")
+    img.save(output_path, "PDF", resolution=100.0)
+
+def convert_to_pdf(file, tempdir):
+    ext = Path(file.name).suffix.lower()
+    input_path = os.path.join(tempdir, file.name)
+    with open(input_path, "wb") as f:
+        f.write(file.getbuffer())
+    output_path = os.path.join(tempdir, f"{Path(file.name).stem}.pdf")
+
+    if ext == ".pdf":
+        return input_path
+    elif ext == ".docx":
+        convert_docx_to_pdf(input_path, output_path)
+        return output_path
+    elif ext == ".pptx":
+        convert_pptx_to_pdf(input_path, output_path)
+        return output_path
+    elif ext in [".png", ".jpg", ".jpeg"]:
+        convert_image_to_pdf(input_path, output_path)
+        return output_path
+    else:
+        st.warning(f"지원하지 않는 형식입니다: {ext}")
+        return None
+
+def merge_pdfs(pdf_paths):
+    merger = PdfMerger()
+    for path in pdf_paths:
+        if path and os.path.exists(path):
+            merger.append(path)
+    output = io.BytesIO()
+    merger.write(output)
+    merger.close()
+    output.seek(0)
+    return output
+
 # 날짜 정규화 함수
 def normalize_date(date_str):
     if pd.isna(date_str) or date_str == '':
