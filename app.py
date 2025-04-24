@@ -47,13 +47,16 @@ def extract_tables_from_docx(doc, c, y, height):
                 # 셀 내의 모든 텍스트 추출
                 cell_text = ""
                 for paragraph in cell.paragraphs:
-                    cell_text += paragraph.text.strip() + " "
-                row_data.append(cell_text.strip())
+                    cell_text += (paragraph.text or "").strip() + " "
+                row_data.append(cell_text.strip() or " ")  # 빈 셀은 공백으로 처리
             data.append(row_data)
         
+        if not data:  # 빈 표인 경우 건너뛰기
+            continue
+            
         # 표의 높이와 너비 계산
         num_rows = len(data)
-        num_cols = len(data[0]) if data else 0
+        num_cols = max(len(row) for row in data) if data else 0
         cell_height = 20
         cell_width = 100
         table_height = num_rows * cell_height
@@ -83,14 +86,17 @@ def extract_tables_from_docx(doc, c, y, height):
         c.setFont("NanumGothic", 10)
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
+                # 셀 내용이 없는 경우 공백으로 처리
+                cell_text = cell if cell is not None else " "
                 # 셀 내용을 여러 줄로 나누기
-                lines = split_text(cell, 15)  # 셀당 최대 15자
+                lines = split_text(cell_text, 15)  # 셀당 최대 15자
                 for k, line in enumerate(lines):
                     if k < 2:  # 최대 2줄만 표시
                         text_y = y - (i * cell_height) - (k * 10) - 5
                         c.drawString(55 + (j * cell_width), text_y, line)
         
         y -= table_height + 20  # 표 높이 + 여백
+        return y  # 수정된 y 좌표 반환
 
 def extract_images_from_docx(doc, c, y, height, tempdir):
     for shape in doc.inline_shapes:
@@ -126,30 +132,39 @@ def convert_docx_to_pdf(input_path, output_path, tempdir):
     width, height = A4
     y = height - 50
     
-    # 표 처리
-    for table in doc.tables:
-        y = extract_tables_from_docx(doc, c, y, height)
-        if y < 50:
-            c.showPage()
-            c.setFont("NanumGothic", 11)
-            y = height - 50
-    
-    # 텍스트 처리
-    for para in doc.paragraphs:
-        # 표가 아닌 경우에만 텍스트 처리
-        if not para._element.xpath('.//w:tbl'):
-            for line in split_text(para.text.strip(), 90):
-                if y < 50:
-                    c.showPage()
-                    c.setFont("NanumGothic", 11)
-                    y = height - 50
-                c.drawString(50, y, line)
-                y -= 15
-    
-    # 이미지 처리
-    extract_images_from_docx(doc, c, y, height, tempdir)
+    try:
+        # 표 처리
+        for table in doc.tables:
+            y = extract_tables_from_docx(doc, c, y, height)
+            if y is None:  # 표 처리 중 오류 발생 시 건너뛰기
+                continue
+            if y < 50:
+                c.showPage()
+                c.setFont("NanumGothic", 11)
+                y = height - 50
+        
+        # 텍스트 처리
+        for para in doc.paragraphs:
+            # 표가 아닌 경우에만 텍스트 처리
+            if not para._element.xpath('.//w:tbl'):
+                text = para.text or ""  # None 값 처리
+                for line in split_text(text.strip(), 90):
+                    if y < 50:
+                        c.showPage()
+                        c.setFont("NanumGothic", 11)
+                        y = height - 50
+                    c.drawString(50, y, line)
+                    y -= 15
+        
+        # 이미지 처리
+        extract_images_from_docx(doc, c, y, height, tempdir)
+        
+    except Exception as e:
+        st.error(f"문서 처리 중 오류 발생: {str(e)}")
+        return None
     
     c.save()
+    return output_path
 
 def extract_images_from_pptx(prs, c, y, height, tempdir):
     for slide in prs.slides:
