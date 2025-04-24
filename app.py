@@ -559,6 +559,9 @@ if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
 
+if st.sidebar.button("🔗 채용_이력서 pdf변환", use_container_width=True):
+    st.session_state.menu = "🔗 채용_이력서 pdf변환"
+
 # 채용서포트 링크 추가
 st.sidebar.markdown("---")
 st.sidebar.markdown("##### 참고 사이트")
@@ -2126,6 +2129,10 @@ try:
                     file_name=f"인사발령내역_{selected_year}.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+
+        elif menu == "🔗 채용_이력서 pdf변환":
+            st.title("🔗 채용_이력서 pdf변환")
+            st.info("🚧 개발 예정입니다. 곧 만나요! 🚧")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
