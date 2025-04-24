@@ -2170,14 +2170,16 @@ try:
                         if ext == '.pdf':
                             pdf_paths.append(input_path)
                             st.success(f"PDF 파일 처리 완료: {file.name}")
-                        else:
-                            # unoconv를 사용하여 PDF로 변환
+                        elif ext == '.docx':
+                            # Word 파일을 PDF로 변환
                             output_path = os.path.join(tmpdir, f"{os.path.splitext(file.name)[0]}.pdf")
-                            if convert_to_pdf(input_path, output_path):
+                            if docx_to_pdf(input_path, output_path):
                                 pdf_paths.append(output_path)
                                 st.success(f"PDF 변환 완료: {file.name}")
                             else:
                                 st.error(f"변환 실패: {file.name}")
+                        else:
+                            st.error(f"지원하지 않는 파일 형식입니다: {file.name}")
                 
                 if pdf_paths:
                     # PDF 병합
@@ -2218,6 +2220,42 @@ def get_libreoffice_path():
 def convert_to_pdf(input_path, output_path):
     try:
         unoconv.convert(input_path, output_path)
+        return True
+    except Exception as e:
+        st.error(f"변환 중 오류 발생: {str(e)}")
+        return False
+
+def docx_to_pdf(docx_path, pdf_path):
+    try:
+        # Word 문서 읽기
+        doc = Document(docx_path)
+        
+        # PDF 생성
+        c = canvas.Canvas(pdf_path, pagesize=letter)
+        width, height = letter
+        
+        # 한글 폰트 등록
+        try:
+            pdfmetrics.registerFont(TTFont('HanSans', 'NanumGothic.ttf'))
+            c.setFont('HanSans', 12)
+        except:
+            c.setFont('Helvetica', 12)
+        
+        y = height - 50
+        for para in doc.paragraphs:
+            if y < 50:
+                c.showPage()
+                y = height - 50
+                try:
+                    c.setFont('HanSans', 12)
+                except:
+                    c.setFont('Helvetica', 12)
+            
+            text = para.text
+            c.drawString(50, y, text)
+            y -= 20
+        
+        c.save()
         return True
     except Exception as e:
         st.error(f"변환 중 오류 발생: {str(e)}")
