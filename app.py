@@ -18,12 +18,18 @@ from dateutil.relativedelta import relativedelta
 import tempfile
 from pathlib import Path
 from docx import Document
+from docx.shared import Inches
 from pptx import Presentation
+from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from PyPDF2 import PdfMerger
+from reportlab.platypus import Table, TableStyle, Spacer
+from reportlab.lib import colors
+from docx.enum.shape import WD_INLINE_SHAPE
+from pptx.enum.shapes import MSO_SHAPE_TYPE
 
 # 나눔고딕 폰트 등록
 pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
@@ -31,13 +37,73 @@ pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
 def split_text(text, max_chars):
     return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
 
-def convert_docx_to_pdf(input_path, output_path):
+def extract_tables_from_docx(doc, c, y, height):
+    for table in doc.tables:
+        data = []
+        for row in table.rows:
+            row_data = [cell.text.strip() for cell in row.cells]
+            data.append(row_data)
+        
+        # 표의 높이 계산
+        table_height = len(data) * 20  # 행당 20포인트
+        
+        # 새 페이지가 필요한지 확인
+        if y - table_height < 50:
+            c.showPage()
+            c.setFont("NanumGothic", 11)
+            y = height - 50
+        
+        # 표 그리기
+        for i, row in enumerate(data):
+            x = 50
+            for j, cell in enumerate(row):
+                c.drawString(x, y, cell)
+                x += 100  # 셀 너비
+            y -= 20  # 행 높이
+        
+        y -= 20  # 표 다음 여백
+
+def extract_images_from_docx(doc, c, y, height, tempdir):
+    for shape in doc.inline_shapes:
+        if shape.type == WD_INLINE_SHAPE.PICTURE:
+            # 이미지 저장
+            image_path = os.path.join(tempdir, f"image_{shape._inline.graphic.graphicData.pic.nvPicPr.cNvPr.id}.png")
+            with open(image_path, 'wb') as f:
+                f.write(shape._inline.graphic.graphicData.pic.blipFill.blip.embed)
+            
+            # 이미지 크기 조정
+            img = Image.open(image_path)
+            img_width, img_height = img.size
+            max_width = 500  # 최대 너비
+            if img_width > max_width:
+                ratio = max_width / img_width
+                img_width = max_width
+                img_height = int(img_height * ratio)
+            
+            # 새 페이지가 필요한지 확인
+            if y - img_height < 50:
+                c.showPage()
+                c.setFont("NanumGothic", 11)
+                y = height - 50
+            
+            # 이미지 그리기
+            c.drawImage(image_path, 50, y - img_height, width=img_width, height=img_height)
+            y -= img_height + 20  # 이미지 높이 + 여백
+
+def convert_docx_to_pdf(input_path, output_path, tempdir):
     doc = Document(input_path)
     c = canvas.Canvas(output_path, pagesize=A4)
     c.setFont("NanumGothic", 11)
     width, height = A4
     y = height - 50
+    
     for para in doc.paragraphs:
+        # 표 처리
+        if para._element.xpath('.//w:tbl'):
+            extract_tables_from_docx(doc, c, y, height)
+            continue
+        
+        # 텍스트 처리
         for line in split_text(para.text.strip(), 90):
             if y < 50:
                 c.showPage()
@@ -45,13 +111,46 @@ def convert_docx_to_pdf(input_path, output_path):
                 y = height - 50
             c.drawString(50, y, line)
             y -= 15
+    
+    # 이미지 처리
+    extract_images_from_docx(doc, c, y, height, tempdir)
+    
     c.save()
 
-def convert_pptx_to_pdf(input_path, output_path):
+def extract_images_from_pptx(prs, c, y, height, tempdir):
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                # 이미지 저장
+                image_path = os.path.join(tempdir, f"slide_{slide.slide_id}_image_{shape.shape_id}.png")
+                with open(image_path, 'wb') as f:
+                    f.write(shape.image.blob)
+                
+                # 이미지 크기 조정
+                img = Image.open(image_path)
+                img_width, img_height = img.size
+                max_width = 500  # 최대 너비
+                if img_width > max_width:
+                    ratio = max_width / img_width
+                    img_width = max_width
+                    img_height = int(img_height * ratio)
+                
+                # 새 페이지가 필요한지 확인
+                if y - img_height < 50:
+                    c.showPage()
+                    c.setFont("NanumGothic", 11)
+                    y = height - 50
+                
+                # 이미지 그리기
+                c.drawImage(image_path, 50, y - img_height, width=img_width, height=img_height)
+                y -= img_height + 20  # 이미지 높이 + 여백
+
+def convert_pptx_to_pdf(input_path, output_path, tempdir):
     prs = Presentation(input_path)
     c = canvas.Canvas(output_path, pagesize=A4)
     c.setFont("NanumGothic", 11)
     width, height = A4
+    
     for slide in prs.slides:
         y = height - 50
         for shape in slide.shapes:
@@ -63,6 +162,10 @@ def convert_pptx_to_pdf(input_path, output_path):
                         y = height - 50
                     c.drawString(50, y, line)
                     y -= 15
+        
+        # 이미지 처리
+        extract_images_from_pptx(prs, c, y, height, tempdir)
+        
         c.showPage()
     c.save()
 
@@ -80,10 +183,10 @@ def convert_to_pdf(file, tempdir):
     if ext == ".pdf":
         return input_path
     elif ext == ".docx":
-        convert_docx_to_pdf(input_path, output_path)
+        convert_docx_to_pdf(input_path, output_path, tempdir)
         return output_path
     elif ext == ".pptx":
-        convert_pptx_to_pdf(input_path, output_path)
+        convert_pptx_to_pdf(input_path, output_path, tempdir)
         return output_path
     elif ext in [".png", ".jpg", ".jpeg"]:
         convert_image_to_pdf(input_path, output_path)
