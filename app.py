@@ -2231,7 +2231,7 @@ try:
                     width: 100%;
                     border-collapse: collapse;
                     margin: 5px 0;
-                    font-size: 12px;
+                    font-size: 12px; 
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
