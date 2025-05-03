@@ -2217,8 +2217,34 @@ try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
                 
-                # 첫 번째 열을 '구분'으로 설정하고 나머지 열은 YYYY-MM 형식으로 변경
-                schedule_df.columns = ['구분'] + [f"{col[:4]}-{col[4:6]}" if len(col) >= 6 else col for col in schedule_df.columns[1:]]
+                # 컬럼명을 문자열로 변환
+                schedule_df.columns = schedule_df.columns.astype(str)
+                
+                # 첫 번째 열을 '구분'으로 설정
+                new_columns = ['구분']
+                
+                # 나머지 열들의 이름 처리
+                for col in schedule_df.columns[1:]:
+                    try:
+                        # datetime 객체인 경우
+                        if isinstance(col, pd.Timestamp) or isinstance(col, datetime):
+                            new_col = col.strftime('%Y-%m')
+                        # 숫자인 경우 (예: 202401)
+                        elif str(col).isdigit() and len(str(col)) == 6:
+                            year = str(col)[:4]
+                            month = str(col)[4:]
+                            new_col = f"{year}-{month}"
+                        # 이미 'YYYY-MM' 형식인 경우
+                        elif '-' in str(col):
+                            new_col = col
+                        else:
+                            new_col = col
+                        new_columns.append(new_col)
+                    except:
+                        new_columns.append(col)
+                
+                # 새로운 컬럼명 적용
+                schedule_df.columns = new_columns
                 
                 # NaN 값을 빈 문자열로 변환
                 schedule_df = schedule_df.fillna("")
@@ -2246,7 +2272,7 @@ try:
                 end_date = datetime(end_year, end_month, 1)
                 
                 while current_date <= end_date:
-                    month_key = f"{current_date.year}-{current_date.month:02d}"
+                    month_key = current_date.strftime('%Y-%m')
                     selected_months.append(month_key)
                     if current_date.month == 12:
                         current_date = datetime(current_date.year + 1, 1, 1)
