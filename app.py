@@ -1254,7 +1254,7 @@ try:
                     '계약직_입사': '계약직\n입사',
                     '계약직_퇴사': '계약직\n퇴사'
                 }).style.set_properties(**{
-                    'text-align': 'center'
+                    'text-align': 'center' 
                 }),
                 hide_index=True,
                 width=800,
