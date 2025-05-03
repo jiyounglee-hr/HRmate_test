@@ -823,7 +823,7 @@ try:
                         퇴사자_df.index = 퇴사자_df.index + 1
                         퇴사자_df = 퇴사자_df.rename_axis('No.')
                         st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
-                                   use_container_width=True,  height=300)
+                                   use_container_width=True,  height=400)
                     else:
                         st.info("2025년 퇴사자가 없습니다.")
                 
