@@ -2412,8 +2412,12 @@ try:
             st.markdown("<br>", unsafe_allow_html=True)
             
             try:
-                # 엑셀 파일에서 연간일정 시트 읽기
-                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
+                # 구글 시트에서 주요일정 시트 읽기
+                worksheet = gc.open_by_url(st.secrets["google_sheet_url"]).worksheet("주요일정")
+                schedule_data = worksheet.get_all_values()
+                
+                # 데이터프레임으로 변환
+                schedule_df = pd.DataFrame(schedule_data[1:], columns=schedule_data[0])
                 
                 # NaN 값을 빈 문자열로 변환
                 schedule_df = schedule_df.fillna("")
