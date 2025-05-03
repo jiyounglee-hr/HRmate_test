@@ -2501,7 +2501,7 @@ try:
                                 table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #EE6C6C;">{cell_value}</td>'
                             else:
                                 table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
-                    table_html += '</tr>'
+                    table_html += '</tr>' 
                 
                 table_html += '</table></div>'
                 
