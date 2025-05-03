@@ -2553,7 +2553,7 @@ try:
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
             st.markdown("<br>", unsafe_allow_html=True)          
-            st.markdown('<a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">🔗 업무보고 및 주요일정 DB</a>', unsafe_allow_html=True)
+            st.markdown('<a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" target="_blank" style="text-decoration: none; color: #1b1b1e;">🔗 업무보고 및 주요일정 DB</a>', unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
