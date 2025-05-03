@@ -2383,12 +2383,12 @@ try:
 
                 if not filtered_df.empty:
                     html_output = []
-                    html_output.append("<table>")
+                    html_output.append('<table style="width: 70%; margin: 0 auto;">')
                     
                     for _, row in filtered_df.iterrows():
                         html_output.append("<tr>")
                         # 업무구분 
-                        html_output.append(f'<td style="width: 15%; text-align: left; background-color: #f0f2f6; font-size: 13px;""> {row["업무구분"]}</td>')
+                        html_output.append(f'<td style="width: 20%; text-align: left; background-color: #f0f2f6; font-size: 13px;""> {row["업무구분"]}</td>')
                         # 업무내용
                         # HTML로 입력된 경우 그대로 사용
                         업무내용 = row["업무내용"]
