@@ -2302,17 +2302,7 @@ try:
                 # 테이블 표시
                 st.markdown(table_html, unsafe_allow_html=True)
 
-                # 엑셀 다운로드 버튼
-                excel_data = BytesIO()
-                with pd.ExcelWriter(excel_data, engine='openpyxl') as writer:
-                    schedule_df.to_excel(writer, index=False, sheet_name='연간일정')
                 
-                st.download_button(
-                    label="📥 엑셀 다운로드",
-                    data=excel_data.getvalue(),
-                    file_name=f"연간일정.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
 
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
