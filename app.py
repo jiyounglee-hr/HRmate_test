@@ -2390,9 +2390,12 @@ try:
                         # 업무구분 (빨간 화살표 포함)
                         html_output.append(f'<td style="width: 15%; text-align: left;"><span style="color: red;"></span> {row["업무구분"]}</td>')
                         # 업무내용
-                        # 여러 줄 지원 및 URL 자동 링크 변환
-                        업무내용 = row["업무내용"].replace("\n", "<br>")
-                        업무내용 = re.sub(r'(https?://\S+)', r'<a href="\1" target="_blank">\1</a>', 업무내용)
+                        # HTML로 입력된 경우 그대로 사용
+                        업무내용 = row["업무내용"]
+                        if not 업무내용.startswith("<"):
+                            # 여러 줄 지원 및 URL 자동 링크 변환
+                            업무내용 = 업무내용.replace("\n", "<br>")
+                            업무내용 = re.sub(r'(https?://\S+)', r'<a href="\1" target="_blank">\1</a>', 업무내용)
                         html_output.append(f'<td style="width: 85%; text-align: left; padding-left: 15px;">{업무내용}</td>')
                         html_output.append("</tr>")
                     
