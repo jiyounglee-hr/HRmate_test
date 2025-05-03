@@ -2219,24 +2219,42 @@ try:
                 
                 # 데이터프레임이 비어있지 않은 경우에만 처리
                 if not schedule_df.empty:
-                    # 열 병합을 위해 동일한 값을 가진 셀 처리
+                    # 날짜 컬럼을 년월 형식으로 변경
+                    date_columns = schedule_df.select_dtypes(include=['datetime64[ns]']).columns
+                    for col in date_columns:
+                        schedule_df[col] = pd.to_datetime(schedule_df[col]).dt.strftime('%Y-%m')
+                    
+                    # 동일한 값을 가진 연속된 셀 병합을 위한 스타일 적용
                     st.markdown("""
                     <style>
-                    .merged-cell {
-                        background-color: #f0f2f6;
-                        text-align: center;
-                        font-weight: bold;
-                        padding: 10px;
-                        border: 1px solid #e1e4e8;
+                    .stDataFrame {
+                        font-size: 14px;
+                    }
+                    .stDataFrame td {
+                        text-align: center !important;
+                        vertical-align: middle !important;
+                    }
+                    .stDataFrame th {
+                        text-align: center !important;
+                        background-color: #f0f2f6 !important;
+                        font-weight: bold !important;
                     }
                     </style>
                     """, unsafe_allow_html=True)
+                    
+                    # 데이터프레임의 각 열에 대해 동일한 값 처리
+                    for col in schedule_df.columns:
+                        # 연속된 동일 값 확인
+                        mask = schedule_df[col] != schedule_df[col].shift()
+                        # 각 그룹의 첫 번째 값만 유지하고 나머지는 빈 문자열로 설정
+                        schedule_df.loc[~mask, col] = ''
                     
                     # 데이터프레임 표시
                     st.dataframe(
                         schedule_df,
                         use_container_width=True,
-                        hide_index=True
+                        hide_index=True,
+                        height=400
                     )
                 else:
                     st.info("연간일정 데이터가 없습니다.")
