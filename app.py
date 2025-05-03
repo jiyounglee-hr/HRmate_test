@@ -709,7 +709,7 @@ try:
                         x='인원수',
                         title="본부별",
                         width=400,
-                        height=400,
+                        height=300,
                         orientation='h'  # 수평 방향으로 변경
                     )
                     fig_dept.update_traces(
@@ -749,7 +749,7 @@ try:
                         y='인원수',
                         title="직책별",
                         width=400,
-                        height=400
+                        height=300
                     )
                     fig_position.update_traces(
                         fill='tonexty',
