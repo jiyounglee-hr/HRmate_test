@@ -1164,7 +1164,7 @@ try:
                 ))
 
                 fig.update_layout(
-                    title="전체 인원 현황",
+                    title="전체 인원",
                     title_x=0,
                     height=350,
                     showlegend=False,
@@ -1213,7 +1213,7 @@ try:
                 ))
 
                 fig2.update_layout(
-                    title="연도별 고용형태 현황",
+                    title="고용형태별 인원",
                     title_x=0,
                     height=350,
                     barmode='stack',
