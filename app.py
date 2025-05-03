@@ -775,7 +775,7 @@ try:
                     fig = go.Figure(data=[go.Pie(
                         labels=['남', '여'],
                         values=[gender_percentages['남'], gender_percentages['여']],
-                        hole=0.8,
+                        hole=0.3,
                         marker_colors=['#4A4A4A', '#FF4B4B'],
                         textinfo='label+percent',
                         textposition='inside',
