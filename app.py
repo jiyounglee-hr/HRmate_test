@@ -2383,7 +2383,7 @@ try:
 
                 if not filtered_df.empty:
                     html_output = []
-                    html_output.append('<table style="width: 70%; margin: 0 auto;">')
+                    html_output.append('<table style="width: 70%;">')
                     
                     for _, row in filtered_df.iterrows():
                         html_output.append("<tr>")
