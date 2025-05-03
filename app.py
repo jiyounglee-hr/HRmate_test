@@ -2255,7 +2255,6 @@ try:
                 }
                 .schedule-table td:first-child {
                     background-color: #f8f9fa;
-                    font-weight: bold;
                     position: sticky;
                     left: 0;
                     z-index: 1;
@@ -2284,7 +2283,7 @@ try:
                     for col in schedule_df.columns:
                         cell_value = row[col]
                         if col == schedule_df.columns[0]:  # 첫 번째 열(구분)
-                            table_html += f'<td style="background-color: #f8f9fa; text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                            table_html += f'<td style="background-color: #f8f9fa; text-align: center; color: #000000;">{cell_value}</td>'
                         else:
                             # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
                             if "진행" in str(cell_value).lower():
