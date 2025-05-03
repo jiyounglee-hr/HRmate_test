@@ -2239,9 +2239,10 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
-                # 데이터프레임의 모든 값을 문자열로 변환
+                # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
                 for col in schedule_df.columns:
                     schedule_df[col] = schedule_df[col].astype(str)
+                    schedule_df[col] = schedule_df[col].apply(lambda x: x.split('\n')[0] if '\n' in x else x)  # 줄바꿈 제거
                     schedule_df[col] = schedule_df[col].apply(lambda x: x.split('Name:')[0].split('dtype:')[0].strip())
                     schedule_df[col] = schedule_df[col].replace({'nan': '', 'None': '', 'NaT': ''})
                 
