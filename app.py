@@ -2345,6 +2345,10 @@ try:
             if not report_df.empty:
                 st.markdown("###### 업무 공유/보고")
                 
+                # 디버깅을 위한 데이터프레임 정보 출력
+                st.write("데이터프레임 컬럼:", report_df.columns.tolist())
+                st.write("데이터프레임 샘플:", report_df.head(1))
+                
                 # 조회 조건 컬럼 생성
                 col1, col2, col3 = st.columns(3)
                 
@@ -2440,7 +2444,7 @@ try:
                             
                             html_content.append(f'''
                                 <tr>
-                                    <td class="type-col">{row['타입']}</td>
+                                    <td class="type-col">{row['업무구분']}</td>
                                     <td class="content-col">{content}</td>
                                     <td class="date-col">{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
                                     <td class="status-col">{row['보고상태']}</td>
