@@ -745,7 +745,6 @@ try:
                     # 직책별 그래프
                     fig_position = px.area(
                         position_counts,
-                        x='직책',
                         y='인원수',
                         title="직책별",
                         width=400,
