@@ -805,7 +805,7 @@ try:
                     st.markdown("##### ㆍ2025년 입사자")
                     입사자_df = df[df['정규직전환연도'] == 2025][['성명', '팀', '직위', '입사일']]
                     if not 입사자_df.empty:
-                        입사자_df = 입사자_df.sort_values('입사일')
+                        입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
                         입사자_df = 입사자_df.reset_index(drop=True)
                         입사자_df.index = 입사자_df.index + 1
                         입사자_df = 입사자_df.rename_axis('No.')
@@ -818,12 +818,12 @@ try:
                     st.markdown("##### ㆍ2025년 퇴사자")
                     퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
                     if not 퇴사자_df.empty:
-                        퇴사자_df = 퇴사자_df.sort_values('퇴사일')
+                        퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
                         퇴사자_df = 퇴사자_df.reset_index(drop=True)
                         퇴사자_df.index = 퇴사자_df.index + 1
                         퇴사자_df = 퇴사자_df.rename_axis('No.')
                         st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
-                                   use_container_width=True)
+                                   use_container_width=True,  height=800)
                     else:
                         st.info("2025년 퇴사자가 없습니다.")
                 
