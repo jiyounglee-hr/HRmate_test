@@ -1176,7 +1176,6 @@ try:
                         range=[0, max(stats_df['전체']) * 1.2]
                     ),
                     xaxis=dict(
-                        title="연도",
                         showgrid=False,
                         tickformat='d'  # 정수 형식으로 표시
                     ),
