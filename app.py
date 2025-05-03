@@ -2345,10 +2345,6 @@ try:
             if not report_df.empty:
                 st.markdown("###### 업무 공유/보고")
                 
-                # 디버깅을 위한 데이터프레임 정보 출력
-                st.write("데이터프레임 컬럼:", report_df.columns.tolist())
-                st.write("데이터프레임 샘플:", report_df.head(1))
-                
                 # 조회 조건 컬럼 생성
                 col1, col2, col3 = st.columns(3)
                 
@@ -2424,14 +2420,7 @@ try:
                     """)
                     
                     html_content.append('<table class="report-table">')
-                    html_content.append('''
-                        <tr>
-                            <th>업무구분</th>
-                            <th>업무내용</th>
-                            <th>보고일</th>
-                            <th>보고상태</th>
-                        </tr>
-                    ''')
+                    html_content.append('<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>')
                     
                     for _, row in filtered_df.iterrows():
                         content = str(row['업무내용'])
@@ -2442,17 +2431,17 @@ try:
                                     words[i] = f'<a href="{word}" target="_blank">{word}</a>'
                                 content = ' '.join(words)
                             
-                            html_content.append(f'''
-                                <tr>
-                                    <td class="type-col">{row['업무구분']}</td>
-                                    <td class="content-col">{content}</td>
-                                    <td class="date-col">{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
-                                    <td class="status-col">{row['보고상태']}</td>
-                                </tr>
-                            ''')
-                    
+                            row_html = f'<tr>'
+                            row_html += f'<td class="type-col">{row["타입"]}</td>'
+                            row_html += f'<td class="content-col">{content}</td>'
+                            row_html += f'<td class="date-col">{row["보고일"].strftime("%Y-%m-%d") if pd.notna(row["보고일"]) else ""}</td>'
+                            row_html += f'<td class="status-col">{row["보고상태"]}</td>'
+                            row_html += f'</tr>'
+                            html_content.append(row_html)
+                        
                     html_content.append('</table>')
-                    st.markdown(''.join(html_content), unsafe_allow_html=True)
+                    final_html = ''.join(html_content)
+                    st.markdown(final_html, unsafe_allow_html=True)
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
