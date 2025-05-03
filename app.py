@@ -2316,7 +2316,7 @@ try:
                     try:
                         # 업무보고 시트 ID
                         sheet_id = st.secrets["google_sheets"]["work_report_id"]
-                        worksheet = gc.open_by_key(sheet_id).worksheet('업무보고')  # '업무보고' 시트 선택
+                        worksheet = gc.open_by_key(sheet_id).worksheet('시트1')  # '업무보고' 시트 선택
                     except Exception as e:
                         st.error(f"시트 접근 중 오류 발생: {str(e)}")
                         return pd.DataFrame()
