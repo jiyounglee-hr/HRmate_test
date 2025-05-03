@@ -2338,7 +2338,7 @@ try:
                 table_html += "</table></div>"
 
                 # 테이블 표시
-                st.markdown(table_html, unsafe_allow_html=True)
+                st.markdown(table_html, unsafe_allow_html=True) 
                     
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
