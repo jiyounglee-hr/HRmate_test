@@ -919,7 +919,7 @@ try:
                     title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
                     fig.update_layout(
                         title=title_text,
-                        height=500,
+                        height=350,
                         showlegend=False,
                         plot_bgcolor='white',
                         yaxis=dict(
@@ -935,6 +935,9 @@ try:
                     )
 
                     st.plotly_chart(fig, use_container_width=True)
+
+                with space_col:
+                    st.write("")  # 빈 공간
                 
                 # 부서별 근속기간 분석
                 본부별_근속기간 = pd.pivot_table(
