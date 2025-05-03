@@ -638,7 +638,7 @@ try:
             # 기준일자로 재직자 필터링
             재직자 = len(df[
                 (df['입사일'].dt.date <= query_date) & 
-                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > query_date))
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
             ])
             
             # 해당 연도의 입퇴사자 계산
