@@ -625,70 +625,135 @@ try:
             df['퇴사연도'] = df['퇴사일'].dt.year
         
         if menu == "📊 현재 인원현황":
-            # 기본 통계
-            if '재직상태' in df.columns and '정규직전환일' in df.columns:
-                재직자 = len(df[df['재직상태'] == '재직'])
-                
-                # 정규직/계약직 입퇴사자 계산
-                정규직_입사자 = len(df[(df['입사일'].dt.year == 2025) & (df['고용구분'] == '정규직')])
-                정규직_퇴사자 = len(df[(df['퇴사연도'] == 2025) & (df['고용구분'] == '정규직')])
-                계약직_입사자 = len(df[(df['입사일'].dt.year == 2025) & (df['고용구분'] == '계약직')])
-                계약직_퇴사자 = len(df[(df['퇴사연도'] == 2025) & (df['고용구분'] == '계약직')])
-                
-                # 퇴사율 계산 (소수점 첫째자리까지)
-                재직_정규직_수 = len(df[(df['고용구분'] == '정규직') & (df['재직상태'] == '재직')])
-                퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
-                
-                 # 기본통계 분석
-                st.markdown("##### ㆍ현재 인원 현황")
-                # 통계 표시
-                st.markdown(
-                    f"""
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">전체</div>
-                            <div class="metric-value total-value">{재직자:,}</div>
-                            <div class="metric-sublabel">재직자</div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div style="min-width: 100px;">
-                            <div class="metric-label">정규직</div>
-                            <div style="display: flex; justify-content: space-between; gap: 20px;">
-                                <div>
-                                    <div class="metric-value">{정규직_입사자}</div>
-                                    <div class="metric-sublabel">입사자</div>
-                                </div>
-                                <div>
-                                    <div class="metric-value">{정규직_퇴사자}</div>
-                                    <div class="metric-sublabel">퇴사자</div>
-                                </div>
+            # 기본통계 분석
+            st.markdown("##### ㆍ현재 인원 현황")
+            
+            # 조회 기준일 선택
+            query_date = st.date_input(
+                "조회 기준일",
+                value=datetime.now().date(),
+                help="선택한 날짜 기준으로 인원현황을 조회합니다."
+            )
+
+            # 기준일자로 재직자 필터링
+            재직자 = len(df[
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > query_date))
+            ])
+            
+            # 해당 연도의 입퇴사자 계산
+            selected_year = query_date.year
+            정규직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['입사일'].dt.date <= query_date)])
+            정규직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['퇴사일'].dt.date <= query_date)])
+            계약직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['입사일'].dt.date <= query_date)])
+            계약직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['퇴사일'].dt.date <= query_date)])
+            
+            # 퇴사율 계산 (소수점 첫째자리까지)
+            재직_정규직_수 = len(df[
+                (df['고용구분'] == '정규직') & 
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > query_date))
+            ])
+            퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
+            
+            # 통계 표시
+            st.markdown(
+                f"""
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-label">전체</div>
+                        <div class="metric-value total-value">{재직자:,}</div>
+                        <div class="metric-sublabel">재직자</div>
+                    </div>
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div style="min-width: 100px;">
+                        <div class="metric-label">정규직</div>
+                        <div style="display: flex; justify-content: space-between; gap: 20px;">
+                            <div>
+                                <div class="metric-value">{정규직_입사자}</div>
+                                <div class="metric-sublabel">입사자</div>
                             </div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div style="min-width: 100px;">
-                            <div class="metric-label">계약직</div>
-                            <div style="display: flex; justify-content: space-between; gap: 20px;">
-                                <div>
-                                    <div class="metric-value" style="color: #666;">{계약직_입사자}</div>
-                                    <div class="metric-sublabel">입사자</div>
-                                </div>
-                                <div>
-                                    <div class="metric-value" style="color: #666;">{계약직_퇴사자}</div>
-                                    <div class="metric-sublabel">퇴사자</div>
-                                </div>
+                            <div>
+                                <div class="metric-value">{정규직_퇴사자}</div>
+                                <div class="metric-sublabel">퇴사자</div>
                             </div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div>
-                            <div class="metric-label">퇴사율</div>
-                            <div class="metric-value" style="color: #ff0000;">{퇴사율}%</div>
-                            <div class="metric-sublabel">정규직 {재직_정규직_수}명</div>
                         </div>
                     </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div style="min-width: 100px;">
+                        <div class="metric-label">계약직</div>
+                        <div style="display: flex; justify-content: space-between; gap: 20px;">
+                            <div>
+                                <div class="metric-value" style="color: #666;">{계약직_입사자}</div>
+                                <div class="metric-sublabel">입사자</div>
+                            </div>
+                            <div>
+                                <div class="metric-value" style="color: #666;">{계약직_퇴사자}</div>
+                                <div class="metric-sublabel">퇴사자</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div>
+                        <div class="metric-label">퇴사율</div>
+                        <div class="metric-value" style="color: #ff0000;">{퇴사율}%</div>
+                        <div class="metric-sublabel">정규직 {재직_정규직_수}명</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
+            col1, col2, col3 = st.columns([0.4, 0.3, 0.3])
+            
+            # 현재 재직자 필터링
+            current_employees = df[df['재직상태'] == '재직']
+            
+            with col1:
+                # 본부별 인원 현황
+                dept_counts = current_employees['본부'].value_counts().reset_index()
+                dept_counts.columns = ['본부', '인원수']
+                
+                # 본부별 그래프 (수평 막대 그래프)
+                fig_dept = px.bar(
+                    dept_counts,
+                    y='본부',
+                    x='인원수',
+                    title="본부별",
+                    width=400,
+                    height=300,
+                    orientation='h'  # 수평 방향으로 변경
+                )
+                fig_dept.update_traces(
+                    marker_color='#FF4B4B',
+                    text=dept_counts['인원수'],
+                    textposition='outside',
+                    textfont=dict(size=14)
+                )
+                fig_dept.update_layout(
+                    showlegend=False,
+                    title_x=0.5,
+                    title_y=0.95,
+                    margin=dict(t=50, r=50),  # 오른쪽 여백 추가
+                    xaxis=dict(
+                        title="",
+                        range=[0, max(dept_counts['인원수']) * 1.2]
+                    ),
+                    yaxis=dict(
+                        title="",
+                        autorange="reversed"  # 위에서 아래로 정렬
+                    )
+                )
+                st.plotly_chart(fig_dept, use_container_width=True, key="dept_chart")
+            
+            with col2:
+                # 직책별 인원 현황
+                position_order = ['C-LEVEL', '실리드', '팀리드', '멤버', '계약직']
+                position_counts = current_employees['직책'].value_counts()
+                position_counts = pd.Series(position_counts.reindex(position_order).fillna(0))
                 st.markdown("<br>", unsafe_allow_html=True)
                 
                 # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
