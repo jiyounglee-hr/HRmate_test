@@ -692,7 +692,7 @@ try:
                 st.markdown("<br>", unsafe_allow_html=True)
                 
                 # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
-                col1, col2, col3 = st.columns([0.3, 0.3, 0.3])
+                col1, col2, col3 = st.columns([0.4 0.3, 0.3])
                 
                 # 현재 재직자 필터링
                 current_employees = df[df['재직상태'] == '재직']
