@@ -2231,10 +2231,12 @@ try:
                         except:
                             return value
 
-                    # 모든 컬럼에 대해 날짜 형식 변환 시도
+                    # 컬럼명(헤더) 날짜 형식 변환
+                    schedule_df.columns = [convert_date_format(col) if isinstance(col, (str, pd.Timestamp)) and '00:00:00' in str(col) else col for col in schedule_df.columns]
+                    
+                    # 데이터 값 날짜 형식 변환
                     for col in schedule_df.columns:
                         try:
-                            # 첫 번째 비NA 값 확인
                             first_valid = schedule_df[col].dropna().iloc[0]
                             if isinstance(first_valid, (str, pd.Timestamp)) and '00:00:00' in str(first_valid):
                                 schedule_df[col] = schedule_df[col].apply(convert_date_format)
