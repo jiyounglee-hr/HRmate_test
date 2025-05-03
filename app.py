@@ -571,6 +571,9 @@ if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
     st.session_state.menu = "😊 임직원 명부"
 
+if st.sidebar.button("🪧 인사팀 연간일정", use_container_width=True):
+    st.session_state.menu = "🪧 인사팀 연간일정"
+
 st.sidebar.markdown("#### HR Surpport")
 # HR Support 섹션
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
@@ -2206,6 +2209,16 @@ try:
                     file_name=f"인사발령내역_{selected_year}.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+
+        elif menu == "🪧 인사팀 연간일정":
+            st.markdown("##### 🪧 인사팀 연간일정")
+            st.info("🚧 현재 개발 진행 중입니다. 곧 서비스가 제공될 예정입니다.")
+            st.markdown("""
+            **주요 기능 (예정):**
+            - 연간 인사 업무 일정 관리
+            - 주요 업무 마일스톤 관리
+            - 업무 진행 현황 모니터링
+            """)
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
