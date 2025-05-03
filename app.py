@@ -2345,38 +2345,39 @@ try:
             if not report_df.empty:
                 st.markdown("###### 업무 공유/보고")
                 
-                # 조회 조건 컬럼 생성
-                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
+# 조회 조건 컬럼 생성
+                col1, col2, col3 = st.columns([0.1, 0.3, 0.6])
                 
                 with col1:
-                    # 타입 선택
-                    types = ['전체'] + sorted(report_df['타입'].unique().tolist())
-                    selected_type = st.selectbox('타입', types, index=0)
-                
-                with col2:
-                    # 보고일자 선택 - NaN 값 제외
-                    dates = sorted(report_df[report_df['보고일'].notna()]['보고일'].dt.strftime('%Y-%m-%d').unique().tolist(), reverse=True)
-                    selected_date = st.selectbox('보고일자', dates)
-                
-                with col3:
                     # 보고상태 선택
                     status_options = ['보고예정', '보고완료']
                     selected_status = st.selectbox('보고상태', status_options)
 
-                with col4:
+                    # 선택된 보고상태에 해당하는 데이터만 필터링
+                    status_filtered_df = report_df[report_df['보고상태'] == selected_status]
+                    
+                with col2:
+                    # 타입과 보고일을 합친 옵션 생성
+                    type_date_options = ['전체']
+                    for type_val in status_filtered_df['타입'].unique():
+                        dates = status_filtered_df[status_filtered_df['타입'] == type_val]['보고일'].dt.strftime('%Y-%m-%d').unique()
+                        for date in dates:
+                            type_date_options.append(f"{type_val} - {date}")
+                    
+                    selected_type_date = st.selectbox('타입 - 보고일', type_date_options)
+
+                with col3:
                     st.write("")
 
                 # 데이터 필터링
-                filtered_df = report_df.copy()
+                filtered_df = report_df[report_df['보고상태'] == selected_status]
                 
-                if selected_type != '전체':
-                    filtered_df = filtered_df[filtered_df['타입'] == selected_type]
-                
-                if selected_date:
-                    filtered_df = filtered_df[filtered_df['보고일'].dt.strftime('%Y-%m-%d') == selected_date]
-                
-                if selected_status != '전체':
-                    filtered_df = filtered_df[filtered_df['보고상태'] == selected_status]
+                if selected_type_date != '전체':
+                    type_val, date_val = selected_type_date.split(' - ')
+                    filtered_df = filtered_df[
+                        (filtered_df['타입'] == type_val) & 
+                        (filtered_df['보고일'].dt.strftime('%Y-%m-%d') == date_val)
+                    ]
 
                 # 데이터프레임 정렬
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
