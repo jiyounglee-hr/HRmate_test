@@ -1146,7 +1146,7 @@ try:
             ])
             
             # 그래프를 위한 컬럼 생성 (50:50 비율)
-            graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05 0.35, 0.2])
+            graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05, 0.35, 0.2])
             
             with graph_col1:
                 # 전체 인원 그래프 생성
@@ -1186,7 +1186,7 @@ try:
 
             with space_col1:
                 st.write("")  # 빈 공간
-                
+
             with graph_col2:
                 # 정규직/계약직 막대 그래프 생성
                 fig2 = go.Figure()
