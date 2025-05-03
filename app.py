@@ -428,7 +428,7 @@ def load_data():
         if not os.path.exists(file_path):
             st.error(f"파일을 찾을 수 없습니다: {file_path}")
             return None
-            
+             
         # 파일 수정 시간 확인
         last_modified = os.path.getmtime(file_path)
         
@@ -1889,7 +1889,7 @@ try:
                     # 파일 경로를 절대 경로로 변경
                     import os
                     current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "Emp_Data.xlsx")
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
                     
                     # 파일이 존재하는지 확인
                     if not os.path.exists(file_path):
@@ -2061,7 +2061,7 @@ try:
                     # 파일 경로를 절대 경로로 변경
                     import os
                     current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "Emp_Data.xlsx")
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
                     
                     # 파일이 존재하는지 확인
                     if not os.path.exists(file_path):
