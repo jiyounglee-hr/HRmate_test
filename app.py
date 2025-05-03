@@ -929,10 +929,9 @@ try:
                             gridwidth=0.5,
                         ),
                         xaxis=dict(
-                            title="근속기간",
                             showgrid=False,
                         ),
-                        margin=dict(t=50)
+                        margin=dict(t=30)
                     )
 
                     st.plotly_chart(fig, use_container_width=True)
