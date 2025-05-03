@@ -1889,7 +1889,7 @@ try:
                     # 파일 경로를 절대 경로로 변경
                     import os
                     current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    file_path = os.path.join(current_dir, "Emp_Data.xlsx")
                     
                     # 파일이 존재하는지 확인
                     if not os.path.exists(file_path):
@@ -2061,7 +2061,7 @@ try:
                     # 파일 경로를 절대 경로로 변경
                     import os
                     current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    file_path = os.path.join(current_dir, "Emp_Data.xlsx")
                     
                     # 파일이 존재하는지 확인
                     if not os.path.exists(file_path):
