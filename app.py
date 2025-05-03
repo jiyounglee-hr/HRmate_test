@@ -1146,7 +1146,7 @@ try:
             ])
             
             # 그래프를 위한 컬럼 생성 (50:50 비율)
-            graph_col1, graph_col2, with space_col: = st.columns([0.4, 0.4, 0.2])
+            graph_col1, graph_col2, space_col: = st.columns([0.4, 0.4, 0.2])
             
             with graph_col1:
                 # 전체 인원 그래프 생성
