@@ -626,13 +626,25 @@ try:
         
         if menu == "📊 현재 인원현황":
             # 기본통계 분석
-            st.markdown("##### ㆍ현재 인원 현황")
+            st.markdown("##### 현재 인원 현황")
             
             # 조회 기준일 선택
             query_date = st.date_input(
                 "조회 기준일",
                 value=datetime.now().date(),
-                help="선택한 날짜 기준으로 인원현황을 조회합니다."
+                help="선택한 날짜 기준으로 인원현황을 조회합니다.",
+                key="query_date_input",
+                label_visibility="visible"
+            )
+            st.markdown(
+                """
+                <style>
+                div[data-testid="stDateInput"] {
+                    width: 200px;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
             )
 
             # 기준일자로 재직자 필터링
@@ -848,7 +860,7 @@ try:
             st.markdown("<br>", unsafe_allow_html=True)
             
             # 근속기간별 퇴사자 현황 분석
-            st.markdown("##### ㆍ 퇴사자 현황_정규직")
+            st.markdown("##### 퇴사자 현황_정규직")
             
             # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
             col1, col2 = st.columns([2, 1])
