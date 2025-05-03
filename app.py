@@ -823,7 +823,7 @@ try:
                         퇴사자_df.index = 퇴사자_df.index + 1
                         퇴사자_df = 퇴사자_df.rename_axis('No.')
                         st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
-                                   use_container_width=True,  height=385)
+                                   use_container_width=True)
                     else:
                         st.info("2025년 퇴사자가 없습니다.")
                 
@@ -919,7 +919,7 @@ try:
                     title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
                     fig.update_layout(
                         title=title_text,
-                        height=400,
+                        height=300,
                         showlegend=False,
                         plot_bgcolor='white',
                         yaxis=dict(
