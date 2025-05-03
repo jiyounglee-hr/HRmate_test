@@ -2360,7 +2360,7 @@ try:
                 
                 with col3:
                     # 보고상태 선택
-                    status_options = ['전체', '보고예정', '보고완료']
+                    status_options = ['보고예정', '보고완료']
                     selected_status = st.selectbox('보고상태', status_options)
 
                 with col4:
