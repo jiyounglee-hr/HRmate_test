@@ -2433,122 +2433,123 @@ try:
                     # 업무보고 시트 ID
                     sheet_id = st.secrets["google_sheets"]["work_report_id"]
                     worksheet = gc.open_by_key(sheet_id).worksheet('주요일정')  # '업무보고' 시트 선택
+                    schedule_data = worksheet.get_all_values()
                 except Exception as e:
                     st.error(f"시트 접근 중 오류 발생: {str(e)}")
-                    return pd.DataFrame()
+                    schedule_data = []
                 
-                schedule_data = worksheet.get_all_values()
-                
-                # 데이터프레임으로 변환
-                schedule_df = pd.DataFrame(schedule_data[1:], columns=schedule_data[0])
-                
-                # NaN 값을 빈 문자열로 변환
-                schedule_df = schedule_df.fillna("")
-                
-                # 모든 열을 문자열로 변환하고 앞뒤 공백 제거
-                for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].astype(str).str.strip()
+                # 데이터가 있는 경우에만 DataFrame 생성
+                if schedule_data:
+                    # 데이터프레임으로 변환
+                    schedule_df = pd.DataFrame(schedule_data[1:], columns=schedule_data[0])
+                    
+                    # NaN 값을 빈 문자열로 변환
+                    schedule_df = schedule_df.fillna("")
+                    
+                    # 모든 열을 문자열로 변환하고 앞뒤 공백 제거
+                    for col in schedule_df.columns:
+                        schedule_df[col] = schedule_df[col].astype(str).str.strip()
 
-                # 스타일이 적용된 테이블 표시
-                st.markdown("""
-                <style>
-                .schedule-table {
-                    width: 90%;
-                    border-collapse: collapse;
-                    margin: 0px 0;
-                    font-size: 13px; 
-                }
-                .schedule-table th, .schedule-table td {
-                    border: 1px solid #ddd;
-                    padding: 6px;
-                    text-align: center;
-                    min-width: 50px;
-                    color: #A6A6A6;
-                }
-                .schedule-table th {
-                    background-color: #F2F2F2;
-                    position: sticky;
-                    top: 0;
-                    z-index: 1;
-                    white-space: nowrap;
-                    color: #000000;
-                }
-                .schedule-table td {
-                    background-color: white;
-                }
-                .schedule-table tr:nth-child(even) td {
-                    background-color: #f8f9fa;
-                }
-                .schedule-table td:first-child {
-                    background-color: #F2F2F2;
-                    position: sticky;
-                    left: 0;
-                    z-index: 1;
-                }
-                .schedule-container {
-                    overflow-x: auto;
-                    margin-top: 0px;
-                    max-height: 800px;
-                    overflow-y: auto;
-                }
-                </style>
-                """, unsafe_allow_html=True)
+                    # 스타일이 적용된 테이블 표시
+                    st.markdown("""
+                    <style>
+                    .schedule-table {
+                        width: 90%;
+                        border-collapse: collapse;
+                        margin: 0px 0;
+                        font-size: 13px; 
+                    }
+                    .schedule-table th, .schedule-table td {
+                        border: 1px solid #ddd;
+                        padding: 6px;
+                        text-align: center;
+                        min-width: 50px;
+                        color: #A6A6A6;
+                    }
+                    .schedule-table th {
+                        background-color: #F2F2F2;
+                        position: sticky;
+                        top: 0;
+                        z-index: 1;
+                        white-space: nowrap;
+                        color: #000000;
+                    }
+                    .schedule-table td {
+                        background-color: white;
+                    }
+                    .schedule-table tr:nth-child(even) td {
+                        background-color: #f8f9fa;
+                    }
+                    .schedule-table td:first-child {
+                        background-color: #F2F2F2;
+                        position: sticky;
+                        left: 0;
+                        z-index: 1;
+                    }
+                    .schedule-container {
+                        overflow-x: auto;
+                        margin-top: 0px;
+                        max-height: 800px;
+                        overflow-y: auto;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
 
-                # HTML 테이블 생성
-                table_html = '<div class="schedule-container">'
-                table_html += '<div style="margin-bottom: 10px; font-weight: bold;">연간 주요일정</div>'
-                table_html += '<table class="schedule-table">'
-                
-                # 헤더 행 추가
-                table_html += '<tr><th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">구분</th>'
-                for col in schedule_df.columns[1:]:
-                    table_html += f'<th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">{col}</th>'
-                table_html += '</tr>'
-                
-                # 데이터 행 추가
-                for _, row in schedule_df.iterrows():
-                    table_html += '<tr>'
-                    current_month = int(datetime.now().month)  # 현재 월을 정수형으로 가져오기
-                    for idx, col in enumerate(schedule_df.columns):
-                        cell_value = row[col]
-                        if idx == 0:  # 첫 번째 열(구분)
-                            table_html += f'<td style="background-color: #f0f2f6; text-align: center; color: #000000;">{cell_value}</td>'
-                        else:
-                            # 현재 월에 해당하는 열인지 확인 (1월은 첫 번째 열이므로 idx가 1)
-                            is_current_month = (idx == current_month)
-                            
-                            if is_current_month and cell_value and cell_value != "":
-                                # 현재 월이고 내용이 있는 경우 빨간 배경과 흰색 글씨
-                                table_html += f'<td style="background-color: #ff3333; text-align: center; color: #FFFFFF;">{cell_value}</td>'
-                            elif "진행" in str(cell_value).lower():
-                                table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #EE6C6C;">{cell_value}</td>'
-                            elif "계획" in str(cell_value).lower():
-                                table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #A6A6A6;">{cell_value}</td>'
-                            elif cell_value and cell_value != "":  # 그 외 텍스트가 있는 경우
-                                table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #EE6C6C;">{cell_value}</td>'
-                            else:
-                                table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                    # HTML 테이블 생성
+                    table_html = '<div class="schedule-container">'
+                    table_html += '<div style="margin-bottom: 10px; font-weight: bold;">연간 주요일정</div>'
+                    table_html += '<table class="schedule-table">'
+                    
+                    # 헤더 행 추가
+                    table_html += '<tr><th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">구분</th>'
+                    for col in schedule_df.columns[1:]:
+                        table_html += f'<th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">{col}</th>'
                     table_html += '</tr>'
-                
-                table_html += '</table></div>'
-                
-                # 테이블 표시
-                st.markdown(table_html, unsafe_allow_html=True)
+                    
+                    # 데이터 행 추가
+                    for _, row in schedule_df.iterrows():
+                        table_html += '<tr>'
+                        current_month = int(datetime.now().month)  # 현재 월을 정수형으로 가져오기
+                        for idx, col in enumerate(schedule_df.columns):
+                            cell_value = row[col]
+                            if idx == 0:  # 첫 번째 열(구분)
+                                table_html += f'<td style="background-color: #f0f2f6; text-align: center; color: #000000;">{cell_value}</td>'
+                            else:
+                                # 현재 월에 해당하는 열인지 확인 (1월은 첫 번째 열이므로 idx가 1)
+                                is_current_month = (idx == current_month)
+                                
+                                if is_current_month and cell_value and cell_value != "":
+                                    # 현재 월이고 내용이 있는 경우 빨간 배경과 흰색 글씨
+                                    table_html += f'<td style="background-color: #ff3333; text-align: center; color: #FFFFFF;">{cell_value}</td>'
+                                elif "진행" in str(cell_value).lower():
+                                    table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #EE6C6C;">{cell_value}</td>'
+                                elif "계획" in str(cell_value).lower():
+                                    table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                                elif cell_value and cell_value != "":  # 그 외 텍스트가 있는 경우
+                                    table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #EE6C6C;">{cell_value}</td>'
+                                else:
+                                    table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                        table_html += '</tr>'
+                    
+                    table_html += '</table></div>'
+                    
+                    # 테이블 표시
+                    st.markdown(table_html, unsafe_allow_html=True)
 
-                st.markdown("###### 수시/상시 일정")
-                
-                st.markdown("""
-                <div style="font-size: 12px;">
-                ㆍ채용 진행 : 정시(연간 인원계획)/수시/결원에 대한 채용 진행<br>                
-                ㆍ온보딩/수습평가 운영 : 온보딩 프로그램 / CEO 환영 미팅 / 3개월 후 수습평가 실시<br>                
-                ㆍ인력운영/관리 : 근태(휴가/초과근무/출퇴근) 관리, 조직개편 및 인사발령, 입퇴사 4대보험 처리<br>                
-                ㆍ복지제도 운영 : 경조비/경조휴가, 근속 포상(휴가, 상품) 지급<br>                
-                ㆍ사내 시스템 운영 : 뉴로웍스, 뉴로핏 커리어 콘텐츠 업데이트, MS/비즈박스 라이선스 관리 등<br>                
-                ㆍ교육 운영 : 직무 전문 교육, 특강 등 교육 지원, 각종 이러닝 콘텐츠 공유<br>                
-                ㆍ노무 이슈 가이드/조치 : 고충처리(동료간 어려움, 컴플레인 등) 상담, 규정/제도 가이드<br>                
-                ㆍ각종 대관 업무 : 노동부(실사/ 인원통계 /출산 및 육아 휴직), 병무청, 산학협력 등<br>
-                </div>
-                """, unsafe_allow_html=True)
+                    st.markdown("###### 수시/상시 일정")
+                    
+                    st.markdown("""
+                    <div style="font-size: 12px;">
+                    ㆍ채용 진행 : 정시(연간 인원계획)/수시/결원에 대한 채용 진행<br>                
+                    ㆍ온보딩/수습평가 운영 : 온보딩 프로그램 / CEO 환영 미팅 / 3개월 후 수습평가 실시<br>                
+                    ㆍ인력운영/관리 : 근태(휴가/초과근무/출퇴근) 관리, 조직개편 및 인사발령, 입퇴사 4대보험 처리<br>                
+                    ㆍ복지제도 운영 : 경조비/경조휴가, 근속 포상(휴가, 상품) 지급<br>                
+                    ㆍ사내 시스템 운영 : 뉴로웍스, 뉴로핏 커리어 콘텐츠 업데이트, MS/비즈박스 라이선스 관리 등<br>                
+                    ㆍ교육 운영 : 직무 전문 교육, 특강 등 교육 지원, 각종 이러닝 콘텐츠 공유<br>                
+                    ㆍ노무 이슈 가이드/조치 : 고충처리(동료간 어려움, 컴플레인 등) 상담, 규정/제도 가이드<br>                
+                    ㆍ각종 대관 업무 : 노동부(실사/ 인원통계 /출산 및 육아 휴직), 병무청, 산학협력 등<br>
+                    </div>
+                    """, unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
