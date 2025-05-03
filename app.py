@@ -919,7 +919,7 @@ try:
                     title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
                     fig.update_layout(
                         title=title_text,
-                        height=300,
+                        height=350,
                         showlegend=False,
                         plot_bgcolor='white',
                         yaxis=dict(
@@ -939,9 +939,6 @@ try:
 
                 with space_col:
                     st.write("")  # 빈 공간
-
-                # 본부별 근속기간 분석을 위한 테이블 생성
-                st.markdown("<br>", unsafe_allow_html=True)
                 
                 # 부서별 근속기간 분석
                 본부별_근속기간 = pd.pivot_table(
@@ -1004,18 +1001,18 @@ try:
                     """
                     <style>
                     .custom-table {
-                        font-size: 14px;
-                        width: 100%;
+                        font-size: 12px;
+                        width: 90%;
                         border-collapse: collapse;
                     }
                     .custom-table th {
                         background-color: #f0f2f6;
-                        padding: 8px;
+                        padding: 7px;
                         text-align: center;
                         border: 1px solid #ddd;
                     }
                     .custom-table td {
-                        padding: 8px;
+                        padding: 5px;
                         text-align: center;
                         border: 1px solid #ddd;
                     }
