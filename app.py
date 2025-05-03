@@ -2240,7 +2240,7 @@ try:
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
                 # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
-                for col in schedule_df.columns:
+                for col in schedule_df.columns: 
                     schedule_df[col] = schedule_df[col].apply(lambda x: str(x).split('Name:')[0].split('dtype:')[0].split('0    ')[0].split('1    ')[0].split('2    ')[0].split('3    ')[0].split('4    ')[0].strip() if pd.notna(x) else "")
                     schedule_df[col] = schedule_df[col].str.replace(r'\d{4}-\d{2}-\d{2}\s+', '', regex=True)  # 날짜 형식 제거
                     schedule_df[col] = schedule_df[col].replace({'nan': '', 'None': '', 'NaT': '', 'object': ''})
