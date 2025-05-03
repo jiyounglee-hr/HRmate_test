@@ -2230,8 +2230,8 @@ try:
                 .schedule-table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin: 10px 0;
-                    font-size: 14px;
+                    margin: 5px 0;
+                    font-size: 12x;
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
@@ -2246,6 +2246,7 @@ try:
                     top: 0;
                     z-index: 1;
                     white-space: nowrap;
+                    color: #000000;
                 }
                 .schedule-table td {
                     background-color: white;
@@ -2272,9 +2273,9 @@ try:
                 table_html = '<div class="schedule-container"><table class="schedule-table">'
                 
                 # 헤더 행 추가
-                table_html += '<tr><th>구분</th>'
+                table_html += '<tr><th style="color: #000000;">구분</th>'
                 for col in schedule_df.columns[1:]:
-                    table_html += f'<th>{col}</th>'
+                    table_html += f'<th style="color: #000000;">{col}</th>'
                 table_html += '</tr>'
                 
                 # 데이터 행 추가
