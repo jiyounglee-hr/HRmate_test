@@ -2217,32 +2217,21 @@ try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
                 
-                # 컬럼명을 문자열로 변환
-                schedule_df.columns = schedule_df.columns.astype(str)
-                
-                # 첫 번째 열을 '구분'으로 설정
-                new_columns = ['구분']
-                
-                # 나머지 열들의 이름 처리
-                for col in schedule_df.columns[1:]:
-                    try:
-                        # datetime 객체인 경우
-                        if isinstance(col, pd.Timestamp) or isinstance(col, datetime):
-                            new_col = col.strftime('%Y-%m')
-                        # 숫자인 경우 (예: 202401)
-                        elif str(col).isdigit() and len(str(col)) == 6:
-                            year = str(col)[:4]
-                            month = str(col)[4:]
-                            new_col = f"{year}-{month}"
-                        # 이미 'YYYY-MM' 형식인 경우
-                        elif '-' in str(col):
-                            new_col = col
-                        else:
-                            new_col = col
-                        new_columns.append(new_col)
-                    except:
-                        new_columns.append(col)
-                
+                # 컬럼명 처리
+                new_columns = []
+                for col in schedule_df.columns:
+                    if pd.api.types.is_datetime64_any_dtype(col):
+                        # datetime 타입인 경우
+                        new_columns.append(pd.to_datetime(col).strftime('%Y-%m'))
+                    elif isinstance(col, str) and col.isdigit() and len(col) == 6:
+                        # 숫자형 문자열인 경우 (예: '202401')
+                        year = col[:4]
+                        month = col[4:]
+                        new_columns.append(f"{year}-{month}")
+                    else:
+                        # 첫 번째 컬럼은 '구분'으로 설정
+                        new_columns.append('구분' if len(new_columns) == 0 else str(col))
+
                 # 새로운 컬럼명 적용
                 schedule_df.columns = new_columns
                 
