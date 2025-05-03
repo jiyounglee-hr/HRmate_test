@@ -1167,6 +1167,7 @@ try:
                     title="연도별 전체 인원 현황",
                     title_x=0,
                     height=350,
+                    width=300,  # 그래프 너비 설정
                     showlegend=False,
                     plot_bgcolor='white',
                     yaxis=dict(
@@ -1182,7 +1183,7 @@ try:
                     margin=dict(t=50)
                 )
 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=False)  # container_width를 False로 설정
 
             with graph_col2:
                 # 정규직/계약직 막대 그래프 생성
@@ -1213,6 +1214,7 @@ try:
                     title="연도별 고용형태 현황",
                     title_x=0,
                     height=350,
+                    width=300,  # 그래프 너비 설정
                     barmode='stack',
                     plot_bgcolor='white',
                     yaxis=dict(
