@@ -2378,51 +2378,59 @@ try:
                 # 데이터프레임 정렬
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
 
-                # HTML 테이블 스타일 정의
-                st.markdown("""
-                <style>
-                .report-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 10px 0;
-                }
-                .report-table th, .report-table td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                }
-                .report-table th {
-                    background-color: #f0f2f6;
-                    font-weight: bold;
-                    text-align: center;
-                }
-                .report-table td.task-type {
-                    width: 100px;
-                    text-align: center;
-                }
-                .report-table td.task-content {
-                    text-align: left;
-                    min-width: 500px;
-                    padding: 8px 15px;
-                }
-                .report-table td.date {
-                    width: 120px;
-                    text-align: center;
-                }
-                .report-table td.status {
-                    width: 100px;
-                    text-align: center;
-                }
-                </style>
-                """, unsafe_allow_html=True)
-
                 if not filtered_df.empty:
-                    # HTML 테이블 생성
-                    table_html = "<table class='report-table'>"
-                    table_html += "<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>"
+                    # 데이터프레임을 HTML 테이블로 변환
+                    html_content = []
+                    html_content.append("""
+                    <style>
+                    .report-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 10px 0;
+                        font-size: 14px;
+                    }
+                    .report-table th {
+                        background-color: #f0f2f6;
+                        padding: 12px 8px;
+                        text-align: center;
+                        border: 1px solid #ddd;
+                        font-weight: bold;
+                    }
+                    .report-table td {
+                        padding: 10px 8px;
+                        border: 1px solid #ddd;
+                    }
+                    .report-table .type-col {
+                        width: 100px;
+                        text-align: center;
+                    }
+                    .report-table .content-col {
+                        text-align: left;
+                        min-width: 500px;
+                    }
+                    .report-table .date-col {
+                        width: 120px;
+                        text-align: center;
+                    }
+                    .report-table .status-col {
+                        width: 100px;
+                        text-align: center;
+                    }
+                    </style>
+                    """)
+                    
+                    html_content.append('<table class="report-table">')
+                    html_content.append('''
+                        <tr>
+                            <th>업무구분</th>
+                            <th>업무내용</th>
+                            <th>보고일</th>
+                            <th>보고상태</th>
+                        </tr>
+                    ''')
                     
                     for _, row in filtered_df.iterrows():
                         content = str(row['업무내용'])
-                        # URL을 하이퍼링크로 변환
                         if 'http' in content:
                             words = content.split()
                             for i, word in enumerate(words):
@@ -2430,19 +2438,19 @@ try:
                                     words[i] = f'<a href="{word}" target="_blank">{word}</a>'
                                 content = ' '.join(words)
                             
-                            report_date = row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''
-                            
-                            table_html += f"""<tr>
-                                <td class='task-type'>{row['타입']}</td>
-                                <td class='task-content'>{content}</td>
-                                <td class='date'>{report_date}</td>
-                                <td class='status'>{row['보고상태']}</td>
-                            </tr>"""
-                        
-                        table_html += "</table>"
-                        st.markdown(table_html, unsafe_allow_html=True)
-                    else:
-                        st.info("조회된 데이터가 없습니다.")
+                            html_content.append(f'''
+                                <tr>
+                                    <td class="type-col">{row['타입']}</td>
+                                    <td class="content-col">{content}</td>
+                                    <td class="date-col">{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
+                                    <td class="status-col">{row['보고상태']}</td>
+                                </tr>
+                            ''')
+                    
+                    html_content.append('</table>')
+                    st.markdown(''.join(html_content), unsafe_allow_html=True)
+                else:
+                    st.info("조회된 데이터가 없습니다.")
             
             st.markdown("<br>", unsafe_allow_html=True)
             
@@ -2464,7 +2472,7 @@ try:
                     width: 90%;
                     border-collapse: collapse;
                     margin: 0px 0;
-                    font-size: 12px; 
+                    font-size: 13px; 
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
