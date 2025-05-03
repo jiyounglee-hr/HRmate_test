@@ -2214,132 +2214,134 @@ try:
             st.markdown("##### 🪧 인사팀 연간일정")
             
             try:
-                # 연도와 월 선택을 위한 옵션 생성
-                years = list(range(2024, 2027))  # 2024년부터 2026년까지
-                months = list(range(1, 13))  # 1월부터 12월까지 
-                # 조회 기간 선택
-                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
-                
-                with col1:
-                    start_year = st.selectbox("시작 연도", years, index=1)  # 2025년이 기본값
-                with col2:
-                    start_month = st.selectbox("시작 월", months, index=0)  # 1월이 기본값
-                with col3:
-                    end_year = st.selectbox("종료 연도", years, index=1)    # 2025년이 기본값
-                with col4:
-                    end_month = st.selectbox("종료 월", months, index=11)   # 12월이 기본값
+                # 엑셀 파일에서 연간일정 시트 읽기
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정", keep_default_na=False)
+                schedule_df = schedule_df.fillna("")
 
-                # 시작일과 종료일 생성
+                # 문자열 정리 (개선된 데이터 클리닝)
+                def clean_text(x):
+                    if pd.isna(x):
+                        return ""
+                    text = str(x).strip()
+                    # 메타데이터 및 불필요한 문자 제거
+                    text = re.sub(r'Name:.*?(?=\s|$)', '', text)
+                    text = re.sub(r'dtype:.*?(?=\s|$)', '', text)
+                    text = re.sub(r'\d+\s*$', '', text)
+                    return text.strip()
+
+                schedule_df = schedule_df.applymap(clean_text)
+
+                # 연·월 선택
+                years = list(range(2024, 2027))
+                months = list(range(1, 13))
+                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
+                with col1:
+                    start_year = st.selectbox("시작 연도", years, index=1)
+                with col2:
+                    start_month = st.selectbox("시작 월", months, index=0)
+                with col3:
+                    end_year = st.selectbox("종료 연도", years, index=1)
+                with col4:
+                    end_month = st.selectbox("종료 월", months, index=11)
+
                 start_date = datetime(start_year, start_month, 1)
                 end_date = datetime(end_year, end_month, 1)
 
-                # 엑셀 파일에서 연간일정 시트 읽기
-                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정", keep_default_na=False)
-                
-                # 데이터 전처리
-                schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
-                
-                # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
-                for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].astype(str)
-                    schedule_df[col] = schedule_df[col].apply(lambda x: x.strip() if isinstance(x, str) else "")
-                    schedule_df[col] = schedule_df[col].replace({
-                        'nan': '', 'None': '', 'NaT': '', 'object': '',
-                        'Name: .*': '', 'dtype: .*': '', '\d+\s*Name:.*': '',
-                        '\d+\s*dtype:.*': '', '^\s*\d+\s*$': ''
-                    }, regex=True)
-                    # 불필요한 줄바꿈 제거
-                    schedule_df[col] = schedule_df[col].str.replace(r'\n\s*\n', '\n', regex=True)
-                    schedule_df[col] = schedule_df[col].str.strip()
-                
-                # 데이터프레임이 비어있지 않은지 확인
-                if len(schedule_df) > 0:
-                    # HTML 스타일 정의
-                    st.markdown("""
-                    <style>
-                    .schedule-container {
-                        overflow-x: auto;
-                        margin-top: 20px;
-                    }
-                    .schedule-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        font-size: 14px;
-                    }
-                    .schedule-table th, .schedule-table td {
-                        border: 1px solid #ddd;
-                        padding: 8px;
-                        text-align: center;
-                        min-width: 150px;
-                    }
-                    .schedule-table th {
-                        background-color: #f0f2f6;
-                        position: sticky;
-                        top: 0;
-                        z-index: 10;
-                    }
-                    .schedule-table td {
-                        white-space: pre-wrap;
-                        word-wrap: break-word;
-                        vertical-align: top;
-                        text-align: left;
-                        height: 100px;
-                    }
-                    .schedule-table tr:nth-child(even) {
-                        background-color: #f8f9fa;
-                    }
-                    .month-header {
-                        font-weight: bold;
-                        background-color: #e9ecef !important;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+                # 표시할 월 리스트 만들기
+                selected_months = []
+                cur = start_date
+                while cur <= end_date:
+                    selected_months.append(f"{cur.year}-{cur.month:02d}")
+                    if cur.month == 12:
+                        cur = datetime(cur.year + 1, 1, 1)
+                    else:
+                        cur = datetime(cur.year, cur.month + 1, 1)
 
-                    # 선택된 기간의 월 목록 생성
-                    months = []
-                    current_date = start_date
-                    while current_date <= end_date:
-                        month_str = f"{current_date.year}-{current_date.month:02d}"
-                        months.append(month_str)
-                        if current_date.month == 12:
-                            current_date = datetime(current_date.year + 1, 1, 1)
-                        else:
-                            current_date = datetime(current_date.year, current_date.month + 1, 1)
+                # CSS 스타일
+                st.markdown("""
+                <style>
+                .schedule-container {
+                    overflow-x: auto;
+                    margin-top: 20px;
+                }
+                .schedule-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 14px;
+                }
+                .schedule-table th, .schedule-table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: center;
+                    min-width: 150px;
+                }
+                .schedule-table th {
+                    background-color: #f0f2f6;
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                    height: 40px;
+                }
+                .schedule-table td {
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    vertical-align: top;
+                    text-align: left;
+                    height: 100px;
+                }
+                .schedule-table tr:nth-child(even) {
+                    background-color: #f8f9fa;
+                }
+                .schedule-table td:empty {
+                    background-color: #ffffff;
+                }
+                .schedule-table td:not(:empty) {
+                    background-color: #f2f2f2;
+                }
+                .schedule-table th:first-child,
+                .schedule-table td:first-child {
+                    position: sticky;
+                    left: 0;
+                    background-color: #f0f2f6;
+                    z-index: 11;
+                    font-weight: bold;
+                    width: 120px;
+                    min-width: 120px;
+                    text-align: center;
+                }
+                .schedule-table td.has-content {
+                    background-color: #e9ecef;
+                }
+                .schedule-table td.scheduled {
+                    background-color: #e9ecef;
+                }
+                </style>
+                """, unsafe_allow_html=True)
 
-                    # HTML 테이블 생성
-                    table_html = """
-                    <div class="schedule-container">
-                        <table class="schedule-table">
-                            <tr class="month-header">
-                    """
-                    
-                    # 월 헤더 추가
-                    for month in months:
-                        year, month_num = month.split('-')
-                        formatted_month = f"{year}년 {month_num}월"
-                        table_html += f"<th>{formatted_month}</th>"
+                # HTML 테이블 구성
+                table_html = '<div class="schedule-container"><table class="schedule-table"><tr class="month-header"><th>구분</th>'
+                for m in selected_months:
+                    y, mn = m.split("-")
+                    table_html += f"<th>{y}년 {mn}월</th>"
+                table_html += "</tr>"
+
+                for _, row in schedule_df.iterrows():
+                    table_html += "<tr>"
+                    row_title = row.get("구분", "").strip()
+                    table_html += f"<td>{row_title}</td>"
+                    for m in selected_months:
+                        cell = row.get(m, "").strip()
+                        cell_class = "scheduled" if cell else ""
+                        table_html += f"<td class='{cell_class}'>{cell}</td>"
                     table_html += "</tr>"
 
-                    # 데이터 행 추가
-                    for row_idx in range(len(schedule_df)):
-                        table_html += "<tr>"
-                        for month in months:
-                            cell_value = str(schedule_df.iloc[row_idx].get(month, "")).strip()
-                            table_html += f"<td>{cell_value}</td>"
-                        table_html += "</tr>"
+                table_html += "</table></div>"
 
-                    table_html += "</table></div>"
-
-                    # 테이블 표시
-                    st.markdown(table_html, unsafe_allow_html=True)
+                # 테이블 표시
+                st.markdown(table_html, unsafe_allow_html=True)
                     
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
-                # 디버깅을 위한 추가 정보 출력
-                st.write("데이터프레임 정보:")
-                st.write("컬럼:", schedule_df.columns.tolist())
-                st.write("데이터 샘플:")
-                st.write(schedule_df.head())
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
