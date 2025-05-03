@@ -802,7 +802,7 @@ try:
                 list_col1, list_col2 = st.columns(2)
                 
                 with list_col1:
-                    st.markdown("##### ㆍ2025년 입사자")
+                    st.markdown("###### 2025년 입사자")
                     입사자_df = df[df['정규직전환연도'] == 2025][['성명', '팀', '직위', '입사일']]
                     if not 입사자_df.empty:
                         입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
@@ -815,7 +815,7 @@ try:
                         st.info("2025년 입사 예정자가 없습니다.")
 
                 with list_col2:
-                    st.markdown("##### ㆍ2025년 퇴사자")
+                    st.markdown("###### 2025년 퇴사자")
                     퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
                     if not 퇴사자_df.empty:
                         퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
