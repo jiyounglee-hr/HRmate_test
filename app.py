@@ -1165,7 +1165,7 @@ try:
 
                 fig.update_layout(
                     title="연도별 전체 인원 현황",
-                    title_x=0.1,
+                    title_x=0,
                     height=350,
                     showlegend=False,
                     plot_bgcolor='white',
@@ -1210,7 +1210,7 @@ try:
 
                 fig2.update_layout(
                     title="연도별 고용형태 현황",
-                    title_x=0.1,
+                    title_x=0,
                     height=350,
                     barmode='stack',
                     plot_bgcolor='white',
