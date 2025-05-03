@@ -787,8 +787,8 @@ try:
                         title="성별",
                         title_x=0.5,
                         title_y=0.95,
-                        width=300,
-                        height=100,
+                        width=200,
+                        height=200,
                         margin=dict(t=30, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)'
