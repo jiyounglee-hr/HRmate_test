@@ -775,7 +775,7 @@ try:
                     fig = go.Figure(data=[go.Pie(
                         labels=['남', '여'],
                         values=[gender_percentages['남'], gender_percentages['여']],
-                        hole=0.6,
+                        hole=0.8,
                         marker_colors=['#4A4A4A', '#FF4B4B'],
                         textinfo='label+percent',
                         textposition='inside',
@@ -789,7 +789,7 @@ try:
                         title_y=0.95,
                         width=200,
                         height=200,
-                        margin=dict(t=30, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
+                        margin=dict(t=35, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)'
                     )
