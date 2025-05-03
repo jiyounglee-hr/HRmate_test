@@ -2412,6 +2412,23 @@ try:
             st.markdown("<br>", unsafe_allow_html=True)
             
             try:
+                # 구글 시트 인증
+                scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+                credentials_dict = {
+                    "type": st.secrets["google_credentials"]["type"],
+                    "project_id": st.secrets["google_credentials"]["project_id"],
+                    "private_key_id": st.secrets["google_credentials"]["private_key_id"],
+                    "private_key": st.secrets["google_credentials"]["private_key"],
+                    "client_email": st.secrets["google_credentials"]["client_email"],
+                    "client_id": st.secrets["google_credentials"]["client_id"],
+                    "auth_uri": st.secrets["google_credentials"]["auth_uri"],
+                    "token_uri": st.secrets["google_credentials"]["token_uri"],
+                    "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
+                    "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
+                }
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
+                gc = gspread.authorize(credentials)
+
                 # 구글 시트에서 주요일정 시트 읽기
                 worksheet = gc.open_by_url(st.secrets["google_sheet_url"]).worksheet("주요일정")
                 schedule_data = worksheet.get_all_values()
