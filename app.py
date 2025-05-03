@@ -2219,10 +2219,27 @@ try:
                 
                 # 데이터프레임이 비어있지 않은 경우에만 처리
                 if not schedule_df.empty:
-                    # 날짜 컬럼을 년월 형식으로 변경
+                    # 날짜 형식 변환 함수
+                    def convert_date_format(value):
+                        try:
+                            if pd.isna(value) or value == '':
+                                return value
+                            if isinstance(value, str) and 'nan' in value.lower():
+                                return value
+                            date = pd.to_datetime(value)
+                            return date.strftime('%Y-%m')
+                        except:
+                            return value
+
+                    # 모든 컬럼에 대해 날짜 형식 변환 시도
                     for col in schedule_df.columns:
-                        if pd.api.types.is_datetime64_any_dtype(schedule_df[col]) or isinstance(schedule_df[col].iloc[0], str) and '00:00:00' in str(schedule_df[col].iloc[0]):
-                            schedule_df[col] = pd.to_datetime(schedule_df[col]).dt.strftime('%Y-%m')
+                        try:
+                            # 첫 번째 비NA 값 확인
+                            first_valid = schedule_df[col].dropna().iloc[0]
+                            if isinstance(first_valid, (str, pd.Timestamp)) and '00:00:00' in str(first_valid):
+                                schedule_df[col] = schedule_df[col].apply(convert_date_format)
+                        except (IndexError, KeyError):
+                            continue
                     
                     # HTML 테이블 스타일 정의
                     st.markdown("""
