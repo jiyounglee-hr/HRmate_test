@@ -2294,6 +2294,7 @@ try:
             
             st.markdown("###### 업무공유/보고고")
             # 업무보고 데이터 가져오기
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def get_work_report_data():
                 try:
                     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -2312,23 +2313,32 @@ try:
                     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
                     gc = gspread.authorize(credentials)
                     
-                    # 업무보고 시트 ID
-                    sheet_id = st.secrets["google_sheets"]["work_report_id"]
-                    worksheet = gc.open_by_key(sheet_id).worksheet('업무보고')  # '업무보고' 시트 선택
+                    try:
+                        # 업무보고 시트 ID
+                        sheet_id = st.secrets["google_sheets"]["work_report_id"]
+                        worksheet = gc.open_by_key(sheet_id).worksheet('업무보고')  # '업무보고' 시트 선택
+                    except Exception as e:
+                        st.error(f"시트 접근 중 오류 발생: {str(e)}")
+                        return pd.DataFrame()
                     
-                    # 데이터 가져오기
-                    data = worksheet.get_all_records()
-                    
-                    # 데이터프레임으로 변환
-                    df = pd.DataFrame(data)
-                    
-                    # 보고일 컬럼을 datetime으로 변환
-                    if '보고일' in df.columns:
-                        df['보고일'] = pd.to_datetime(df['보고일'])
-                    
-                    return df
+                    try:
+                        # 데이터 가져오기
+                        data = worksheet.get_all_records()
+                        
+                        # 데이터프레임으로 변환
+                        df = pd.DataFrame(data)
+                        
+                        # 보고일 컬럼을 datetime으로 변환
+                        if '보고일' in df.columns:
+                            df['보고일'] = pd.to_datetime(df['보고일'])
+                        
+                        return df
+                    except Exception as e:
+                        st.error(f"데이터 처리 중 오류 발생: {str(e)}")
+                        return pd.DataFrame()
+                        
                 except Exception as e:
-                    st.error(f"업무보고 데이터를 가져오는 중 오류가 발생했습니다: {str(e)}")
+                    st.error(f"인증 중 오류 발생: {str(e)}")
                     return pd.DataFrame()
 
             # 업무보고 데이터 로드
