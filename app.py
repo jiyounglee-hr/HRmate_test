@@ -785,6 +785,7 @@ try:
                     fig.update_layout(
                         width=300,
                         height=300,
+                        title="성별"
                         margin=dict(t=0, b=0, l=0, r=0),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)'
