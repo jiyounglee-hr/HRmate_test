@@ -2294,7 +2294,7 @@ try:
             
             st.markdown("###### 업무공유/보고고")
             # 업무보고 데이터 가져오기
-            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            @st.cache_data(ttl=60)  # 5분마다 캐시 갱신
             def get_work_report_data():
                 try:
                     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
