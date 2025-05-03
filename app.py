@@ -1146,7 +1146,7 @@ try:
             ])
             
             # 그래프를 위한 컬럼 생성 (50:50 비율)
-            graph_col1, graph_col2, space_col = st.columns([0.4, 0.4, 0.2])
+            graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05 0.35, 0.2])
             
             with graph_col1:
                 # 전체 인원 그래프 생성
@@ -1164,10 +1164,9 @@ try:
                 ))
 
                 fig.update_layout(
-                    title="연도별 전체 인원 현황",
+                    title="전체 인원 현황",
                     title_x=0,
                     height=350,
-                    width=300,  # 그래프 너비 설정
                     showlegend=False,
                     plot_bgcolor='white',
                     yaxis=dict(
@@ -1183,8 +1182,11 @@ try:
                     margin=dict(t=50)
                 )
 
-                st.plotly_chart(fig, use_container_width=False)  # container_width를 False로 설정
+                st.plotly_chart(fig, use_container_width=True)
 
+            with space_col1:
+                st.write("")  # 빈 공간
+                
             with graph_col2:
                 # 정규직/계약직 막대 그래프 생성
                 fig2 = go.Figure()
@@ -1214,7 +1216,6 @@ try:
                     title="연도별 고용형태 현황",
                     title_x=0,
                     height=350,
-                    width=300,  # 그래프 너비 설정
                     barmode='stack',
                     plot_bgcolor='white',
                     yaxis=dict(
@@ -1238,7 +1239,7 @@ try:
 
                 st.plotly_chart(fig2, use_container_width=True)
 
-            with space_col:
+            with space_col2:
                 st.write("")  # 빈 공간
             
             # DataFrame을 직접 표시
