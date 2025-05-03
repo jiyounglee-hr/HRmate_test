@@ -2374,7 +2374,10 @@ try:
                 
                 if selected_status != '전체':
                     filtered_df = filtered_df[filtered_df['보고상태'] == selected_status]
-                
+
+                # 데이터프레임 정렬
+                filtered_df = filtered_df.sort_values('보고일', ascending=False)
+
                 # HTML 테이블 스타일 정의
                 st.markdown("""
                 <style>
@@ -2399,6 +2402,7 @@ try:
                 .report-table td.task-content {
                     text-align: left;
                     min-width: 500px;
+                    padding: 8px 15px;
                 }
                 .report-table td.date {
                     width: 120px;
@@ -2413,9 +2417,8 @@ try:
 
                 if not filtered_df.empty:
                     # HTML 테이블 생성
-                    table_rows = []
-                    table_rows.append("<table class='report-table'>")
-                    table_rows.append("<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>")
+                    table_html = "<table class='report-table'>"
+                    table_html += "<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>"
                     
                     for _, row in filtered_df.iterrows():
                         content = str(row['업무내용'])
@@ -2429,17 +2432,15 @@ try:
                             
                             report_date = row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''
                             
-                            table_rows.append(f"""
-                            <tr>
+                            table_html += f"""<tr>
                                 <td class='task-type'>{row['타입']}</td>
                                 <td class='task-content'>{content}</td>
                                 <td class='date'>{report_date}</td>
                                 <td class='status'>{row['보고상태']}</td>
-                            </tr>
-                            """)
+                            </tr>"""
                         
-                        table_rows.append("</table>")
-                        st.markdown(''.join(table_rows), unsafe_allow_html=True)
+                        table_html += "</table>"
+                        st.markdown(table_html, unsafe_allow_html=True)
                     else:
                         st.info("조회된 데이터가 없습니다.")
             
