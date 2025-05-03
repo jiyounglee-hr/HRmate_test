@@ -1,17 +1,27 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 from datetime import datetime, timedelta
+import io
+from io import BytesIO
+import base64
+import json
+import re
+import calendar
+import math
 import os
+from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 from office365.runtime.auth.authentication_context import AuthenticationContext
 from office365.sharepoint.client_context import ClientContext
 from office365.sharepoint.files.file import File
-import io
 import requests
 from PIL import Image
 from io import BytesIO
-import re
 import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
