@@ -2249,18 +2249,25 @@ try:
                         width: 100%;
                         border-collapse: collapse;
                         font-size: 14px;
-                        white-space: nowrap;
                     }
                     .schedule-table th, .schedule-table td {
                         border: 1px solid #ddd;
                         padding: 8px;
                         text-align: center;
+                        min-width: 150px;
                     }
                     .schedule-table th {
                         background-color: #f0f2f6;
                         position: sticky;
                         top: 0;
                         z-index: 10;
+                    }
+                    .schedule-table td {
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        vertical-align: top;
+                        text-align: left;
+                        height: 100px;
                     }
                     .schedule-table tr:nth-child(even) {
                         background-color: #f8f9fa;
@@ -2269,6 +2276,9 @@ try:
                         font-weight: bold;
                         background-color: #e9ecef !important;
                     }
+                    .merged-cell {
+                        background-color: #f8f9fa;
+                    }
                     </style>
                     """, unsafe_allow_html=True)
 
@@ -2276,12 +2286,12 @@ try:
                     months = []
                     current_date = start_date
                     while current_date <= end_date:
-                        months.append(current_date.strftime("%Y년 %m월"))
-                        # 다음 달로 이동
+                        month_str = f"{current_date.year}-{current_date.month:02d}"
+                        months.append(month_str)
                         if current_date.month == 12:
-                            current_date = current_date.replace(year=current_date.year + 1, month=1)
+                            current_date = datetime(current_date.year + 1, 1, 1)
                         else:
-                            current_date = current_date.replace(month=current_date.month + 1)
+                            current_date = datetime(current_date.year, current_date.month + 1, 1)
 
                     # HTML 테이블 생성
                     table_html = """
@@ -2292,25 +2302,52 @@ try:
                     
                     # 월 헤더 추가
                     for month in months:
-                        table_html += f"<th>{month}</th>"
+                        year, month_num = month.split('-')
+                        formatted_month = f"{year}년 {month_num}월"
+                        table_html += f"<th>{formatted_month}</th>"
                     table_html += "</tr>"
 
+                    # 이전 행의 값을 저장할 딕셔너리
+                    previous_values = {}
+                    
                     # 데이터 행 추가
-                    for idx, row in schedule_df.iterrows():
+                    for row_idx in range(len(schedule_df)):
                         table_html += "<tr>"
                         for month in months:
-                            cell_value = row.get(month, "")
-                            table_html += f"<td>{cell_value}</td>"
+                            cell_value = schedule_df.iloc[row_idx].get(month, "")
+                            
+                            # NaN 값 처리 및 병합된 셀 처리
+                            if pd.isna(cell_value):
+                                # 이전 행의 값이 있으면 사용
+                                if month in previous_values:
+                                    cell_value = previous_values[month]
+                                    cell_class = ' class="merged-cell"'
+                                else:
+                                    cell_value = ""
+                                    cell_class = ""
+                            else:
+                                previous_values[month] = cell_value
+                                cell_class = ""
+                            
+                            table_html += f"<td{cell_class}>{cell_value}</td>"
                         table_html += "</tr>"
+                        
+                        # 다음 행을 위해 이전 값 딕셔너리 초기화
+                        if row_idx < len(schedule_df) - 1:
+                            previous_values = {}
 
                     table_html += "</table></div>"
 
                     # 테이블 표시
                     st.markdown(table_html, unsafe_allow_html=True)
-                else:
-                    st.info("연간일정 데이터가 없습니다.")
+                    
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
+                # 디버깅을 위한 추가 정보 출력
+                st.write("데이터프레임 정보:")
+                st.write("컬럼:", schedule_df.columns.tolist())
+                st.write("데이터 샘플:")
+                st.write(schedule_df.head())
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
