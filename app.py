@@ -577,8 +577,8 @@ if st.sidebar.button("📊 인원현황", use_container_width=True):
     st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
-if st.sidebar.button("🪧 인사팀 연간일정", use_container_width=True):
-    st.session_state.menu = "🪧 인사팀 연간일정"
+if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+    st.session_state.menu = "🔔 인사팀 업무 공유"
 if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
     st.session_state.menu = "🔍 임직원 검색"
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
@@ -2289,8 +2289,8 @@ try:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-        elif menu == "🪧 인사팀 연간일정":
-            st.markdown("##### 🪧 인사팀 연간일정")
+        elif menu == "🔔 인사팀 업무 공유":
+            st.markdown("##### 🔔 인사팀 업무 공유")
             # 업무보고 데이터 가져오기
             @st.cache_data(ttl=60)  # 5분마다 캐시 갱신
             def get_work_report_data():
