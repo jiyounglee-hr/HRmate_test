@@ -2213,14 +2213,99 @@ try:
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
             
+            try:
+                # 조회 기간 선택 (기본값: 2025년 1월 ~ 12월)
+                col1, col2 = st.columns([0.3, 0.7])
+                with col1:
+                    start_month = st.date_input(
+                        "시작월",
+                        value=datetime(2025, 1, 1),
+                        format="YYYY-MM"
+                    )
+                with col2:
+                    end_month = st.date_input(
+                        "종료월",
+                        value=datetime(2025, 12, 1),
+                        format="YYYY-MM"
+                    )
 
-            st.info("🚧 현재 개발 진행 중입니다. 곧 서비스가 제공될 예정입니다.")
-            st.markdown("""
-                **주요 기능 (예정):**
-                - 연간 인사 업무 일정 관리
-                - 주요 업무 마일스톤 관리
-                - 업무 진행 현황 모니터링
-                """)
+                # 엑셀 파일에서 연간일정 시트 읽기
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
+                
+                if not schedule_df.empty:
+                    # HTML 스타일 정의
+                    st.markdown("""
+                    <style>
+                    .schedule-container {
+                        overflow-x: auto;
+                        margin-top: 20px;
+                    }
+                    .schedule-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 14px;
+                        white-space: nowrap;
+                    }
+                    .schedule-table th, .schedule-table td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    .schedule-table th {
+                        background-color: #f0f2f6;
+                        position: sticky;
+                        top: 0;
+                        z-index: 10;
+                    }
+                    .schedule-table tr:nth-child(even) {
+                        background-color: #f8f9fa;
+                    }
+                    .month-header {
+                        font-weight: bold;
+                        background-color: #e9ecef !important;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+                    # 선택된 기간의 월 목록 생성
+                    months = []
+                    current_date = start_month
+                    while current_date <= end_month:
+                        months.append(current_date.strftime("%Y년 %m월"))
+                        # 다음 달로 이동
+                        if current_date.month == 12:
+                            current_date = current_date.replace(year=current_date.year + 1, month=1)
+                        else:
+                            current_date = current_date.replace(month=current_date.month + 1)
+
+                    # HTML 테이블 생성
+                    table_html = """
+                    <div class="schedule-container">
+                        <table class="schedule-table">
+                            <tr class="month-header">
+                    """
+                    
+                    # 월 헤더 추가
+                    for month in months:
+                        table_html += f"<th>{month}</th>"
+                    table_html += "</tr>"
+
+                    # 데이터 행 추가
+                    for idx, row in schedule_df.iterrows():
+                        table_html += "<tr>"
+                        for month in months:
+                            cell_value = row.get(month, "")
+                            table_html += f"<td>{cell_value}</td>"
+                        table_html += "</tr>"
+
+                    table_html += "</table></div>"
+
+                    # 테이블 표시
+                    st.markdown(table_html, unsafe_allow_html=True)
+                else:
+                    st.info("연간일정 데이터가 없습니다.")
+            except Exception as e:
+                st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
