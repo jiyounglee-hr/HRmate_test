@@ -562,8 +562,8 @@ st.sidebar.markdown("---")
 
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
-if st.sidebar.button("📊 현재 인원현황", use_container_width=True):
-    st.session_state.menu = "📊 현재 인원현황"
+if st.sidebar.button("📊 인원현황", use_container_width=True):
+    st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
 if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
@@ -595,7 +595,7 @@ with st.sidebar.expander("💡 전사지원"):
 
 # 기본 메뉴 설정
 if 'menu' not in st.session_state:
-    st.session_state.menu = "📊 현재 인원현황"
+    st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
 try:
@@ -624,9 +624,9 @@ try:
         if '퇴사일' in df.columns:
             df['퇴사연도'] = df['퇴사일'].dt.year
         
-        if menu == "📊 현재 인원현황":
+        if menu == "📊 인원현황":
             # 기본통계 분석
-            st.markdown("##### 현재 인원 현황")
+            st.markdown("##### 인원현황")
             
             # 조회 기준일 선택
             query_date = st.date_input(
