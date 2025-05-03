@@ -2236,8 +2236,9 @@ try:
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
                     padding: 8px;
-                    text-align: left;
+                    text-align: center;
                     min-width: 100px;
+                    color: #A6A6A6;
                 }
                 .schedule-table th {
                     background-color: #f8f9fa;
@@ -2283,15 +2284,17 @@ try:
                     for col in schedule_df.columns:
                         cell_value = row[col]
                         if col == schedule_df.columns[0]:  # 첫 번째 열(구분)
-                            table_html += f'<td style="background-color: #f8f9fa;">{cell_value}</td>'
+                            table_html += f'<td style="background-color: #f8f9fa; text-align: center; color: #A6A6A6;">{cell_value}</td>'
                         else:
                             # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
                             if "진행" in str(cell_value).lower():
-                                table_html += f'<td style="background-color: #FFE5E5;">{cell_value}</td>'
+                                table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #A6A6A6;">{cell_value}</td>'
                             elif "계획" in str(cell_value).lower():
-                                table_html += f'<td style="background-color: #E5F6FF;">{cell_value}</td>'
+                                table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                            elif cell_value and cell_value != "":  # 그 외 텍스트가 있는 경우
+                                table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #A6A6A6;">{cell_value}</td>'
                             else:
-                                table_html += f'<td>{cell_value}</td>'
+                                table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
                     table_html += '</tr>'
                 
                 table_html += '</table></div>'
