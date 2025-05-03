@@ -2212,13 +2212,43 @@ try:
 
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
-            st.info("🚧 현재 개발 진행 중입니다. 곧 서비스가 제공될 예정입니다.")
-            st.markdown("""
-            **주요 기능 (예정):**
-            - 연간 인사 업무 일정 관리
-            - 주요 업무 마일스톤 관리
-            - 업무 진행 현황 모니터링
-            """)
+            
+            try:
+                # 엑셀 파일에서 연간일정 시트 읽기
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
+                
+                # 데이터프레임이 비어있지 않은 경우에만 처리
+                if not schedule_df.empty:
+                    # 열 병합을 위해 동일한 값을 가진 셀 처리
+                    st.markdown("""
+                    <style>
+                    .merged-cell {
+                        background-color: #f0f2f6;
+                        text-align: center;
+                        font-weight: bold;
+                        padding: 10px;
+                        border: 1px solid #e1e4e8;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+                    
+                    # 데이터프레임 표시
+                    st.dataframe(
+                        schedule_df,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                else:
+                    st.info("연간일정 데이터가 없습니다.")
+            except Exception as e:
+                st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
+                st.info("🚧 현재 개발 진행 중입니다. 곧 서비스가 제공될 예정입니다.")
+                st.markdown("""
+                **주요 기능 (예정):**
+                - 연간 인사 업무 일정 관리
+                - 주요 업무 마일스톤 관리
+                - 업무 진행 현황 모니터링
+                """)
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
