@@ -2212,7 +2212,7 @@ try:
 
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
-            
+            st.markdown("###### 연간 주요일정")
             try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
@@ -2230,7 +2230,7 @@ try:
                 .schedule-table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin: 5px 0;
+                    margin: 0px 0;
                     font-size: 12px; 
                 }
                 .schedule-table th, .schedule-table td {
@@ -2302,7 +2302,25 @@ try:
                 # 테이블 표시
                 st.markdown(table_html, unsafe_allow_html=True)
 
+                st.markdown("###### 수시/상시 일정")
                 
+                st.markdown("""
+                ㆍ채용 진행   정시(연간 인원계획)/수시/결원에 대한 채용 진행
+                
+                ㆍ온보딩/수습평가 운영   온보딩 프로그램 / CEO 환영 미팅 / 3개월 후 수습평가 실시
+                
+                ㆍ인력운영/관리   근태(휴가/초과근무/출퇴근) 관리, 조직개편 및 인사발령, 입퇴사 4대보험 처리
+                
+                ㆍ복지제도 운영   경조비/경조휴가, 근속 포상(휴가, 상품) 지급
+                
+                ㆍ사내 시스템 운영   뉴로웍스, 뉴로핏 커리어 콘텐츠 업데이트, MS/비즈박스 라이선스 관리 등
+                
+                ㆍ교육 운영   직무 전문 교육, 특강 등 교육 지원, 각종 이러닝 콘텐츠 공유
+                
+                ㆍ노무 이슈 가이드/조치   고충처리(동료간 어려움, 컴플레인 등) 상담, 규정/제도 가이드
+                
+                ㆍ각종 대관 업무   노동부(실사/ 인원통계 /출산 및 육아 휴직), 병무청, 산학협력 등
+                """)
 
             except Exception as e:
                 st.error(f"연간일정을 불러오는 중 오류가 발생했습니다: {str(e)}")
