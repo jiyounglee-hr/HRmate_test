@@ -830,7 +830,7 @@ try:
                 st.markdown("<br>", unsafe_allow_html=True)
                 
                 # 근속기간별 퇴사자 현황 분석
-                st.markdown("##### ㆍ정규직 퇴사자 현황")
+                st.markdown("##### ㆍ 퇴사자 현황_정규직")
                 
                 # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
                 col1, col2 = st.columns([2, 1])
@@ -916,7 +916,6 @@ try:
                     ))
 
                     # 레이아웃 설정
-                    title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
                     fig.update_layout(
                         title=title_text,
                         height=300,
