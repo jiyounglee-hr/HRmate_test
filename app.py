@@ -2379,27 +2379,26 @@ try:
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
 
                 if not filtered_df.empty:
-                    html_output = """
-                    <style>
-                    table { width: 100%; border-collapse: collapse; }
-                    tr { border: 1px solid #ddd; }
-                    td { padding: 8px; border: 1px solid #ddd; }
-                    </style>
-                    <table>
-                    """
+                    html_output = []
+                    html_output.append("<table>")
                     
                     for _, row in filtered_df.iterrows():
-                        html_output += f"""
-                        <tr>
-                            <td style="width: 120px; text-align: center;"><span style="color: red;">▶</span> {row['타입']}</td>
-                            <td style="text-align: left; padding-left: 15px;">{row['업무내용']}</td>
-                            <td style="width: 100px; text-align: center;">{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
-                            <td style="width: 100px; text-align: center;">{row['보고상태']}</td>
-                        </tr>
-                        """
+                        html_output.append("<tr>")
+                        # 업무구분 (빨간 화살표 포함)
+                        html_output.append(f'<td style="width: 120px; text-align: center;"><span style="color: red;">▶</span> {row["타입"]}</td>')
+                        # 업무내용
+                        html_output.append(f'<td style="text-align: left; padding-left: 15px;">{row["업무내용"]}</td>')
+                        # 보고일
+                        html_output.append(f'<td style="width: 100px; text-align: center;">{row["보고일"].strftime("%Y-%m-%d") if pd.notna(row["보고일"]) else ""}</td>')
+                        # 보고상태
+                        html_output.append(f'<td style="width: 100px; text-align: center;">{row["보고상태"]}</td>')
+                        html_output.append("</tr>")
                     
-                    html_output += "</table>"
-                    st.markdown(html_output, unsafe_allow_html=True)
+                    html_output.append("</table>")
+                    
+                    # HTML 출력
+                    final_html = "\n".join(html_output)
+                    st.markdown(final_html, unsafe_allow_html=True)
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
