@@ -16,6 +16,8 @@ import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import pytz
+from google.oauth2.service_account import ServiceAccountCredentials
+import gspread
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -2280,6 +2282,111 @@ try:
 
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
+            
+            st.markdown("###### 업무공유/보고고")
+            # 업무보고 데이터 가져오기
+            def get_work_report_data():
+                try:
+                    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+                    credentials_dict = {
+                        "type": st.secrets["google_credentials"]["type"],
+                        "project_id": st.secrets["google_credentials"]["project_id"],
+                        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
+                        "private_key": st.secrets["google_credentials"]["private_key"],
+                        "client_email": st.secrets["google_credentials"]["client_email"],
+                        "client_id": st.secrets["google_credentials"]["client_id"],
+                        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
+                        "token_uri": st.secrets["google_credentials"]["token_uri"],
+                        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
+                        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
+                    }
+                    credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
+                    gc = gspread.authorize(credentials)
+                    
+                    # 업무보고 시트 ID
+                    sheet_id = st.secrets["google_sheets"]["work_report_id"]
+                    worksheet = gc.open_by_key(sheet_id).worksheet('업무보고')  # '업무보고' 시트 선택
+                    
+                    # 데이터 가져오기
+                    data = worksheet.get_all_records()
+                    
+                    # 데이터프레임으로 변환
+                    df = pd.DataFrame(data)
+                    
+                    # 보고일 컬럼을 datetime으로 변환
+                    if '보고일' in df.columns:
+                        df['보고일'] = pd.to_datetime(df['보고일'])
+                    
+                    return df
+                except Exception as e:
+                    st.error(f"업무보고 데이터를 가져오는 중 오류가 발생했습니다: {str(e)}")
+                    return pd.DataFrame()
+
+            # 업무보고 데이터 로드
+            report_df = get_work_report_data()
+            
+            if not report_df.empty:
+                st.markdown("---")
+                st.markdown("##### 📋 업무보고")
+                
+                # 조회 조건 컬럼 생성
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    # 타입 선택
+                    types = ['전체'] + sorted(report_df['타입'].unique().tolist())
+                    selected_type = st.selectbox('타입', types)
+                
+                with col2:
+                    # 보고일자 선택
+                    dates = sorted(report_df['보고일'].dt.strftime('%Y-%m-%d').unique().tolist(), reverse=True)
+                    selected_date = st.selectbox('보고일자', dates)
+                
+                with col3:
+                    # 보고상태 선택
+                    status_options = ['전체', '보고예정', '보고완료']
+                    selected_status = st.selectbox('보고상태', status_options)
+                
+                # 데이터 필터링
+                filtered_df = report_df.copy()
+                
+                if selected_type != '전체':
+                    filtered_df = filtered_df[filtered_df['타입'] == selected_type]
+                
+                if selected_date:
+                    filtered_df = filtered_df[filtered_df['보고일'].dt.strftime('%Y-%m-%d') == selected_date]
+                
+                if selected_status != '전체':
+                    filtered_df = filtered_df[filtered_df['보고상태'] == selected_status]
+                
+                # 결과 표시
+                if not filtered_df.empty:
+                    # 표시할 컬럼 선택
+                    display_df = filtered_df[['업무구분', '업무내용', '보고상태']].copy()
+                    
+                    # 인덱스 리셋
+                    display_df = display_df.reset_index(drop=True)
+                    display_df.index = display_df.index + 1
+                    display_df = display_df.rename_axis('No.')
+                    
+                    st.dataframe(
+                        display_df.style.set_properties(**{
+                            'text-align': 'center',
+                            'vertical-align': 'middle',
+                            'white-space': 'pre-wrap'
+                        }).set_table_styles([
+                            {'selector': '', 'props': [('text-align', 'center')]},
+                            {'selector': 'th', 'props': [('text-align', 'center'), ('background-color', '#f0f2f6')]},
+                            {'selector': 'td', 'props': [('text-align', 'center')]}
+                        ]),
+                        use_container_width=True,
+                        height=400
+                    )
+                else:
+                    st.info("조회된 데이터가 없습니다.")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
