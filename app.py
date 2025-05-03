@@ -2439,7 +2439,7 @@ try:
                         table_html += f'    <td>{row["보고상태"]}</td>\n'
                         table_html += '</tr>\n'
                     
-                    table_html += '</table>'
+                    table_html += '</table>' 
                     
                     # HTML 테이블 표시
                     st.markdown(table_html, unsafe_allow_html=True)
