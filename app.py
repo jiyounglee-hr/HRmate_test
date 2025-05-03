@@ -2215,109 +2215,124 @@ try:
             
             try:
                 # 엑셀 파일에서 연간일정 시트 읽기
-                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정", parse_dates=True)
                 
                 # 데이터프레임이 비어있지 않은 경우에만 처리
                 if not schedule_df.empty:
-                    # 날짜 형식 변환 함수
-                    def convert_date_format(value):
+                    # 날짜 형식 변환 함수 개선
+                    def format_date(x):
                         try:
-                            if pd.isna(value) or value == '':
-                                return value
-                            if isinstance(value, str) and 'nan' in value.lower():
-                                return value
-                            date = pd.to_datetime(value)
+                            if pd.isna(x):
+                                return ''
+                            if isinstance(x, str) and ('nan' in x.lower() or x.strip() == ''):
+                                return ''
+                            # 날짜 객체로 변환
+                            if isinstance(x, (datetime, pd.Timestamp)):
+                                date = x
+                            else:
+                                date = pd.to_datetime(x)
+                            # YYYY-MM 형식으로 변환
                             return date.strftime('%Y-%m')
                         except:
-                            return value
+                            # 숫자나 문자열인 경우 그대로 반환
+                            return str(x) if pd.notna(x) else ''
 
-                    # 컬럼명(헤더) 날짜 형식 변환
-                    schedule_df.columns = [convert_date_format(col) if isinstance(col, (str, pd.Timestamp)) and '00:00:00' in str(col) else col for col in schedule_df.columns]
-                    
-                    # 데이터 값 날짜 형식 변환
+                    # 컬럼명 변환 (헤더의 날짜 형식 통일)
+                    schedule_df.columns = [format_date(col) for col in schedule_df.columns]
+
+                    # 데이터 셀의 날짜 형식 통일
                     for col in schedule_df.columns:
-                        try:
-                            first_valid = schedule_df[col].dropna().iloc[0]
-                            if isinstance(first_valid, (str, pd.Timestamp)) and '00:00:00' in str(first_valid):
-                                schedule_df[col] = schedule_df[col].apply(convert_date_format)
-                        except (IndexError, KeyError):
-                            continue
-                    
-                    # HTML 테이블 스타일 정의
+                        schedule_df[col] = schedule_df[col].apply(lambda x: 
+                            format_date(x) if isinstance(x, (datetime, pd.Timestamp)) or 
+                            (isinstance(x, str) and '00:00:00' in x) else x)
+
+                    # HTML 스타일 정의
                     st.markdown("""
                     <style>
                     .schedule-table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin: 20px 0;
                         font-size: 14px;
+                        margin-bottom: 20px;
                     }
                     .schedule-table th {
                         background-color: #f0f2f6;
-                        color: #1f1f1f;
-                        font-weight: bold;
                         padding: 12px;
-                        text-align: center;
                         border: 1px solid #ddd;
+                        white-space: nowrap;
+                        position: sticky;
+                        top: 0;
+                        z-index: 1;
                     }
                     .schedule-table td {
                         padding: 10px;
-                        text-align: center;
                         border: 1px solid #ddd;
+                        text-align: center;
                         vertical-align: middle;
-                    }
-                    .schedule-table tr:nth-child(even) {
-                        background-color: #f8f9fa;
-                    }
-                    .schedule-table tr:hover {
-                        background-color: #f5f5f5;
+                        min-width: 120px;
                     }
                     .merged-cell {
-                        background-color: #ffffff;
+                        background-color: #f8f9fa;
+                    }
+                    .table-container {
+                        overflow-x: auto;
+                        max-height: 600px;
+                        margin-top: 20px;
                     }
                     </style>
                     """, unsafe_allow_html=True)
-                    
+
                     # HTML 테이블 생성
-                    table_html = '<table class="schedule-table"><tr>'
+                    table_html = '<div class="table-container"><table class="schedule-table"><thead><tr>'
                     
                     # 헤더 추가
                     for col in schedule_df.columns:
                         table_html += f'<th>{col}</th>'
-                    table_html += '</tr>'
+                    table_html += '</tr></thead><tbody>'
                     
-                    # 이전 행의 값을 저장할 딕셔너리
-                    prev_values = {col: None for col in schedule_df.columns}
-                    row_spans = {col: 1 for col in schedule_df.columns}
+                    # 각 열에 대한 병합 상태 추적을 위한 딕셔너리
+                    merge_tracking = {col: {'value': None, 'count': 0} for col in schedule_df.columns}
                     
                     # 데이터 행 추가
-                    for idx, row in schedule_df.iterrows():
+                    for row_idx in range(len(schedule_df)):
                         table_html += '<tr>'
+                        
                         for col in schedule_df.columns:
-                            value = row[col]
-                            # 이전 값과 같은 경우 빈 셀로 처리
-                            if value == prev_values[col]:
+                            # 이전 병합 중인 셀 처리
+                            if merge_tracking[col]['count'] > 0:
+                                merge_tracking[col]['count'] -= 1
                                 continue
-                            else:
-                                # 새로운 값인 경우, 이전 값과 다른 경우
-                                # 연속된 같은 값의 개수 계산
-                                span_count = 1
-                                for next_idx in range(idx + 1, len(schedule_df)):
-                                    if schedule_df.iloc[next_idx][col] == value:
-                                        span_count += 1
+                            
+                            # 현재 셀 값 가져오기
+                            current_value = schedule_df.iloc[row_idx][col]
+                            current_value = '' if pd.isna(current_value) else str(current_value).strip()
+                            
+                            # 빈 값이 아닌 경우에만 병합 처리
+                            if current_value != '':
+                                # 현재 셀부터 연속된 동일 값 개수 확인
+                                rowspan = 1
+                                for next_idx in range(row_idx + 1, len(schedule_df)):
+                                    next_value = schedule_df.iloc[next_idx][col]
+                                    next_value = '' if pd.isna(next_value) else str(next_value).strip()
+                                    if next_value == current_value:
+                                        rowspan += 1
                                     else:
                                         break
                                 
-                                if span_count > 1:
-                                    table_html += f'<td rowspan="{span_count}" class="merged-cell">{value}</td>'
+                                # 셀 추가 (2개 이상 연속된 경우에만 병합)
+                                if rowspan > 1:
+                                    table_html += f'<td rowspan="{rowspan}" class="merged-cell">{current_value}</td>'
+                                    merge_tracking[col] = {'value': current_value, 'count': rowspan - 1}
                                 else:
-                                    table_html += f'<td>{value}</td>'
-                                prev_values[col] = value
+                                    table_html += f'<td>{current_value}</td>'
+                            else:
+                                table_html += '<td></td>'
+                        
                         table_html += '</tr>'
                     
-                    table_html += '</table>'
+                    table_html += '</tbody></table></div>'
                     
-                    # HTML 테이블 표시
+                    # 테이블 표시
                     st.markdown(table_html, unsafe_allow_html=True)
                 else:
                     st.info("연간일정 데이터가 없습니다.")
