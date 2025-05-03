@@ -15,278 +15,7 @@ import re
 import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
-import tempfile
-from pathlib import Path
-from docx import Document
-from docx.shared import Inches
-from pptx import Presentation
-from PIL import Image
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from PyPDF2 import PdfMerger
-from reportlab.platypus import Table, TableStyle, Spacer
-from reportlab.lib import colors
-from docx.enum.shape import WD_INLINE_SHAPE
-from pptx.enum.shapes import MSO_SHAPE_TYPE
-from pylovepdf.tools.officepdf import OfficeToPdf
-from pylovepdf.ilovepdf import ILovePdf
-
-# 나눔고딕 폰트 등록
-pdfmetrics.registerFont(TTFont('NanumGothic', 'font/NanumGothic.ttf'))
-pdfmetrics.registerFont(TTFont('NanumGothic-Bold', 'font/NanumGothicExtraBold.ttf'))
-pdfmetrics.registerFont(TTFont('NanumGothic-Italic', 'font/NanumGothicLight.ttf'))
-
-# iLovePDF API 키 설정
-ILOVEPDF_API_KEY = "your_api_key_here"
-
-def split_text(text, max_chars):
-    return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
-
-def extract_tables_from_docx(doc, c, y, height):
-    for table in doc.tables:
-        # 표 데이터 추출 및 최대 길이 계산
-        data = []
-        col_widths = []  # 각 열의 최대 너비
-        max_cols = 0
-        
-        for row in table.rows:
-            row_data = []
-            for i, cell in enumerate(row.cells):
-                # 셀 내의 모든 텍스트와 서식 추출
-                cell_text = ""
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        cell_text += run.text
-                    cell_text += " "
-                cell_text = cell_text.strip() or " "
-                row_data.append(cell_text)
-                
-                # 열 너비 계산 (한글 2자 = 영문 3자 기준)
-                text_width = sum(2 if ord(c) > 128 else 1 for c in cell_text) * 5
-                if i >= len(col_widths):
-                    col_widths.append(text_width)
-                else:
-                    col_widths[i] = max(col_widths[i], text_width)
-            
-            data.append(row_data)
-            max_cols = max(max_cols, len(row_data))
-        
-        if not data:
-            continue
-        
-        # 열 너비 조정
-        total_width = sum(col_widths)
-        available_width = 500  # 사용 가능한 최대 너비
-        if total_width > available_width:
-            scale = available_width / total_width
-            col_widths = [w * scale for w in col_widths]
-        
-        # 표의 높이와 너비 계산
-        num_rows = len(data)
-        num_cols = max_cols
-        row_height = 30  # 기본 행 높이
-        table_height = num_rows * row_height
-        table_width = sum(col_widths)
-        
-        # 새 페이지가 필요한지 확인
-        if y - table_height < 50:
-            c.showPage()
-            c.setFont("NanumGothic", 11)
-            y = height - 50
-        
-        # 표 테두리 그리기
-        c.setStrokeColor(colors.black)
-        c.setLineWidth(0.5)
-        
-        # 가로선 그리기
-        for i in range(num_rows + 1):
-            line_y = y - (i * row_height)
-            c.line(50, line_y, 50 + table_width, line_y)
-        
-        # 세로선 그리기
-        x = 50
-        for width in col_widths:
-            c.line(x, y, x, y - table_height)
-            x += width
-        c.line(x, y, x, y - table_height)  # 마지막 세로선
-        
-        # 셀 내용 그리기
-        x = 50
-        for i, row in enumerate(data):
-            cell_x = x
-            for j, cell in enumerate(row):
-                if j < len(col_widths):  # 열 개수 체크
-                    # 셀 내용을 여러 줄로 나누기
-                    max_chars = int(col_widths[j] / 5)  # 열 너비에 맞는 최대 문자 수
-                    lines = split_text(cell, max_chars)
-                    
-                    # 최대 2줄까지 표시
-                    for k, line in enumerate(lines[:2]):
-                        text_y = y - (i * row_height) - (k * 15) - 20
-                        c.drawString(cell_x + 5, text_y, line)
-                    
-                    cell_x += col_widths[j]
-        
-        y -= table_height + 20
-        return y
-
-def extract_images_from_docx(doc, c, y, height, tempdir):
-    for shape in doc.inline_shapes:
-        if shape.type == WD_INLINE_SHAPE.PICTURE:
-            # 이미지 저장
-            image_path = os.path.join(tempdir, f"image_{shape._inline.graphic.graphicData.pic.nvPicPr.cNvPr.id}.png")
-            with open(image_path, 'wb') as f:
-                f.write(shape._inline.graphic.graphicData.pic.blipFill.blip.embed)
-            
-            # 이미지 크기 조정
-            img = Image.open(image_path)
-            img_width, img_height = img.size
-            max_width = 500  # 최대 너비
-            if img_width > max_width:
-                ratio = max_width / img_width
-                img_width = max_width
-                img_height = int(img_height * ratio)
-            
-            # 새 페이지가 필요한지 확인
-            if y - img_height < 50:
-                c.showPage()
-                c.setFont("NanumGothic", 11)
-                y = height - 50
-            
-            # 이미지 그리기
-            c.drawImage(image_path, 50, y - img_height, width=img_width, height=img_height)
-            y -= img_height + 20  # 이미지 높이 + 여백
-
-def convert_docx_to_pdf(input_path, output_path, tempdir):
-    doc = Document(input_path)
-    c = canvas.Canvas(output_path, pagesize=A4)
-    c.setFont("NanumGothic", 11)
-    width, height = A4
-    y = height - 50
-    
-    try:
-        # 표 처리
-        for table in doc.tables:
-            y = extract_tables_from_docx(doc, c, y, height)
-            if y is None:
-                continue
-            if y < 50:
-                c.showPage()
-                c.setFont("NanumGothic", 11)
-                y = height - 50
-        
-        # 텍스트 처리
-        for para in doc.paragraphs:
-            if not para._element.xpath('.//w:tbl'):
-                text = para.text or ""
-                for line in split_text(text.strip(), 90):
-                    if y < 50:
-                        c.showPage()
-                        c.setFont("NanumGothic", 11)
-                        y = height - 50
-                    c.drawString(50, y, line)
-                    y -= 15
-        
-        # 이미지 처리
-        extract_images_from_docx(doc, c, y, height, tempdir)
-        
-    except Exception as e:
-        st.error(f"문서 처리 중 오류 발생: {str(e)}")
-        return None
-    
-    c.save()
-    return output_path
-
-def extract_images_from_pptx(prs, c, y, height, tempdir):
-    for slide in prs.slides:
-        for shape in slide.shapes:
-            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                # 이미지 저장
-                image_path = os.path.join(tempdir, f"slide_{slide.slide_id}_image_{shape.shape_id}.png")
-                with open(image_path, 'wb') as f:
-                    f.write(shape.image.blob)
-                
-                # 이미지 크기 조정
-                img = Image.open(image_path)
-                img_width, img_height = img.size
-                max_width = 500  # 최대 너비
-                if img_width > max_width:
-                    ratio = max_width / img_width
-                    img_width = max_width
-                    img_height = int(img_height * ratio)
-                
-                # 새 페이지가 필요한지 확인
-                if y - img_height < 50:
-                    c.showPage()
-                    c.setFont("NanumGothic", 11)
-                    y = height - 50
-                
-                # 이미지 그리기
-                c.drawImage(image_path, 50, y - img_height, width=img_width, height=img_height)
-                y -= img_height + 20  # 이미지 높이 + 여백
-
-def convert_pptx_to_pdf(input_path, output_path, tempdir):
-    prs = Presentation(input_path)
-    c = canvas.Canvas(output_path, pagesize=A4)
-    c.setFont("NanumGothic", 11)
-    width, height = A4
-    
-    for slide in prs.slides:
-        y = height - 50
-        for shape in slide.shapes:
-            if hasattr(shape, "text"):
-                for line in split_text(shape.text.strip(), 90):
-                    if y < 50:
-                        c.showPage()
-                        c.setFont("NanumGothic", 11)
-                        y = height - 50
-                    c.drawString(50, y, line)
-                    y -= 15
-        
-        # 이미지 처리
-        extract_images_from_pptx(prs, c, y, height, tempdir)
-        
-        c.showPage()
-    c.save()
-
-def convert_image_to_pdf(input_path, output_path):
-    img = Image.open(input_path).convert("RGB")
-    img.save(output_path, "PDF", resolution=100.0)
-
-def convert_to_pdf(file, tempdir):
-    ext = Path(file.name).suffix.lower()
-    input_path = os.path.join(tempdir, file.name)
-    with open(input_path, "wb") as f:
-        f.write(file.getbuffer())
-    output_path = os.path.join(tempdir, f"{Path(file.name).stem}.pdf")
-
-    if ext == ".pdf":
-        return input_path
-    elif ext == ".docx":
-        convert_docx_to_pdf(input_path, output_path, tempdir)
-        return output_path
-    elif ext == ".pptx":
-        convert_pptx_to_pdf(input_path, output_path, tempdir)
-        return output_path
-    elif ext in [".png", ".jpg", ".jpeg"]:
-        convert_image_to_pdf(input_path, output_path)
-        return output_path
-    else:
-        st.warning(f"지원하지 않는 형식입니다: {ext}")
-        return None
-
-def merge_pdfs(pdf_paths):
-    merger = PdfMerger()
-    for path in pdf_paths:
-        if path and os.path.exists(path):
-            merger.append(path)
-    output = io.BytesIO()
-    merger.write(output)
-    merger.close()
-    output.seek(0)
-    return output
+import pytz
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -604,6 +333,28 @@ st.markdown("""
         text-align: left;
         padding-left: 0;
     }
+    [data-testid="stSidebar"] button {
+        width: 80% !important;
+        margin: 0.1rem auto !important;
+        display: block !important;
+        padding: 0.7rem !important;
+        min-height: 0 !important;
+        height: auto !important;
+        line-height: 1.2 !important;
+        text-align: left !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stExpander"] {
+        width: 80% !important;
+        margin: 0.1rem auto !important;
+        display: block !important;
+    }
+    [data-testid="stSidebar"] section[data-testid="stSidebarNav"] {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+    [data-testid="stSidebar"] hr {
+        margin: 0.5rem 0 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -684,8 +435,10 @@ def load_data():
         # 엑셀 파일 읽기
         df = pd.read_excel(file_path)
         
-        # 데이터 로드 시간 표시
-        st.sidebar.markdown(f"*마지막 데이터 업데이트: {datetime.fromtimestamp(last_modified).strftime('%Y-%m-%d %H:%M:%S')}*")
+        # 데이터 로드 시간 표시 (한국 시간대 적용)
+        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+        kst_time = datetime.fromtimestamp(last_modified, pytz.timezone('Asia/Seoul'))
+        st.sidebar.markdown(f"*마지막 데이터 업데이트: {kst_time.strftime('%Y년 %m월 %d일 %H:%M')}*")
         
         return df
     except Exception as e:
@@ -808,7 +561,7 @@ st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
 # HR Data 섹션
-st.sidebar.markdown("### HR Data")
+st.sidebar.markdown("#### HR Data")
 if st.sidebar.button("📊 현재 인원현황", use_container_width=True):
     st.session_state.menu = "📊 현재 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
@@ -818,10 +571,8 @@ if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
     st.session_state.menu = "😊 임직원 명부"
 
-st.sidebar.markdown("---")
-
+st.sidebar.markdown("#### HR Surpport")
 # HR Support 섹션
-st.sidebar.markdown("### HR Support")
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
     st.session_state.menu = "🏦 기관제출용 인원현황"
 if st.sidebar.button("📋 채용_처우협상", use_container_width=True):
@@ -831,14 +582,16 @@ if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
 
-if st.sidebar.button("🔗 채용_이력서 pdf변환", use_container_width=True):
-    st.session_state.menu = "🔗 채용_이력서 pdf변환"
-
-# 채용서포트 링크 추가
 st.sidebar.markdown("---")
-st.sidebar.markdown("##### 참고 사이트")
-st.sidebar.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📋 채용(이력서 분석)</a>', unsafe_allow_html=True)
-st.sidebar.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none;">📰 PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+with st.sidebar.expander("🚀 채용전형관리"):
+    st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️채용 전형 시스템</a>', unsafe_allow_html=True)
+    st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
+    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
+    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
+
+with st.sidebar.expander("💡 전사지원"):
+    st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
 # 기본 메뉴 설정
 if 'menu' not in st.session_state:
@@ -1439,7 +1192,7 @@ try:
 
             # 생일자 검색
             st.markdown("##### 🎂이달의 생일자")
-            current_month = datetime.now().month
+            current_month = datetime.now(pytz.timezone('Asia/Seoul')).month
             birth_month = st.selectbox(
                 "생일 월 선택",
                 options=list(range(1, 13)),
@@ -2402,79 +2155,5 @@ try:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-        elif menu == "🔗 채용_이력서 pdf변환":
-            st.title("📄 이력서 PDF 변환 및 병합")
-            st.write("이력서 파일을 PDF로 변환하고 하나의 파일로 병합합니다.")
-            
-            uploaded_files = st.file_uploader(
-                "이력서를 업로드하세요 (PDF, DOCX, PPTX)",
-                type=["pdf", "docx", "pptx", "doc", "ppt"],
-                accept_multiple_files=True
-            )
-
-            if uploaded_files:
-                with st.spinner("파일 변환 중..."):
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        pdf_paths = []
-                        for file in uploaded_files:
-                            st.write(f"파일 처리 중: {file.name}")
-                            pdf_path = convert_to_pdf(file, tmpdir)
-                            if pdf_path:
-                                pdf_paths.append(pdf_path)
-                                st.success(f"✅ 변환 완료: {file.name}")
-
-                        if pdf_paths:
-                            merged_pdf = merge_pdfs(pdf_paths)
-                            st.download_button(
-                                label="📥 병합된 PDF 다운로드",
-                                data=merged_pdf,
-                                file_name="merged_resume.pdf",
-                                mime="application/pdf"
-                            )
-
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
-
-def convert_to_pdf_with_ilovepdf(file, tempdir):
-    """
-    pylovepdf를 사용하여 DOC, DOCX, PPT, PPTX 파일을 PDF로 변환.
-    PDF는 그대로 반환하고, 변환된 파일은 tempdir에 저장됨.
-    """
-    try:
-        ext = Path(file.name).suffix.lower()
-        input_path = os.path.join(tempdir, file.name)
-        with open(input_path, "wb") as f:
-            f.write(file.getbuffer())
-
-        output_path = os.path.join(tempdir, f"{Path(file.name).stem}.pdf")
-
-        if ext == ".pdf":
-            return input_path
-
-        elif ext in [".docx", ".doc", ".pptx", ".ppt"]:
-            # pylovepdf 클라이언트 초기화
-            public_key = st.secrets["ILOVEPDF_PUBLIC_KEY"]  # secrets.toml에 저장된 키 사용
-            ilovepdf = ILovePdf(public_key, verify_ssl=True)
-            task = ilovepdf.new_task("officepdf")
-
-            task.add_file(input_path)
-            task.set_output_folder(tempdir)
-            task.execute()
-            task.download()
-            task.delete_current_task()
-
-            # 다운로드된 PDF 찾기
-            for filename in os.listdir(tempdir):
-                if filename.endswith(".pdf") and Path(filename).stem.startswith(Path(file.name).stem):
-                    return os.path.join(tempdir, filename)
-
-            st.warning("변환된 PDF 파일을 찾을 수 없습니다.")
-            return None
-
-        else:
-            st.warning(f"지원하지 않는 형식입니다: {ext}")
-            return None
-
-    except Exception as e:
-        st.error(f"파일 변환 중 오류: {str(e)}")
-        return None
