@@ -919,7 +919,7 @@ try:
                     title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
                     fig.update_layout(
                         title=title_text,
-                        height=500,
+                        height=320,
                         showlegend=False,
                         plot_bgcolor='white',
                         yaxis=dict(
