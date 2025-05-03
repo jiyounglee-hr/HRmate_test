@@ -26,7 +26,6 @@ import plotly.io as pio
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import pytz
-from google.oauth2.service_account import ServiceAccountCredentials
 import gspread
 
 # 날짜 정규화 함수
