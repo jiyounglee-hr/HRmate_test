@@ -2396,6 +2396,8 @@ try:
                             # 여러 줄 지원 및 URL 자동 링크 변환
                             업무내용 = 업무내용.replace("\n", "<br>")
                             업무내용 = re.sub(r'(https?://\S+)', r'<a href="\1" target="_blank">\1</a>', 업무내용)
+                        # '보기>' 텍스트에 링크 심기
+                        업무내용 = 업무내용.replace("링크", '<a href="URL">링크></a>')
                         html_output.append(f'<td style="width: 85%; text-align: left; padding-left: 15px;">{업무내용}</td>')
                         html_output.append("</tr>")
                     
