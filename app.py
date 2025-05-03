@@ -495,7 +495,7 @@ st.markdown("""
         border-radius: 5px;
         margin-bottom: 10px;
         gap: 40px;
-        max-width: 1000px;
+        max-width: 700px;
         margin-left: 0;
         margin-right: auto;
     }
