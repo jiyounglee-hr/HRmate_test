@@ -2535,7 +2535,7 @@ try:
                     
                     # 테이블 표시
                     st.markdown(table_html, unsafe_allow_html=True)
-
+                    st.markdown("<br>", unsafe_allow_html=True)
                     st.markdown("###### 수시/상시 일정")
                     
                     st.markdown("""
