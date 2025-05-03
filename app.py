@@ -2224,38 +2224,82 @@ try:
                     for col in date_columns:
                         schedule_df[col] = pd.to_datetime(schedule_df[col]).dt.strftime('%Y-%m')
                     
-                    # 동일한 값을 가진 연속된 셀 병합을 위한 스타일 적용
+                    # HTML 테이블 스타일 정의
                     st.markdown("""
                     <style>
-                    .stDataFrame {
+                    .schedule-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
                         font-size: 14px;
                     }
-                    .stDataFrame td {
-                        text-align: center !important;
-                        vertical-align: middle !important;
+                    .schedule-table th {
+                        background-color: #f0f2f6;
+                        color: #1f1f1f;
+                        font-weight: bold;
+                        padding: 12px;
+                        text-align: center;
+                        border: 1px solid #ddd;
                     }
-                    .stDataFrame th {
-                        text-align: center !important;
-                        background-color: #f0f2f6 !important;
-                        font-weight: bold !important;
+                    .schedule-table td {
+                        padding: 10px;
+                        text-align: center;
+                        border: 1px solid #ddd;
+                        vertical-align: middle;
+                    }
+                    .schedule-table tr:nth-child(even) {
+                        background-color: #f8f9fa;
+                    }
+                    .schedule-table tr:hover {
+                        background-color: #f5f5f5;
+                    }
+                    .merged-cell {
+                        background-color: #ffffff;
                     }
                     </style>
                     """, unsafe_allow_html=True)
                     
-                    # 데이터프레임의 각 열에 대해 동일한 값 처리
-                    for col in schedule_df.columns:
-                        # 연속된 동일 값 확인
-                        mask = schedule_df[col] != schedule_df[col].shift()
-                        # 각 그룹의 첫 번째 값만 유지하고 나머지는 빈 문자열로 설정
-                        schedule_df.loc[~mask, col] = ''
+                    # HTML 테이블 생성
+                    table_html = '<table class="schedule-table"><tr>'
                     
-                    # 데이터프레임 표시
-                    st.dataframe(
-                        schedule_df,
-                        use_container_width=True,
-                        hide_index=True,
-                        height=400
-                    )
+                    # 헤더 추가
+                    for col in schedule_df.columns:
+                        table_html += f'<th>{col}</th>'
+                    table_html += '</tr>'
+                    
+                    # 이전 행의 값을 저장할 딕셔너리
+                    prev_values = {col: None for col in schedule_df.columns}
+                    row_spans = {col: 1 for col in schedule_df.columns}
+                    
+                    # 데이터 행 추가
+                    for idx, row in schedule_df.iterrows():
+                        table_html += '<tr>'
+                        for col in schedule_df.columns:
+                            value = row[col]
+                            # 이전 값과 같은 경우 빈 셀로 처리
+                            if value == prev_values[col]:
+                                continue
+                            else:
+                                # 새로운 값인 경우, 이전 값과 다른 경우
+                                # 연속된 같은 값의 개수 계산
+                                span_count = 1
+                                for next_idx in range(idx + 1, len(schedule_df)):
+                                    if schedule_df.iloc[next_idx][col] == value:
+                                        span_count += 1
+                                    else:
+                                        break
+                                
+                                if span_count > 1:
+                                    table_html += f'<td rowspan="{span_count}" class="merged-cell">{value}</td>'
+                                else:
+                                    table_html += f'<td>{value}</td>'
+                                prev_values[col] = value
+                        table_html += '</tr>'
+                    
+                    table_html += '</table>'
+                    
+                    # HTML 테이블 표시
+                    st.markdown(table_html, unsafe_allow_html=True)
                 else:
                     st.info("연간일정 데이터가 없습니다.")
             except Exception as e:
