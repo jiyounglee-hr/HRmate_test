@@ -2291,8 +2291,6 @@ try:
 
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
-            
-            st.markdown("###### 업무공유/보고고")
             # 업무보고 데이터 가져오기
             @st.cache_data(ttl=60)  # 5분마다 캐시 갱신
             def get_work_report_data():
@@ -2345,8 +2343,7 @@ try:
             report_df = get_work_report_data()
             
             if not report_df.empty:
-                st.markdown("---")
-                st.markdown("##### 📋 업무보고")
+                st.markdown("###### 업무 공유/보고")
                 
                 # 조회 조건 컬럼 생성
                 col1, col2, col3 = st.columns(3)
@@ -2357,8 +2354,8 @@ try:
                     selected_type = st.selectbox('타입', types)
                 
                 with col2:
-                    # 보고일자 선택
-                    dates = sorted(report_df['보고일'].dt.strftime('%Y-%m-%d').unique().tolist(), reverse=True)
+                    # 보고일자 선택 - NaN 값 제외
+                    dates = sorted(report_df[report_df['보고일'].notna()]['보고일'].dt.strftime('%Y-%m-%d').unique().tolist(), reverse=True)
                     selected_date = st.selectbox('보고일자', dates)
                 
                 with col3:
