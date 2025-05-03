@@ -2214,20 +2214,25 @@ try:
             st.markdown("##### 🪧 인사팀 연간일정")
             
             try:
-                # 조회 기간 선택 (기본값: 2025년 1월 ~ 12월)
-                col1, col2 = st.columns([0.3, 0.7])
+                # 연도와 월 선택을 위한 옵션 생성
+                years = list(range(2024, 2027))  # 2024년부터 2026년까지
+                months = list(range(1, 13))  # 1월부터 12월까지
+                
+                # 조회 기간 선택
+                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
+                
                 with col1:
-                    start_month = st.date_input(
-                        "시작월",
-                        value=datetime(2025, 1, 1),
-                        format="YYYY-MM"
-                    )
+                    start_year = st.selectbox("시작 연도", years, index=1)  # 2025년이 기본값
                 with col2:
-                    end_month = st.date_input(
-                        "종료월",
-                        value=datetime(2025, 12, 1),
-                        format="YYYY-MM"
-                    )
+                    start_month = st.selectbox("시작 월", months, index=0)  # 1월이 기본값
+                with col3:
+                    end_year = st.selectbox("종료 연도", years, index=1)    # 2025년이 기본값
+                with col4:
+                    end_month = st.selectbox("종료 월", months, index=11)   # 12월이 기본값
+
+                # 시작일과 종료일 생성
+                start_date = datetime(start_year, start_month, 1)
+                end_date = datetime(end_year, end_month, 1)
 
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
@@ -2269,8 +2274,8 @@ try:
 
                     # 선택된 기간의 월 목록 생성
                     months = []
-                    current_date = start_month
-                    while current_date <= end_month:
+                    current_date = start_date
+                    while current_date <= end_date:
                         months.append(current_date.strftime("%Y년 %m월"))
                         # 다음 달로 이동
                         if current_date.month == 12:
