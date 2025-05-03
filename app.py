@@ -931,13 +931,10 @@ try:
                         xaxis=dict(
                             showgrid=False,
                         ),
-                        margin=dict(t=30)
+                        margin=dict(t=50)
                     )
 
                     st.plotly_chart(fig, use_container_width=True)
-
-                with space_col:
-                    st.write("")  # 빈 공간
                 
                 # 부서별 근속기간 분석
                 본부별_근속기간 = pd.pivot_table(
