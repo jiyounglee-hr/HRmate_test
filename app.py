@@ -2416,32 +2416,28 @@ try:
                         width: 100px;
                         text-align: center;
                     }
+                    .red-arrow {
+                        color: red;
+                        margin-right: 5px;
+                    }
                     </style>
                     """, unsafe_allow_html=True)
 
                     # HTML 테이블 생성
                     table_html = '<table class="report-table">'
                     
-                    # 헤더 추가
-                    table_html += '''
-                        <tr>
-                            <th>업무구분</th>
-                            <th>업무내용</th>
-                            <th>보고일</th>
-                            <th>보고상태</th>
-                        </tr>
-                    '''
-                    
                     # 데이터 행 추가
                     for _, row in filtered_df.iterrows():
-                        table_html += f'''
-                            <tr>
-                                <td>{row['타입']}</td>
-                                <td>{row['업무내용']}</td>
-                                <td>{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
-                                <td>{row['보고상태']}</td>
-                            </tr>
-                        '''
+                        table_html += '<tr>\n'
+                        # 업무구분 (빨간 화살표 추가)
+                        table_html += f'    <td><span class="red-arrow">▶</span>{row["타입"]}</td>\n'
+                        # 업무내용
+                        table_html += f'    <td>{row["업무내용"]}</td>\n'
+                        # 보고일
+                        table_html += f'    <td>{row["보고일"].strftime("%Y-%m-%d") if pd.notna(row["보고일"]) else ""}</td>\n'
+                        # 보고상태
+                        table_html += f'    <td>{row["보고상태"]}</td>\n'
+                        table_html += '</tr>\n'
                     
                     table_html += '</table>'
                     
