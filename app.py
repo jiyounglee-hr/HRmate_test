@@ -2385,9 +2385,9 @@ try:
                     for _, row in filtered_df.iterrows():
                         html_output.append("<tr>")
                         # 업무구분 (빨간 화살표 포함)
-                        html_output.append(f'<td style="width: 150px; text-align: left;"><span style="color: red;"></span> {row["업무구분"]}</td>')
+                        html_output.append(f'<td style="width: 20%; text-align: left;"><span style="color: red;"></span> {row["업무구분"]}</td>')
                         # 업무내용
-                        html_output.append(f'<td style="width: 400px; text-align: left; padding-left: 15px;">{row["업무내용"]}</td>')
+                        html_output.append(f'<td style="width: 80%; text-align: left; padding-left: 15px;">{row["업무내용"]}</td>')
                         html_output.append("</tr>")
                     
                     html_output.append("</table>")
