@@ -2240,6 +2240,10 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
+                # 모든 컬럼의 데이터를 문자열로 변환하고 실제 값만 추출
+                for col in schedule_df.columns:
+                    schedule_df[col] = schedule_df[col].astype(str).apply(lambda x: x.split('Name:')[0].strip() if 'Name:' in x else x.strip())
+                
                 # 데이터프레임이 비어있지 않은지 확인
                 if len(schedule_df) > 0:
                     # HTML 스타일 정의
