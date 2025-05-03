@@ -2364,7 +2364,7 @@ try:
                         for date in dates:
                             type_date_options.append(f"{type_val} - {date}")
                     
-                    selected_type_date = st.selectbox('타입 - 보고일', type_date_options)
+                    selected_type_date = st.selectbox('타입 - 보고일자', type_date_options)
 
                 with col3:
                     st.write("")
