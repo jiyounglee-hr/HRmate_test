@@ -2461,7 +2461,7 @@ try:
                 st.markdown("""
                 <style>
                 .schedule-table {
-                    width: 100%;
+                    width: 90%;
                     border-collapse: collapse;
                     margin: 0px 0;
                     font-size: 12px; 
