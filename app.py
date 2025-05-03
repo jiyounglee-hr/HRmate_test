@@ -2220,9 +2220,9 @@ try:
                 # 데이터프레임이 비어있지 않은 경우에만 처리
                 if not schedule_df.empty:
                     # 날짜 컬럼을 년월 형식으로 변경
-                    date_columns = schedule_df.select_dtypes(include=['datetime64[ns]']).columns
-                    for col in date_columns:
-                        schedule_df[col] = pd.to_datetime(schedule_df[col]).dt.strftime('%Y-%m')
+                    for col in schedule_df.columns:
+                        if pd.api.types.is_datetime64_any_dtype(schedule_df[col]) or isinstance(schedule_df[col].iloc[0], str) and '00:00:00' in str(schedule_df[col].iloc[0]):
+                            schedule_df[col] = pd.to_datetime(schedule_df[col]).dt.strftime('%Y-%m')
                     
                     # HTML 테이블 스타일 정의
                     st.markdown("""
