@@ -1146,9 +1146,9 @@ try:
             ])
             
             # 그래프를 위한 컬럼 생성 (50:50 비율)
-            graph_col, space_col = st.columns([0.5, 0.5])
+            graph_col1, graph_col2 = st.columns([0.5, 0.5])
             
-            with graph_col:
+            with graph_col1:
                 # 전체 인원 그래프 생성
                 fig = go.Figure()
                 
@@ -1183,6 +1183,58 @@ try:
                 )
 
                 st.plotly_chart(fig, use_container_width=True)
+
+            with graph_col2:
+                # 정규직/계약직 막대 그래프 생성
+                fig2 = go.Figure()
+
+                # 정규직 막대
+                fig2.add_trace(go.Bar(
+                    x=stats_df['연도'],
+                    y=stats_df['정규직_전체'],
+                    name='정규직',
+                    text=stats_df['정규직_전체'],
+                    textposition='auto',
+                    marker_color='#FF4B4B'
+                ))
+
+                # 계약직 막대
+                fig2.add_trace(go.Bar(
+                    x=stats_df['연도'],
+                    y=stats_df['계약직_전체'],
+                    name='계약직',
+                    text=stats_df['계약직_전체'],
+                    textposition='auto',
+                    marker_color='#FFB6B6'
+                ))
+
+                fig2.update_layout(
+                    title="연도별 고용형태 현황",
+                    title_x=0.5,
+                    height=400,
+                    barmode='stack',
+                    plot_bgcolor='white',
+                    yaxis=dict(
+                        title="인원 수 (명)",
+                        gridcolor='lightgray',
+                        gridwidth=0.5,
+                        range=[0, max(stats_df['전체']) * 1.2]
+                    ),
+                    xaxis=dict(
+                        showgrid=False,
+                        tickformat='d'  # 정수 형식으로 표시
+                    ),
+                    margin=dict(t=50),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1
+                    )
+                )
+
+                st.plotly_chart(fig2, use_container_width=True)
 
             with space_col:
                 st.write("")  # 빈 공간
