@@ -2231,13 +2231,13 @@ try:
                     width: 100%;
                     border-collapse: collapse;
                     margin: 5px 0;
-                    font-size: 12x;
+                    font-size: 12px;
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
                     padding: 8px;
                     text-align: center;
-                    min-width: 100px;
+                    min-width: 80px;
                     color: #A6A6A6;
                 }
                 .schedule-table th {
