@@ -2212,7 +2212,6 @@ try:
 
         elif menu == "🪧 인사팀 연간일정":
             st.markdown("##### 🪧 인사팀 연간일정")
-            st.markdown("###### 연간 주요일정")
             try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
@@ -2270,7 +2269,9 @@ try:
                 """, unsafe_allow_html=True)
 
                 # HTML 테이블 생성
-                table_html = '<div class="schedule-container"><table class="schedule-table">'
+                table_html = '<div class="schedule-container">'
+                table_html += '<div style="margin-bottom: 10px; font-weight: bold;">연간 주요일정</div>'
+                table_html += '<table class="schedule-table">'
                 
                 # 헤더 행 추가
                 table_html += '<tr><th style="color: #000000;">구분</th>'
