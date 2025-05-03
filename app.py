@@ -2217,66 +2217,12 @@ try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
                 
-                # 컬럼명 처리 함수
-                def format_column_date(col):
-                    try:
-                        if pd.api.types.is_datetime64_any_dtype(col):
-                            return pd.to_datetime(col).strftime('%Y-%m')
-                        elif isinstance(col, str):
-                            # 숫자형 문자열 처리 (예: '202401')
-                            if col.isdigit() and len(col) == 6:
-                                return f"{col[:4]}-{col[4:]}"
-                            # 이미 'YYYY-MM' 형식인 경우
-                            elif len(col.split('-')) == 2:
-                                return col
-                        return str(col)
-                    except:
-                        return str(col)
-
-                # 컬럼명 변환
-                new_columns = []
-                for col in schedule_df.columns:
-                    if len(new_columns) == 0:
-                        new_columns.append('구분')
-                    else:
-                        new_columns.append(format_column_date(col))
-
-                # 새로운 컬럼명 적용
-                schedule_df.columns = new_columns
-
                 # NaN 값을 빈 문자열로 변환
                 schedule_df = schedule_df.fillna("")
                 
                 # 모든 열을 문자열로 변환하고 앞뒤 공백 제거
                 for col in schedule_df.columns:
                     schedule_df[col] = schedule_df[col].astype(str).str.strip()
-
-                # 연·월 선택
-                years = list(range(2024, 2027))
-                months = list(range(1, 13))
-                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
-                with col1:
-                    start_year = st.selectbox("시작 연도", years, index=0)
-                with col2:
-                    start_month = st.selectbox("시작 월", months, index=0)
-                with col3:
-                    end_year = st.selectbox("종료 연도", years, index=0)
-                with col4:
-                    end_month = st.selectbox("종료 월", months, index=11)
-
-                # 선택된 기간의 월 리스트 생성
-                selected_months = []
-                current_date = datetime(start_year, start_month, 1)
-                end_date = datetime(end_year, end_month, 1)
-                
-                while current_date <= end_date:
-                    month_key = current_date.strftime('%Y-%m')
-                    selected_months.append(month_key)
-                    current_date = current_date + relativedelta(months=1)
-
-                # 선택된 컬럼 필터링
-                display_columns = ['구분'] + [col for col in schedule_df.columns if col in selected_months]
-                filtered_df = schedule_df[display_columns]
 
                 # 스타일이 적용된 테이블 표시
                 st.markdown("""
@@ -2285,20 +2231,39 @@ try:
                     width: 100%;
                     border-collapse: collapse;
                     margin: 10px 0;
+                    font-size: 14px;
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
                     padding: 8px;
                     text-align: left;
+                    min-width: 100px;
                 }
                 .schedule-table th {
                     background-color: #f8f9fa;
                     position: sticky;
                     top: 0;
+                    z-index: 1;
+                    white-space: nowrap;
+                }
+                .schedule-table td {
+                    background-color: white;
+                }
+                .schedule-table tr:nth-child(even) td {
+                    background-color: #f8f9fa;
+                }
+                .schedule-table td:first-child {
+                    background-color: #f8f9fa;
+                    font-weight: bold;
+                    position: sticky;
+                    left: 0;
+                    z-index: 1;
                 }
                 .schedule-container {
                     overflow-x: auto;
                     margin-top: 20px;
+                    max-height: 800px;
+                    overflow-y: auto;
                 }
                 </style>
                 """, unsafe_allow_html=True)
@@ -2308,16 +2273,25 @@ try:
                 
                 # 헤더 행 추가
                 table_html += '<tr><th>구분</th>'
-                for col in display_columns[1:]:  # '구분' 제외
+                for col in schedule_df.columns[1:]:
                     table_html += f'<th>{col}</th>'
                 table_html += '</tr>'
                 
                 # 데이터 행 추가
-                for _, row in filtered_df.iterrows():
+                for _, row in schedule_df.iterrows():
                     table_html += '<tr>'
-                    for col in display_columns:
+                    for col in schedule_df.columns:
                         cell_value = row[col]
-                        table_html += f'<td>{cell_value}</td>'
+                        if col == schedule_df.columns[0]:  # 첫 번째 열(구분)
+                            table_html += f'<td style="background-color: #f8f9fa;">{cell_value}</td>'
+                        else:
+                            # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
+                            if "진행" in str(cell_value).lower():
+                                table_html += f'<td style="background-color: #FFE5E5;">{cell_value}</td>'
+                            elif "계획" in str(cell_value).lower():
+                                table_html += f'<td style="background-color: #E5F6FF;">{cell_value}</td>'
+                            else:
+                                table_html += f'<td>{cell_value}</td>'
                     table_html += '</tr>'
                 
                 table_html += '</table></div>'
@@ -2328,12 +2302,12 @@ try:
                 # 엑셀 다운로드 버튼
                 excel_data = BytesIO()
                 with pd.ExcelWriter(excel_data, engine='openpyxl') as writer:
-                    filtered_df.to_excel(writer, index=False, sheet_name='연간일정')
+                    schedule_df.to_excel(writer, index=False, sheet_name='연간일정')
                 
                 st.download_button(
                     label="📥 엑셀 다운로드",
                     data=excel_data.getvalue(),
-                    file_name=f"연간일정_{start_year}_{start_month:02d}-{end_year}_{end_month:02d}.xlsx",
+                    file_name=f"연간일정.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
