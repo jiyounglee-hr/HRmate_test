@@ -2400,6 +2400,64 @@ try:
                     )
                 else:
                     st.info("조회된 데이터가 없습니다.")
+
+                # HTML 테이블로 데이터 표시
+                st.markdown("""
+                <style>
+                .report-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 10px 0;
+                }
+                .report-table th, .report-table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                }
+                .report-table th {
+                    background-color: #f0f2f6;
+                    font-weight: bold;
+                }
+                .report-table td.task-type {
+                    width: 100px;
+                }
+                .report-table td.task-content {
+                    text-align: left;
+                    min-width: 500px;
+                }
+                .report-table td.date {
+                    width: 120px;
+                }
+                .report-table td.status {
+                    width: 100px;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+
+                # HTML 테이블 생성
+                html_table = "<table class='report-table'>"
+                html_table += "<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>"
+                
+                for _, row in filtered_df.iterrows():
+                    content = row['업무내용']
+                    # URL을 하이퍼링크로 변환
+                    if 'http' in str(content):
+                        words = str(content).split()
+                        for i, word in enumerate(words):
+                            if word.startswith(('http://', 'https://')):
+                                words[i] = f'<a href="{word}" target="_blank">{word}</a>'
+                        content = ' '.join(words)
+                    
+                    html_table += f"""
+                    <tr>
+                        <td class='task-type'>{row['타입']}</td>
+                        <td class='task-content'>{content}</td>
+                        <td class='date'>{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
+                        <td class='status'>{row['보고상태']}</td>
+                    </tr>
+                    """
+                
+                html_table += "</table>"
+                st.markdown(html_table, unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
             
