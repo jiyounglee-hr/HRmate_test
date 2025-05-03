@@ -2240,10 +2240,6 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
-                # 모든 컬럼의 데이터를 문자열로 변환
-                for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].astype(str)
-                
                 # 데이터프레임이 비어있지 않은지 확인
                 if len(schedule_df) > 0:
                     # HTML 스타일 정의
@@ -2315,34 +2311,36 @@ try:
                         table_html += f"<th>{formatted_month}</th>"
                     table_html += "</tr>"
 
-                    # 이전 행의 값을 저장할 딕셔너리
-                    previous_values = {}
+                    # 병합 정보를 저장할 2차원 배열 생성
+                    merge_info = [[1 for _ in months] for _ in range(len(schedule_df))]
                     
+                    # 병합이 필요한 셀 찾기
+                    for row_idx in range(len(schedule_df)):
+                        for col_idx, month in enumerate(months):
+                            if col_idx > 0:  # 첫 번째 열은 건너뛰기
+                                current_value = str(schedule_df.iloc[row_idx].get(month, "")).strip()
+                                prev_value = str(schedule_df.iloc[row_idx].get(months[col_idx-1], "")).strip()
+                                
+                                if current_value == prev_value and current_value != "":
+                                    merge_info[row_idx][col_idx] = 0  # 병합 대상
+                                    merge_info[row_idx][col_idx-1] += 1  # 이전 셀의 colspan 증가
+
                     # 데이터 행 추가
                     for row_idx in range(len(schedule_df)):
                         table_html += "<tr>"
-                        for month in months:
-                            cell_value = schedule_df.iloc[row_idx].get(month, "")
-                            
-                            # NaN 값 처리 및 병합된 셀 처리
-                            if pd.isna(cell_value) or cell_value == "":
-                                # 이전 행의 값이 있으면 사용
-                                if month in previous_values:
-                                    cell_value = previous_values[month]
-                                    cell_class = ' class="merged-cell"'
+                        col_idx = 0
+                        while col_idx < len(months):
+                            if merge_info[row_idx][col_idx] > 0:  # 병합이 시작되는 셀
+                                colspan = merge_info[row_idx][col_idx]
+                                cell_value = str(schedule_df.iloc[row_idx].get(months[col_idx], "")).strip()
+                                if colspan > 1:
+                                    table_html += f'<td colspan="{colspan}">{cell_value}</td>'
                                 else:
-                                    cell_value = ""
-                                    cell_class = ""
-                            else:
-                                previous_values[month] = str(cell_value)
-                                cell_class = ""
-                            
-                            table_html += f"<td{cell_class}>{cell_value}</td>"
+                                    table_html += f'<td>{cell_value}</td>'
+                                col_idx += colspan
+                            else:  # 병합되어 건너뛸 셀
+                                col_idx += 1
                         table_html += "</tr>"
-                        
-                        # 다음 행을 위해 이전 값 딕셔너리 초기화
-                        if row_idx < len(schedule_df) - 1:
-                            previous_values = {}
 
                     table_html += "</table></div>"
 
