@@ -1253,9 +1253,22 @@ try:
                     '정규직_퇴사': '정규직\n퇴사',
                     '계약직_입사': '계약직\n입사',
                     '계약직_퇴사': '계약직\n퇴사'
-                }).style.set_properties(**{
-                    'text-align': 'center' 
-                }),
+                }).style.format({
+                    '연도': '{:,.0f}',
+                    '전체 인원': '{:,.0f}',
+                    '정규직\n전체': '{:,.0f}',
+                    '계약직\n전체': '{:,.0f}',
+                    '정규직\n입사': '{:,.0f}',
+                    '정규직\n퇴사': '{:,.0f}',
+                    '계약직\n입사': '{:,.0f}',
+                    '계약직\n퇴사': '{:,.0f}'
+                }).set_properties(**{
+                    'text-align': 'center',
+                    'vertical-align': 'middle'
+                }).set_table_styles([
+                    {'selector': 'th', 'props': [('text-align', 'center')]},
+                    {'selector': 'td', 'props': [('text-align', 'center')]}
+                ]),
                 hide_index=True,
                 width=800,
                 use_container_width=False
