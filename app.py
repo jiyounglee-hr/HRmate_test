@@ -2240,9 +2240,13 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
-                # 모든 컬럼의 데이터를 문자열로 변환하고 실제 값만 추출
+                # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
                 for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].astype(str).apply(lambda x: x.split('Name:')[0].strip() if 'Name:' in x else x.strip())
+                    schedule_df[col] = schedule_df[col].apply(lambda x: str(x).split('Name:')[0].split('dtype:')[0].strip() if pd.notnull(x) else "")
+                
+                # 데이터 출력 확인용 (디버깅)
+                st.write("데이터 확인:")
+                st.write(schedule_df)
                 
                 # 데이터프레임이 비어있지 않은지 확인
                 if len(schedule_df) > 0:
