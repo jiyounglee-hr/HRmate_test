@@ -2234,7 +2234,7 @@ try:
                 end_date = datetime(end_year, end_month, 1)
 
                 # 엑셀 파일에서 연간일정 시트 읽기
-                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정", keep_default_na=False)
                 
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
@@ -2242,9 +2242,8 @@ try:
                 # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
                 for col in schedule_df.columns:
                     schedule_df[col] = schedule_df[col].astype(str)
-                    schedule_df[col] = schedule_df[col].apply(lambda x: x.split('\n')[0] if '\n' in x else x)  # 줄바꿈 제거
-                    schedule_df[col] = schedule_df[col].apply(lambda x: x.split('Name:')[0].split('dtype:')[0].strip())
-                    schedule_df[col] = schedule_df[col].replace({'nan': '', 'None': '', 'NaT': ''})
+                    schedule_df[col] = schedule_df[col].apply(lambda x: x.split('Name:')[0].split('dtype:')[0].split('0    ')[0].split('1    ')[0].split('2    ')[0].split('3    ')[0].split('4    ')[0].strip())
+                    schedule_df[col] = schedule_df[col].replace({'nan': '', 'None': '', 'NaT': '', 'object': ''})
                 
                 # 데이터프레임이 비어있지 않은지 확인
                 if len(schedule_df) > 0:
