@@ -2429,8 +2429,14 @@ try:
                 credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
                 gc = gspread.authorize(credentials)
 
-                # 구글 시트에서 주요일정 시트 읽기
-                worksheet = gc.open_by_url(st.secrets["work_report_id"]).worksheet("주요일정")
+                try:
+                    # 업무보고 시트 ID
+                    sheet_id = st.secrets["google_sheets"]["work_report_id"]
+                    worksheet = gc.open_by_key(sheet_id).worksheet('주요일정')  # '업무보고' 시트 선택
+                except Exception as e:
+                    st.error(f"시트 접근 중 오류 발생: {str(e)}")
+                    return pd.DataFrame()
+                
                 schedule_data = worksheet.get_all_values()
                 
                 # 데이터프레임으로 변환
