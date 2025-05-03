@@ -1087,7 +1087,7 @@ try:
 
         elif menu == "📈 연도별 인원 통계":
             # 최근 5년간 인원 현황 분석
-            st.markdown("##### ㆍ최근 5년간 입퇴사 현황")
+            st.markdown("##### ㆍ📈 연도별 인원 통계")
             
             def get_year_end_headcount(df, year):
                 # 해당 연도 말일 설정
