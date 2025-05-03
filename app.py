@@ -2379,70 +2379,27 @@ try:
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
 
                 if not filtered_df.empty:
-                    # HTML 스타일 정의
-                    st.markdown("""
+                    html_output = """
                     <style>
-                    .report-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 10px 0;
-                        font-size: 14px;
-                    }
-                    .report-table th {
-                        background-color: #f0f2f6;
-                        color: #000000;
-                        padding: 12px 8px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                        font-weight: bold;
-                    }
-                    .report-table td {
-                        padding: 10px 8px;
-                        border: 1px solid #ddd;
-                    }
-                    .report-table td:nth-child(1) {  /* 업무구분 */
-                        width: 100px;
-                        text-align: center;
-                    }
-                    .report-table td:nth-child(2) {  /* 업무내용 */
-                        text-align: left;
-                        min-width: 500px;
-                    }
-                    .report-table td:nth-child(3) {  /* 보고일 */
-                        width: 100px;
-                        text-align: center;
-                    }
-                    .report-table td:nth-child(4) {  /* 보고상태 */
-                        width: 100px;
-                        text-align: center;
-                    }
-                    .red-arrow {
-                        color: red;
-                        margin-right: 5px;
-                    }
+                    table { width: 100%; border-collapse: collapse; }
+                    tr { border: 1px solid #ddd; }
+                    td { padding: 8px; border: 1px solid #ddd; }
                     </style>
-                    """, unsafe_allow_html=True)
-
-                    # HTML 테이블 생성
-                    table_html = '<table class="report-table">'
+                    <table>
+                    """
                     
-                    # 데이터 행 추가
                     for _, row in filtered_df.iterrows():
-                        table_html += '<tr>\n'
-                        # 업무구분 (빨간 화살표 추가)
-                        table_html += f'    <td><span class="red-arrow">▶</span>{row["타입"]}</td>\n'
-                        # 업무내용
-                        table_html += f'    <td>{row["업무내용"]}</td>\n'
-                        # 보고일
-                        table_html += f'    <td>{row["보고일"].strftime("%Y-%m-%d") if pd.notna(row["보고일"]) else ""}</td>\n'
-                        # 보고상태
-                        table_html += f'    <td>{row["보고상태"]}</td>\n'
-                        table_html += '</tr>\n'
+                        html_output += f"""
+                        <tr>
+                            <td style="width: 120px; text-align: center;"><span style="color: red;">▶</span> {row['타입']}</td>
+                            <td style="text-align: left; padding-left: 15px;">{row['업무내용']}</td>
+                            <td style="width: 100px; text-align: center;">{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
+                            <td style="width: 100px; text-align: center;">{row['보고상태']}</td>
+                        </tr>
+                        """
                     
-                    table_html += '</table>' 
-                    
-                    # HTML 테이블 표시
-                    st.markdown(table_html, unsafe_allow_html=True)
+                    html_output += "</table>"
+                    st.markdown(html_output, unsafe_allow_html=True)
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
