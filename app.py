@@ -2216,8 +2216,7 @@ try:
             try:
                 # 연도와 월 선택을 위한 옵션 생성
                 years = list(range(2024, 2027))  # 2024년부터 2026년까지
-                months = list(range(1, 13))  # 1월부터 12월까지
-                st.markdown("##### 🪧 인사팀 ㅅㄷㄴㅅㅇㄴㄹ")  
+                months = list(range(1, 13))  # 1월부터 12월까지 
                 # 조회 기간 선택
                 col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4])
                 
@@ -2240,16 +2239,12 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
-                # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
-                for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].apply(lambda x: str(x).split('Name:')[0].split('dtype:')[0].strip() if pd.notnull(x) else "")
-                
-                # 데이터 출력 확인용 (디버깅)
-                st.write("데이터 확인:")
-                st.write(schedule_df)
+                # 데이터프레임의 모든 값을 문자열로 변환하고 메타데이터 제거
+                schedule_df = schedule_df.astype(str)
+                schedule_df = schedule_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
                 
                 # 데이터프레임이 비어있지 않은지 확인
-                if len(schedule_df) > 0: 
+                if len(schedule_df) > 0:
                     # HTML 스타일 정의
                     st.markdown("""
                     <style>
