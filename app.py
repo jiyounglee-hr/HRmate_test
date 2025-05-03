@@ -709,8 +709,11 @@ try:
             # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
             col1, col2, col3 = st.columns([0.4, 0.3, 0.3])
             
-            # 현재 재직자 필터링
-            current_employees = df[df['재직상태'] == '재직']
+            # 현재 재직자 필터링 (조회 기준일 기준)
+            current_employees = df[
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
+            ]
             
             with col1:
                 # 본부별 인원 현황
@@ -747,376 +750,326 @@ try:
                         autorange="reversed"  # 위에서 아래로 정렬
                     )
                 )
-                st.plotly_chart(fig_dept, use_container_width=True, key="dept_chart")
+                st.plotly_chart(fig_dept, use_container_width=True)
             
             with col2:
                 # 직책별 인원 현황
                 position_order = ['C-LEVEL', '실리드', '팀리드', '멤버', '계약직']
                 position_counts = current_employees['직책'].value_counts()
                 position_counts = pd.Series(position_counts.reindex(position_order).fillna(0))
-                st.markdown("<br>", unsafe_allow_html=True)
+                position_counts = position_counts.reset_index()
+                position_counts.columns = ['직책', '인원수']
                 
-                # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
-                col1, col2, col3 = st.columns([0.4, 0.3, 0.3])
+                # 직책별 그래프
+                fig_position = px.area(
+                    position_counts,
+                    x='직책',
+                    y='인원수',
+                    title="직책별",
+                    width=400,
+                    height=300
+                )
+                fig_position.update_traces(
+                    fill='tonexty',
+                    line=dict(color='#666666'),
+                    text=position_counts['인원수'],
+                    textposition='top center'
+                )
+                fig_position.update_layout(
+                    showlegend=False,
+                    title_x=0.5,
+                    title_y=0.95,
+                    margin=dict(t=50),
+                    yaxis=dict(range=[0, max(position_counts['인원수']) * 1.2])
+                )
+                st.plotly_chart(fig_position, use_container_width=True)
+            
+            with col3:
+                # 성별 비율 계산 (조회 기준일 기준)
+                gender_counts = current_employees['남/여'].value_counts()
+                gender_percentages = (gender_counts / len(current_employees) * 100).round(1)
                 
-                # 현재 재직자 필터링
-                current_employees = df[df['재직상태'] == '재직']
+                # 도넛 차트 생성
+                fig = go.Figure(data=[go.Pie(
+                    labels=['남', '여'],
+                    values=[gender_percentages['남'], gender_percentages['여']],
+                    hole=0.4,
+                    marker_colors=['#4A4A4A', '#FF4B4B'],
+                    textinfo='label+percent',
+                    textposition='inside',
+                    showlegend=False,
+                    textfont=dict(color='white')  # 텍스트 색상을 흰색으로 설정
+                )])
                 
-                with col1:
-                    # 본부별 인원 현황
-                    dept_counts = current_employees['본부'].value_counts().reset_index()
-                    dept_counts.columns = ['본부', '인원수']
-                    
-                    # 본부별 그래프 (수평 막대 그래프)
-                    fig_dept = px.bar(
-                        dept_counts,
-                        y='본부',
-                        x='인원수',
-                        title="본부별",
-                        width=400,
-                        height=300,
-                        orientation='h'  # 수평 방향으로 변경
-                    )
-                    fig_dept.update_traces(
-                        marker_color='#FF4B4B',
-                        text=dept_counts['인원수'],
-                        textposition='outside',
-                        textfont=dict(size=14)
-                    )
-                    fig_dept.update_layout(
-                        showlegend=False,
-                        title_x=0.5,
-                        title_y=0.95,
-                        margin=dict(t=50, r=50),  # 오른쪽 여백 추가
-                        xaxis=dict(
-                            title="",
-                            range=[0, max(dept_counts['인원수']) * 1.2]
-                        ),
-                        yaxis=dict(
-                            title="",
-                            autorange="reversed"  # 위에서 아래로 정렬
-                        )
-                    )
-                    st.plotly_chart(fig_dept, use_container_width=True, key="dept_chart")
+                fig.update_layout(
+                    title="성별",
+                    title_x=0.4,
+                    title_y=0.95,
+                    width=220,
+                    height=220,
+                    margin=dict(t=50, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)'
+                )
                 
-                with col2:
-                    # 직책별 인원 현황
-                    position_order = ['C-LEVEL', '실리드', '팀리드', '멤버', '계약직']
-                    position_counts = current_employees['직책'].value_counts()
-                    position_counts = pd.Series(position_counts.reindex(position_order).fillna(0))
-                    position_counts = position_counts.reset_index()
-                    position_counts.columns = ['직책', '인원수']
-                    
-                    # 직책별 그래프
-                    fig_position = px.area(
-                        position_counts,
-                        x='직책',
-                        y='인원수',
-                        title="직책별",
-                        width=400,
-                        height=300
-                    )
-                    fig_position.update_traces(
-                        fill='tonexty',
-                        line=dict(color='#666666'),
-                        text=position_counts['인원수'],
-                        textposition='top center'
-                    )
-                    fig_position.update_layout(
-                        showlegend=False,
-                        title_x=0.5,
-                        title_y=0.95,
-                        margin=dict(t=50),
-                        yaxis=dict(range=[0, max(position_counts['인원수']) * 1.2])
-                    )
-                    st.plotly_chart(fig_position, use_container_width=True, key="position_chart")
-                
-                with col3:
-                    # 성별 비율 계산
-                    gender_counts = df['남/여'].value_counts()
-                    gender_percentages = (gender_counts / len(df) * 100).round(1)
-                    
-                    # 도넛 차트 생성
-                    fig = go.Figure(data=[go.Pie(
-                        labels=['남', '여'],
-                        values=[gender_percentages['남'], gender_percentages['여']],
-                        hole=0.4,
-                        marker_colors=['#4A4A4A', '#FF4B4B'],
-                        textinfo='label+percent',
-                        textposition='inside',
-                        showlegend=False,
-                        textfont=dict(color='white')  # 텍스트 색상을 흰색으로 설정
-                    )])
-                    
-                    fig.update_layout(
-                        title="성별",
-                        title_x=0.4,
-                        title_y=0.95,
-                        width=220,
-                        height=220,
-                        margin=dict(t=50, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)'
-                    )
-                    
-                    st.plotly_chart(fig)
+                st.plotly_chart(fig)
 
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # 2025년 입퇴사자 현황
-                list_col1, list_col2 = st.columns(2)
-                
-                with list_col1:
-                    st.markdown("###### 2025년 입사자")
-                    입사자_df = df[df['입사일'].dt.year == 2025][['성명', '팀', '직위', '입사일']]
-                    if not 입사자_df.empty:
-                        입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
-                        입사자_df = 입사자_df.reset_index(drop=True)
-                        입사자_df.index = 입사자_df.index + 1
-                        입사자_df = 입사자_df.rename_axis('No.')
-                        st.dataframe(입사자_df.style.format({'입사일': lambda x: x.strftime('%Y-%m-%d')}),
-                                   use_container_width=True)
-                    else:
-                        st.info("2025년 입사 예정자가 없습니다.")
-
-                with list_col2:
-                    st.markdown("###### 2025년 퇴사자")
-                    퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
-                    if not 퇴사자_df.empty:
-                        퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
-                        퇴사자_df = 퇴사자_df.reset_index(drop=True)
-                        퇴사자_df.index = 퇴사자_df.index + 1
-                        퇴사자_df = 퇴사자_df.rename_axis('No.')
-                        st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
-                                   use_container_width=True)
-                    else:
-                        st.info("2025년 퇴사자가 없습니다.")
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # 근속기간별 퇴사자 현황 분석
-                st.markdown("##### ㆍ 퇴사자 현황_정규직")
-                
-                # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    # 퇴사연도 선택 드롭다운
-                    available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().astype(int).unique())
-                    default_index = list(['전체'] + list(available_years)).index(2025) if 2025 in available_years else 0
-                    selected_year = st.selectbox(
-                        "퇴사연도 선택",
-                        options=['전체'] + list(available_years),
-                        index=default_index,
-                        key='tenure_year_select'
-                    )
-                
-                with col2:
-                    # 선택된 연도의 퇴사인원 계산
-                    if selected_year == '전체':
-                        퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')])
-                    else:
-                        퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['퇴사연도'] == selected_year) & (df['고용구분'] == '정규직')])
-                    
-                    st.markdown(
-                        f"""
-                        <div style="padding: 0.5rem; margin-top: 1.6rem;">
-                            <span style="font-size: 1rem; color: #666;">정규직 퇴사인원: </span>
-                            <span style="font-size: 1.2rem; font-weight: bold; color: #FF0000;">{퇴사인원:,}명</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                
-                # 그래프를 위한 컬럼 생성 (60:40 비율)
-                graph_col, space_col = st.columns([0.5, 0.5])
-                
-                with graph_col:
-                    def calculate_tenure_months(row):
-                        if pd.isna(row['입사일']) or pd.isna(row['퇴사일']):
-                            return None
-                        tenure = row['퇴사일'] - row['입사일']
-                        return tenure.days / 30.44  # 평균 한 달을 30.44일로 계산
-
-                    # 근속기간 계산
-                    df['근속월수'] = df.apply(calculate_tenure_months, axis=1)
-
-                    # 근속기간 구간 설정
-                    def get_tenure_category(months):
-                        if pd.isna(months):
-                            return None
-                        elif months <= 5:
-                            return "0~5개월"
-                        elif months <= 11:
-                            return "6~11개월"
-                        elif months <= 24:
-                            return "1년~2년"
-                        elif months <= 36:
-                            return "2년~3년"
-                        else:
-                            return "3년이상"
-
-                    df['근속기간_구분'] = df['근속월수'].apply(get_tenure_category)
-
-                    # 퇴직자 데이터 필터링
-                    퇴직자_df = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')]
-                    if selected_year != '전체':
-                        퇴직자_df = 퇴직자_df[퇴직자_df['퇴사연도'] == selected_year]
-                    
-                    # 근속기간별 인원 집계
-                    tenure_counts = 퇴직자_df['근속기간_구분'].value_counts().reindex(["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"], fill_value=0)
-
-                    # 그래프 생성
-                    fig = go.Figure()
-                    
-                    # 막대 색상 설정
-                    colors = ['#E0E0E0', '#E0E0E0', '#E0E0E0', '#FF0000', '#FF0000']
-                    
-                    fig.add_trace(go.Bar(
-                        x=tenure_counts.index,
-                        y=tenure_counts.values,
-                        marker_color=colors,
-                        text=tenure_counts.values,
-                        textposition='outside',
-                    ))
-
-                    # 레이아웃 설정
-                    title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
-                    fig.update_layout(
-                        height=300,
-                        showlegend=False,
-                        plot_bgcolor='white',
-                        yaxis=dict(
-                            title="퇴사자 수 (명)",
-                            range=[0, max(max(tenure_counts.values) * 1.2, 10)],
-                            gridcolor='lightgray',
-                            gridwidth=0.5,
-                        ),
-                        xaxis=dict(
-                            showgrid=False,
-                        ),
-                        margin=dict(t=50, b=20)  # 하단 여백을 20으로 줄임
-                    )
-
-                    st.plotly_chart(fig, use_container_width=True)
-
-                with space_col:
-                    st.write("")  # 빈 공간
-                
-                # 부서별 근속기간 분석
-                본부별_근속기간 = pd.pivot_table(
-                    퇴직자_df,
-                    values='사번',
-                    index='본부',
-                    columns='근속기간_구분',
-                    aggfunc='count',
-                    fill_value=0
-                ).reindex(columns=["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"])
-
-                # 재직자 수 계산
-                재직자_수 = df[df['재직상태'] == '재직'].groupby('본부')['사번'].count()
-
-                # 퇴직자 수 계산 - 선택된 연도에 따라 필터링
-                if selected_year == '전체':
-                    퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')].groupby('본부')['사번'].count()
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 2025년 입퇴사자 현황
+            list_col1, list_col2 = st.columns(2)
+            
+            with list_col1:
+                st.markdown("###### 2025년 입사자")
+                입사자_df = df[df['입사일'].dt.year == 2025][['성명', '팀', '직위', '입사일']]
+                if not 입사자_df.empty:
+                    입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
+                    입사자_df = 입사자_df.reset_index(drop=True)
+                    입사자_df.index = 입사자_df.index + 1
+                    입사자_df = 입사자_df.rename_axis('No.')
+                    st.dataframe(입사자_df.style.format({'입사일': lambda x: x.strftime('%Y-%m-%d')}),
+                               use_container_width=True)
                 else:
-                    퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직') & (df['퇴사연도'] == selected_year)].groupby('본부')['사번'].count()
+                    st.info("2025년 입사 예정자가 없습니다.")
 
-                # 퇴사율 계산
-                본부별_퇴사율 = (퇴직자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
-
-                # 조기퇴사율 계산 (1년 미만 퇴사자)
-                조기퇴사자_수 = 본부별_근속기간[["0~5개월", "6~11개월"]].sum(axis=1)
-                조기퇴사율 = (조기퇴사자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
-
-                # 결과 테이블 생성
-                result_df = pd.DataFrame({
-                    '0~5개월': 본부별_근속기간["0~5개월"],
-                    '6~11개월': 본부별_근속기간["6~11개월"],
-                    '1년~2년': 본부별_근속기간["1년~2년"],
-                    '2년~3년': 본부별_근속기간["2년~3년"],
-                    '3년이상': 본부별_근속기간["3년이상"],
-                    '퇴직인원': 퇴직자_수,
-                    '재직인원': 재직자_수,
-                    '퇴사율': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format),
-                    '조기퇴사율': 조기퇴사율.fillna(0).map('{:.1f}%'.format),
-                    '퇴사율 비중': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format)
-                }).fillna(0)
-
-                # 합계 행 추가
-                total_row = pd.Series({
-                    '0~5개월': result_df['0~5개월'].sum(),
-                    '6~11개월': result_df['6~11개월'].sum(),
-                    '1년~2년': result_df['1년~2년'].sum(),
-                    '2년~3년': result_df['2년~3년'].sum(),
-                    '3년이상': result_df['3년이상'].sum(),
-                    '퇴직인원': result_df['퇴직인원'].sum(),
-                    '재직인원': result_df['재직인원'].sum(),
-                    '퇴사율': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%",
-                    '조기퇴사율': f"{(result_df['0~5개월'].sum() + result_df['6~11개월'].sum()) / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100:.1f}%",
-                    '퇴사율 비중': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%"
-                }, name='총합계')
-
-                result_df = pd.concat([result_df, pd.DataFrame(total_row).T])
-
-                # 스타일이 적용된 테이블 표시
+            with list_col2:
+                st.markdown("###### 2025년 퇴사자")
+                퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
+                if not 퇴사자_df.empty:
+                    퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
+                    퇴사자_df = 퇴사자_df.reset_index(drop=True)
+                    퇴사자_df.index = 퇴사자_df.index + 1
+                    퇴사자_df = 퇴사자_df.rename_axis('No.')
+                    st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
+                               use_container_width=True)
+                else:
+                    st.info("2025년 퇴사자가 없습니다.")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 근속기간별 퇴사자 현황 분석
+            st.markdown("##### ㆍ 퇴사자 현황_정규직")
+            
+            # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                # 퇴사연도 선택 드롭다운
+                available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().astype(int).unique())
+                default_index = list(['전체'] + list(available_years)).index(2025) if 2025 in available_years else 0
+                selected_year = st.selectbox(
+                    "퇴사연도 선택",
+                    options=['전체'] + list(available_years),
+                    index=default_index,
+                    key='tenure_year_select'
+                )
+            
+            with col2:
+                # 선택된 연도의 퇴사인원 계산
+                if selected_year == '전체':
+                    퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')])
+                else:
+                    퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['퇴사연도'] == selected_year) & (df['고용구분'] == '정규직')])
+                
                 st.markdown(
-                    """
-                    <style>
-                    .custom-table {
-                        font-size: 12px;
-                        width: 90%;
-                        border-collapse: collapse;
-                    }
-                    .custom-table th {
-                        background-color: #f0f2f6;
-                        padding: 7px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                    }
-                    .custom-table td {
-                        padding: 5px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                    }
-                    .custom-table tr:last-child {
-                        background-color: #f0f2f6;
-                        font-weight: bold;
-                    }
-                    .red-text {
-                        color: red;
-                    }
-                    </style>
+                    f"""
+                    <div style="padding: 0.5rem; margin-top: 1.6rem;">
+                        <span style="font-size: 1rem; color: #666;">정규직 퇴사인원: </span>
+                        <span style="font-size: 1.2rem; font-weight: bold; color: #FF0000;">{퇴사인원:,}명</span>
+                    </div>
                     """,
                     unsafe_allow_html=True
                 )
+            
+            # 그래프를 위한 컬럼 생성 (60:40 비율)
+            graph_col, space_col = st.columns([0.5, 0.5])
+            
+            with graph_col:
+                def calculate_tenure_months(row):
+                    if pd.isna(row['입사일']) or pd.isna(row['퇴사일']):
+                        return None
+                    tenure = row['퇴사일'] - row['입사일']
+                    return tenure.days / 30.44  # 평균 한 달을 30.44일로 계산
 
-                # 테이블 HTML 생성
-                table_html = "<table class='custom-table'><tr><th>구분</th>"
+                # 근속기간 계산
+                df['근속월수'] = df.apply(calculate_tenure_months, axis=1)
+
+                # 근속기간 구간 설정
+                def get_tenure_category(months):
+                    if pd.isna(months):
+                        return None
+                    elif months <= 5:
+                        return "0~5개월"
+                    elif months <= 11:
+                        return "6~11개월"
+                    elif months <= 24:
+                        return "1년~2년"
+                    elif months <= 36:
+                        return "2년~3년"
+                    else:
+                        return "3년이상"
+
+                df['근속기간_구분'] = df['근속월수'].apply(get_tenure_category)
+
+                # 퇴직자 데이터 필터링
+                퇴직자_df = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')]
+                if selected_year != '전체':
+                    퇴직자_df = 퇴직자_df[퇴직자_df['퇴사연도'] == selected_year]
+                
+                # 근속기간별 인원 집계
+                tenure_counts = 퇴직자_df['근속기간_구분'].value_counts().reindex(["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"], fill_value=0)
+
+                # 그래프 생성
+                fig = go.Figure()
+                
+                # 막대 색상 설정
+                colors = ['#E0E0E0', '#E0E0E0', '#E0E0E0', '#FF0000', '#FF0000']
+                
+                fig.add_trace(go.Bar(
+                    x=tenure_counts.index,
+                    y=tenure_counts.values,
+                    marker_color=colors,
+                    text=tenure_counts.values,
+                    textposition='outside',
+                ))
+
+                # 레이아웃 설정
+                title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
+                fig.update_layout(
+                    height=300,
+                    showlegend=False,
+                    plot_bgcolor='white',
+                    yaxis=dict(
+                        title="퇴사자 수 (명)",
+                        range=[0, max(max(tenure_counts.values) * 1.2, 10)],
+                        gridcolor='lightgray',
+                        gridwidth=0.5,
+                    ),
+                    xaxis=dict(
+                        showgrid=False,
+                    ),
+                    margin=dict(t=50, b=20)  # 하단 여백을 20으로 줄임
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
+
+            with space_col:
+                st.write("")  # 빈 공간
+            
+            # 부서별 근속기간 분석
+            본부별_근속기간 = pd.pivot_table(
+                퇴직자_df,
+                values='사번',
+                index='본부',
+                columns='근속기간_구분',
+                aggfunc='count',
+                fill_value=0
+            ).reindex(columns=["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"])
+
+            # 재직자 수 계산
+            재직자_수 = df[df['재직상태'] == '재직'].groupby('본부')['사번'].count()
+
+            # 퇴직자 수 계산 - 선택된 연도에 따라 필터링
+            if selected_year == '전체':
+                퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')].groupby('본부')['사번'].count()
+            else:
+                퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직') & (df['퇴사연도'] == selected_year)].groupby('본부')['사번'].count()
+
+            # 퇴사율 계산
+            본부별_퇴사율 = (퇴직자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
+
+            # 조기퇴사율 계산 (1년 미만 퇴사자)
+            조기퇴사자_수 = 본부별_근속기간[["0~5개월", "6~11개월"]].sum(axis=1)
+            조기퇴사율 = (조기퇴사자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
+
+            # 결과 테이블 생성
+            result_df = pd.DataFrame({
+                '0~5개월': 본부별_근속기간["0~5개월"],
+                '6~11개월': 본부별_근속기간["6~11개월"],
+                '1년~2년': 본부별_근속기간["1년~2년"],
+                '2년~3년': 본부별_근속기간["2년~3년"],
+                '3년이상': 본부별_근속기간["3년이상"],
+                '퇴직인원': 퇴직자_수,
+                '재직인원': 재직자_수,
+                '퇴사율': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format),
+                '조기퇴사율': 조기퇴사율.fillna(0).map('{:.1f}%'.format),
+                '퇴사율 비중': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format)
+            }).fillna(0)
+
+            # 합계 행 추가
+            total_row = pd.Series({
+                '0~5개월': result_df['0~5개월'].sum(),
+                '6~11개월': result_df['6~11개월'].sum(),
+                '1년~2년': result_df['1년~2년'].sum(),
+                '2년~3년': result_df['2년~3년'].sum(),
+                '3년이상': result_df['3년이상'].sum(),
+                '퇴직인원': result_df['퇴직인원'].sum(),
+                '재직인원': result_df['재직인원'].sum(),
+                '퇴사율': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%",
+                '조기퇴사율': f"{(result_df['0~5개월'].sum() + result_df['6~11개월'].sum()) / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100:.1f}%",
+                '퇴사율 비중': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%"
+            }, name='총합계')
+
+            result_df = pd.concat([result_df, pd.DataFrame(total_row).T])
+
+            # 스타일이 적용된 테이블 표시
+            st.markdown(
+                """
+                <style>
+                .custom-table {
+                    font-size: 12px;
+                    width: 90%;
+                    border-collapse: collapse;
+                }
+                .custom-table th {
+                    background-color: #f0f2f6;
+                    padding: 7px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                }
+                .custom-table td {
+                    padding: 5px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                }
+                .custom-table tr:last-child {
+                    background-color: #f0f2f6;
+                    font-weight: bold;
+                }
+                .red-text {
+                    color: red;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # 테이블 HTML 생성
+            table_html = "<table class='custom-table'><tr><th>구분</th>"
+            for col in result_df.columns:
+                table_html += f"<th>{col}</th>"
+            table_html += "</tr>"
+
+            for idx, row in result_df.iterrows():
+                table_html += f"<tr><td>{idx}</td>"
                 for col in result_df.columns:
-                    table_html += f"<th>{col}</th>"
-                table_html += "</tr>"
-
-                for idx, row in result_df.iterrows():
-                    table_html += f"<tr><td>{idx}</td>"
-                    for col in result_df.columns:
-                        value = row[col]
-                        if isinstance(value, (int, float)):
-                            if col in ['0~5개월', '6~11개월', '1년~2년', '2년~3년', '3년이상', '퇴직인원', '재직인원']:
-                                table_html += f"<td>{int(value)}</td>"
-                            else:
-                                table_html += f"<td>{value}</td>"
+                    value = row[col]
+                    if isinstance(value, (int, float)):
+                        if col in ['0~5개월', '6~11개월', '1년~2년', '2년~3년', '3년이상', '퇴직인원', '재직인원']:
+                            table_html += f"<td>{int(value)}</td>"
                         else:
-                            if '%' in str(value) and float(str(value).rstrip('%')) > 0:
-                                table_html += f"<td class='red-text'>{value}</td>"
-                            else:
-                                table_html += f"<td>{value}</td>"
-                    table_html += "</tr>"
-                table_html += "</table>"
+                            table_html += f"<td>{value}</td>"
+                    else:
+                        if '%' in str(value) and float(str(value).rstrip('%')) > 0:
+                            table_html += f"<td class='red-text'>{value}</td>"
+                        else:
+                            table_html += f"<td>{value}</td>"
+                table_html += "</tr>"
+            table_html += "</table>"
 
-                st.markdown(table_html, unsafe_allow_html=True)
+            st.markdown(table_html, unsafe_allow_html=True)
 
-                st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
         elif menu == "📈 연도별 인원 통계":
             # 최근 5년간 인원 현황 분석
