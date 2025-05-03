@@ -931,7 +931,7 @@ try:
                         xaxis=dict(
                             showgrid=False,
                         ),
-                        margin=dict(t=50)
+                        margin=dict(t=50, b=20)  # 하단 여백을 20으로 줄임
                     )
 
                     st.plotly_chart(fig, use_container_width=True)
