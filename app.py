@@ -2215,26 +2215,17 @@ try:
             
             try:
                 # 엑셀 파일에서 연간일정 시트 읽기
-                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정", header=0)
+                schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
                 
-                # 첫 번째 열을 '구분'으로 설정
-                if '구분' not in schedule_df.columns:
-                    schedule_df = schedule_df.rename(columns={schedule_df.columns[0]: '구분'})
+                # 첫 번째 열을 '구분'으로 설정하고 나머지 열은 YYYY-MM 형식으로 변경
+                schedule_df.columns = ['구분'] + [f"{col[:4]}-{col[4:6]}" if len(col) >= 6 else col for col in schedule_df.columns[1:]]
                 
                 # NaN 값을 빈 문자열로 변환
                 schedule_df = schedule_df.fillna("")
                 
-                # 모든 열을 문자열로 변환
-                schedule_df = schedule_df.astype(str)
-                
-                # 불필요한 문자 제거
+                # 모든 열을 문자열로 변환하고 앞뒤 공백 제거
                 for col in schedule_df.columns:
-                    schedule_df[col] = schedule_df[col].apply(lambda x: x.strip())
-                    schedule_df[col] = schedule_df[col].replace({
-                        'nan': '', 'None': '', 'NaT': '',
-                        'Name:.*': '', 'dtype:.*': '',
-                        '\\d+\\s*$': ''
-                    }, regex=True)
+                    schedule_df[col] = schedule_df[col].astype(str).str.strip()
 
                 # 연·월 선택
                 years = list(range(2024, 2027))
@@ -2272,13 +2263,15 @@ try:
                 table_html += "</tr>"
                 
                 # 데이터 행 추가
-                for idx, row in schedule_df.iterrows():
+                for _, row in schedule_df.iterrows():
                     table_html += "<tr>"
                     # 구분 열 추가
                     table_html += f"<td>{row['구분']}</td>"
                     # 각 월의 데이터 추가
                     for month in selected_months:
                         content = row.get(month, "").strip()
+                        if content.lower() in ['nan', 'none', 'nat']:
+                            content = ""
                         css_class = "scheduled" if content else ""
                         table_html += f"<td class='{css_class}'>{content}</td>"
                     table_html += "</tr>"
