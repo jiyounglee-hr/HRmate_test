@@ -2341,7 +2341,7 @@ try:
 
             # 업무보고 데이터 로드
             report_df = get_work_report_data()
-            
+            st.markdown("<br>", unsafe_allow_html=True)
             if not report_df.empty:
                 st.markdown("###### 업무 공유/보고")
                 
@@ -2409,7 +2409,6 @@ try:
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
-            st.markdown("<br>", unsafe_allow_html=True)
             
             try:
                 # 구글 시트 인증
