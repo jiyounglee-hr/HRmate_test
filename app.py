@@ -2431,7 +2431,7 @@ try:
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
-                    padding: 4px;
+                    padding: 6px;
                     text-align: center;
                     min-width: 50px;
                     color: #A6A6A6;
