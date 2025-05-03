@@ -767,7 +767,30 @@ try:
                     st.plotly_chart(fig_position, use_container_width=True, key="position_chart")
                 
                 with col3:
-                    st.write("")  # 빈 공간
+                    # 성별 비율 계산
+                    gender_counts = df['성별'].value_counts()
+                    gender_percentages = (gender_counts / len(df) * 100).round(1)
+                    
+                    # 도넛 차트 생성
+                    fig = go.Figure(data=[go.Pie(
+                        labels=['남', '여'],
+                        values=[gender_percentages['남'], gender_percentages['여']],
+                        hole=0.6,
+                        marker_colors=['#4A4A4A', '#FF4B4B'],
+                        textinfo='label+percent',
+                        textposition='inside',
+                        showlegend=False
+                    )])
+                    
+                    fig.update_layout(
+                        width=300,
+                        height=300,
+                        margin=dict(t=0, b=0, l=0, r=0),
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)'
+                    )
+                    
+                    st.plotly_chart(fig)
 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
