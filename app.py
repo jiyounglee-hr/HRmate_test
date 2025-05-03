@@ -1030,7 +1030,7 @@ try:
                 <style>
                 .custom-table {
                     font-size: 12px;
-                    width: 90%;
+                    width: 80%;
                     border-collapse: collapse;
                 }
                 .custom-table th {
