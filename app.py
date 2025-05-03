@@ -2239,10 +2239,10 @@ try:
                 # 데이터 전처리
                 schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
                 
-                # 모든 컬럼의 데이터를 문자열로 변환하고 메타데이터 제거
+                # 모든 컬럼의 데이터를 문자열로 변환
                 for col in schedule_df.columns:
                     schedule_df[col] = schedule_df[col].astype(str)
-                    schedule_df[col] = schedule_df[col].apply(lambda x: x.split('Name:')[0].split('dtype:')[0].split('0    ')[0].split('1    ')[0].split('2    ')[0].split('3    ')[0].split('4    ')[0].strip())
+                    schedule_df[col] = schedule_df[col].apply(lambda x: x.strip())
                     schedule_df[col] = schedule_df[col].replace({'nan': '', 'None': '', 'NaT': '', 'object': ''})
                 
                 # 데이터프레임이 비어있지 않은지 확인
@@ -2285,9 +2285,6 @@ try:
                         font-weight: bold;
                         background-color: #e9ecef !important;
                     }
-                    .merged-cell {
-                        background-color: #f8f9fa;
-                    }
                     </style>
                     """, unsafe_allow_html=True)
 
@@ -2316,35 +2313,12 @@ try:
                         table_html += f"<th>{formatted_month}</th>"
                     table_html += "</tr>"
 
-                    # 병합 정보를 저장할 2차원 배열 생성
-                    merge_info = [[1 for _ in months] for _ in range(len(schedule_df))]
-                    
-                    # 병합이 필요한 셀 찾기
-                    for row_idx in range(len(schedule_df)):
-                        for col_idx, month in enumerate(months):
-                            if col_idx > 0:  # 첫 번째 열은 건너뛰기
-                                current_value = str(schedule_df.iloc[row_idx].get(month, "")).strip()
-                                prev_value = str(schedule_df.iloc[row_idx].get(months[col_idx-1], "")).strip()
-                                
-                                if current_value == prev_value and current_value != "":
-                                    merge_info[row_idx][col_idx] = 0  # 병합 대상
-                                    merge_info[row_idx][col_idx-1] += 1  # 이전 셀의 colspan 증가
-
                     # 데이터 행 추가
                     for row_idx in range(len(schedule_df)):
                         table_html += "<tr>"
-                        col_idx = 0
-                        while col_idx < len(months):
-                            if merge_info[row_idx][col_idx] > 0:  # 병합이 시작되는 셀
-                                colspan = merge_info[row_idx][col_idx]
-                                cell_value = str(schedule_df.iloc[row_idx].get(months[col_idx], "")).strip()
-                                if colspan > 1:
-                                    table_html += f'<td colspan="{colspan}">{cell_value}</td>'
-                                else:
-                                    table_html += f'<td>{cell_value}</td>'
-                                col_idx += colspan
-                            else:  # 병합되어 건너뛸 셀
-                                col_idx += 1
+                        for month in months:
+                            cell_value = str(schedule_df.iloc[row_idx].get(month, "")).strip()
+                            table_html += f"<td>{cell_value}</td>"
                         table_html += "</tr>"
 
                     table_html += "</table></div>"
