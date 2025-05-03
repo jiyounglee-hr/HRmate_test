@@ -2346,7 +2346,7 @@ try:
                 st.markdown("###### 업무 공유/보고")
                 
                 # 조회 조건 컬럼 생성
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3, col4 = st.columns(0.2, 0.2, 0.2, 0.4)
                 
                 with col1:
                     # 타입 선택
@@ -2362,7 +2362,10 @@ try:
                     # 보고상태 선택
                     status_options = ['전체', '보고예정', '보고완료']
                     selected_status = st.selectbox('보고상태', status_options)
-                
+
+                with col4:
+                    st.write("")
+                    
                 # 데이터 필터링
                 filtered_df = report_df.copy()
                 
