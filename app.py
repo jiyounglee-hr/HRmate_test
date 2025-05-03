@@ -2430,7 +2430,7 @@ try:
                 gc = gspread.authorize(credentials)
 
                 # 구글 시트에서 주요일정 시트 읽기
-                worksheet = gc.open_by_url(st.secrets["work_schedule_id"]).worksheet("주요일정")
+                worksheet = gc.open_by_url(st.secrets["work_report_id"]).worksheet("주요일정")
                 schedule_data = worksheet.get_all_values()
                 
                 # 데이터프레임으로 변환
