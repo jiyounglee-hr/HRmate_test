@@ -768,7 +768,7 @@ try:
                 
                 with col3:
                     # 성별 비율 계산
-                    gender_counts = df['성별'].value_counts()
+                    gender_counts = df['남/여'].value_counts()
                     gender_percentages = (gender_counts / len(df) * 100).round(1)
                     
                     # 도넛 차트 생성
