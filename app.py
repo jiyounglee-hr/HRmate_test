@@ -1242,25 +1242,7 @@ try:
             with space_col2:
                 st.write("")  # 빈 공간
             
-            # CSS 스타일 추가
-            st.markdown("""
-                <style>
-                    .dataframe {
-                        text-align: center !important;
-                    }
-                    .dataframe td, .dataframe th {
-                        text-align: center !important;
-                        vertical-align: middle !important;
-                        padding: 8px !important;
-                    }
-                    [data-testid="stDataFrame"] div[role="cell"] {
-                        text-align: center !important;
-                        justify-content: center !important;
-                    }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            # 데이터프레임 표시
+            # DataFrame을 직접 표시
             st.dataframe(
                 stats_df.rename(columns={
                     '연도': '연도',
@@ -1282,14 +1264,12 @@ try:
                     '계약직\n퇴사': '{:,.0f}'
                 }).set_properties(**{
                     'text-align': 'center',
-                    'vertical-align': 'middle',
-                    'padding': '8px'
+                    'vertical-align': 'middle'
                 }).set_table_styles([
-                    {'selector': '', 'props': [('text-align', 'center')]},
-                    {'selector': 'th', 'props': [('text-align', 'center'), ('background-color', '#f0f2f6')]},
+                    {'selector': 'th', 'props': [('text-align', 'center')]},
                     {'selector': 'td', 'props': [('text-align', 'center')]}
                 ]),
-                hide_index=True, 
+                hide_index=True,
                 width=800,
                 use_container_width=False
             )
