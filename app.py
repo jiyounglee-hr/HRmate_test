@@ -2481,14 +2481,14 @@ try:
                 # 데이터 행 추가
                 for _, row in schedule_df.iterrows():
                     table_html += '<tr>'
-                    current_month = datetime.now().month  # 현재 월 가져오기
+                    current_month = int(datetime.now().month)  # 현재 월을 정수형으로 가져오기
                     for idx, col in enumerate(schedule_df.columns):
                         cell_value = row[col]
                         if idx == 0:  # 첫 번째 열(구분)
                             table_html += f'<td style="background-color: #f0f2f6; text-align: center; color: #000000;">{cell_value}</td>'
                         else:
                             # 현재 월에 해당하는 열인지 확인 (1월은 첫 번째 열이므로 idx가 1)
-                            is_current_month = idx == current_month
+                            is_current_month = (idx == current_month)
                             
                             if is_current_month and cell_value and cell_value != "":
                                 # 현재 월이고 내용이 있는 경우 빨간 배경과 흰색 글씨
@@ -2501,7 +2501,7 @@ try:
                                 table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #EE6C6C;">{cell_value}</td>'
                             else:
                                 table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
-                    table_html += '</tr>' 
+                    table_html += '</tr>'
                 
                 table_html += '</table></div>'
                 
