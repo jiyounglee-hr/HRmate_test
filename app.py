@@ -1268,8 +1268,7 @@ try:
                 }).set_table_styles([
                     {'selector': 'th', 'props': [('text-align', 'center')]},
                     {'selector': 'td', 'props': [('text-align', 'center')]}
-                ]),
-                hide_index=True,
+                ]), 
                 width=800,
                 use_container_width=False
             )
