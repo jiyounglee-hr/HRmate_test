@@ -2240,7 +2240,7 @@ try:
                     color: #A6A6A6;
                 }
                 .schedule-table th {
-                    background-color: #f8f9fa;
+                    background-color: #F2F2F2;
                     position: sticky;
                     top: 0;
                     z-index: 1;
@@ -2254,7 +2254,7 @@ try:
                     background-color: #f8f9fa;
                 }
                 .schedule-table td:first-child {
-                    background-color: #f8f9fa;
+                    background-color: #F2F2F2;
                     position: sticky;
                     left: 0;
                     z-index: 1;
@@ -2274,9 +2274,9 @@ try:
                 table_html += '<table class="schedule-table">'
                 
                 # 헤더 행 추가
-                table_html += '<tr><th style="color: #000000;">구분</th>'
+                table_html += '<tr><th style="color: #000000; background-color: #F2F2F2;">구분</th>'
                 for col in schedule_df.columns[1:]:
-                    table_html += f'<th style="color: #000000;">{col}</th>'
+                    table_html += f'<th style="color: #000000; background-color: #F2F2F2;">{col}</th>'
                 table_html += '</tr>'
                 
                 # 데이터 행 추가
