@@ -1195,6 +1195,7 @@ try:
                     name='정규직',
                     text=stats_df['정규직_전체'],
                     textposition='auto',
+                    textfont=dict(color='white'),
                     marker_color='#FF4B4B'
                 ))
 
