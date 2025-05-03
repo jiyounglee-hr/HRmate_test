@@ -2473,9 +2473,9 @@ try:
                 table_html += '<table class="schedule-table">'
                 
                 # 헤더 행 추가
-                table_html += '<tr><th style="color: #000000; background-color: #f0f2f6;">구분</th>'
+                table_html += '<tr><th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">구분</th>'
                 for col in schedule_df.columns[1:]:
-                    table_html += f'<th style="color: #000000; background-color: #f0f2f6;">{col}</th>'
+                    table_html += f'<th style="color: #000000; background-color: #f0f2f6; font-weight: normal;">{col}</th>'
                 table_html += '</tr>'
                 
                 # 데이터 행 추가
