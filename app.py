@@ -2351,7 +2351,7 @@ try:
                 with col1:
                     # 타입 선택
                     types = ['전체'] + sorted(report_df['타입'].unique().tolist())
-                    selected_type = st.selectbox('타입', types)
+                    selected_type = st.selectbox('타입', types, index=types.index('🚩경영운영') if '🚩경영운영' in types else 0)
                 
                 with col2:
                     # 보고일자 선택 - NaN 값 제외
