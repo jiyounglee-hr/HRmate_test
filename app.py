@@ -2379,31 +2379,74 @@ try:
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
 
                 if not filtered_df.empty:
-                    st.dataframe(
-                        filtered_df,
-                        column_config={
-                            "타입": st.column_config.TextColumn(
-                                "업무구분",
-                                width=100,
-                            ),
-                            "업무내용": st.column_config.TextColumn(
-                                "업무내용",
-                                width=500,
-                            ),
-                            "보고일": st.column_config.DateColumn(
-                                "보고일",
-                                width=100,
-                                format="YYYY-MM-DD"
-                            ),
-                            "보고상태": st.column_config.TextColumn(
-                                "보고상태",
-                                width=100,
-                            )
-                        },
-                        hide_index=True,
-                        use_container_width=True,
-                        height=400
-                    )
+                    # HTML 스타일 정의
+                    st.markdown("""
+                    <style>
+                    .report-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 10px 0;
+                        font-size: 14px;
+                    }
+                    .report-table th {
+                        background-color: #f0f2f6;
+                        color: #000000;
+                        padding: 12px 8px;
+                        text-align: center;
+                        border: 1px solid #ddd;
+                        font-weight: bold;
+                    }
+                    .report-table td {
+                        padding: 10px 8px;
+                        border: 1px solid #ddd;
+                    }
+                    .report-table td:nth-child(1) {  /* 업무구분 */
+                        width: 100px;
+                        text-align: center;
+                    }
+                    .report-table td:nth-child(2) {  /* 업무내용 */
+                        text-align: left;
+                        min-width: 500px;
+                    }
+                    .report-table td:nth-child(3) {  /* 보고일 */
+                        width: 100px;
+                        text-align: center;
+                    }
+                    .report-table td:nth-child(4) {  /* 보고상태 */
+                        width: 100px;
+                        text-align: center;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+                    # HTML 테이블 생성
+                    table_html = '<table class="report-table">'
+                    
+                    # 헤더 추가
+                    table_html += '''
+                        <tr>
+                            <th>업무구분</th>
+                            <th>업무내용</th>
+                            <th>보고일</th>
+                            <th>보고상태</th>
+                        </tr>
+                    '''
+                    
+                    # 데이터 행 추가
+                    for _, row in filtered_df.iterrows():
+                        table_html += f'''
+                            <tr>
+                                <td>{row['타입']}</td>
+                                <td>{row['업무내용']}</td>
+                                <td>{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
+                                <td>{row['보고상태']}</td>
+                            </tr>
+                        '''
+                    
+                    table_html += '</table>'
+                    
+                    # HTML 테이블 표시
+                    st.markdown(table_html, unsafe_allow_html=True)
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
