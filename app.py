@@ -2249,7 +2249,7 @@ try:
                 st.write(schedule_df)
                 
                 # 데이터프레임이 비어있지 않은지 확인
-                if len(schedule_df) > 0:
+                if len(schedule_df) > 0: 
                     # HTML 스타일 정의
                     st.markdown("""
                     <style>
