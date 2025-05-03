@@ -1211,11 +1211,10 @@ try:
                 fig2.update_layout(
                     title="연도별 고용형태 현황",
                     title_x=0.5,
-                    height=400,
+                    height=300,
                     barmode='stack',
                     plot_bgcolor='white',
                     yaxis=dict(
-                        title="인원 수 (명)",
                         gridcolor='lightgray',
                         gridwidth=0.5,
                         range=[0, max(stats_df['전체']) * 1.2]
