@@ -2379,69 +2379,31 @@ try:
                 filtered_df = filtered_df.sort_values('보고일', ascending=False)
 
                 if not filtered_df.empty:
-                    # 데이터프레임을 HTML 테이블로 변환
-                    html_content = []
-                    html_content.append("""
-                    <style>
-                    .report-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 10px 0;
-                        font-size: 14px;
-                    }
-                    .report-table th {
-                        background-color: #f0f2f6;
-                        padding: 12px 8px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                        font-weight: bold;
-                    }
-                    .report-table td {
-                        padding: 10px 8px;
-                        border: 1px solid #ddd;
-                    }
-                    .report-table .type-col {
-                        width: 100px;
-                        text-align: center;
-                    }
-                    .report-table .content-col {
-                        text-align: left;
-                        min-width: 500px;
-                    }
-                    .report-table .date-col {
-                        width: 120px;
-                        text-align: center;
-                    }
-                    .report-table .status-col {
-                        width: 100px;
-                        text-align: center;
-                    }
-                    </style>
-                    """)
-                    
-                    html_content.append('<table class="report-table">')
-                    html_content.append('<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>')
-                    
-                    for _, row in filtered_df.iterrows():
-                        content = str(row['업무내용'])
-                        if 'http' in content:
-                            words = content.split()
-                            for i, word in enumerate(words):
-                                if word.startswith(('http://', 'https://')):
-                                    words[i] = f'<a href="{word}" target="_blank">{word}</a>'
-                                content = ' '.join(words)
-                            
-                            row_html = f'<tr>'
-                            row_html += f'<td class="type-col">{row["타입"]}</td>'
-                            row_html += f'<td class="content-col">{content}</td>'
-                            row_html += f'<td class="date-col">{row["보고일"].strftime("%Y-%m-%d") if pd.notna(row["보고일"]) else ""}</td>'
-                            row_html += f'<td class="status-col">{row["보고상태"]}</td>'
-                            row_html += f'</tr>'
-                            html_content.append(row_html)
-                        
-                    html_content.append('</table>')
-                    final_html = ''.join(html_content)
-                    st.markdown(final_html, unsafe_allow_html=True)
+                    st.dataframe(
+                        filtered_df,
+                        column_config={
+                            "타입": st.column_config.TextColumn(
+                                "업무구분",
+                                width=100,
+                            ),
+                            "업무내용": st.column_config.TextColumn(
+                                "업무내용",
+                                width=500,
+                            ),
+                            "보고일": st.column_config.DateColumn(
+                                "보고일",
+                                width=100,
+                                format="YYYY-MM-DD"
+                            ),
+                            "보고상태": st.column_config.TextColumn(
+                                "보고상태",
+                                width=100,
+                            )
+                        },
+                        hide_index=True,
+                        use_container_width=True,
+                        height=400
+                    )
                 else:
                     st.info("조회된 데이터가 없습니다.")
             
@@ -2509,9 +2471,9 @@ try:
                 table_html += '<table class="schedule-table">'
                 
                 # 헤더 행 추가
-                table_html += '<tr><th style="color: #000000; background-color: #F2F2F2;">구분</th>'
+                table_html += '<tr><th style="color: #000000; background-color: #f0f2f6;">구분</th>'
                 for col in schedule_df.columns[1:]:
-                    table_html += f'<th style="color: #000000; background-color: #F2F2F2;">{col}</th>'
+                    table_html += f'<th style="color: #000000; background-color: #f0f2f6;">{col}</th>'
                 table_html += '</tr>'
                 
                 # 데이터 행 추가
@@ -2520,7 +2482,7 @@ try:
                     for col in schedule_df.columns:
                         cell_value = row[col]
                         if col == schedule_df.columns[0]:  # 첫 번째 열(구분)
-                            table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #000000;">{cell_value}</td>'
+                            table_html += f'<td style="background-color: #f0f2f6; text-align: center; color: #000000;">{cell_value}</td>'
                         else:
                             # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
                             if "진행" in str(cell_value).lower():
