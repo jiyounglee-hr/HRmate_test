@@ -573,12 +573,12 @@ st.sidebar.markdown("---")
 
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
+if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+    st.session_state.menu = "🔔 인사팀 업무 공유"
 if st.sidebar.button("📊 인원현황", use_container_width=True):
     st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
-if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-    st.session_state.menu = "🔔 인사팀 업무 공유"
 if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
     st.session_state.menu = "🔍 임직원 검색"
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
