@@ -785,7 +785,7 @@ try:
                     
                     fig.update_layout(
                         title="성별",
-                        title_x=0.5,
+                        title_x=0.3,
                         title_y=0.95,
                         width=200,
                         height=200,
