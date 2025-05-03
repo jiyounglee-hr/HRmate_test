@@ -2388,7 +2388,7 @@ try:
                     for _, row in filtered_df.iterrows():
                         html_output.append("<tr>")
                         # 업무구분 (빨간 화살표 포함)
-                        html_output.append(f'<td style="width: 15%; text-align: left;"><span style="color: red;"></span> {row["업무구분"]}</td>')
+                        html_output.append(f'<td style="width: 15%; text-align: left;"><span style="color: red; background-color: #f0f2f6;"></span> {row["업무구분"]}</td>')
                         # 업무내용
                         # HTML로 입력된 경우 그대로 사용
                         업무내용 = row["업무내용"]
