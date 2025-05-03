@@ -2375,33 +2375,7 @@ try:
                 if selected_status != '전체':
                     filtered_df = filtered_df[filtered_df['보고상태'] == selected_status]
                 
-                # 결과 표시
-                if not filtered_df.empty:
-                    # 표시할 컬럼 선택
-                    display_df = filtered_df[['업무구분', '업무내용', '보고상태']].copy()
-                    
-                    # 인덱스 리셋
-                    display_df = display_df.reset_index(drop=True)
-                    display_df.index = display_df.index + 1
-                    display_df = display_df.rename_axis('No.')
-                    
-                    st.dataframe(
-                        display_df.style.set_properties(**{
-                            'text-align': 'center',
-                            'vertical-align': 'middle',
-                            'white-space': 'pre-wrap'
-                        }).set_table_styles([
-                            {'selector': '', 'props': [('text-align', 'center')]},
-                            {'selector': 'th', 'props': [('text-align', 'center'), ('background-color', '#f0f2f6')]},
-                            {'selector': 'td', 'props': [('text-align', 'center')]}
-                        ]),
-                        use_container_width=True,
-                        height=400
-                    )
-                else:
-                    st.info("조회된 데이터가 없습니다.")
-
-                # HTML 테이블로 데이터 표시
+                # HTML 테이블 스타일 정의
                 st.markdown("""
                 <style>
                 .report-table {
@@ -2416,9 +2390,11 @@ try:
                 .report-table th {
                     background-color: #f0f2f6;
                     font-weight: bold;
+                    text-align: center;
                 }
                 .report-table td.task-type {
                     width: 100px;
+                    text-align: center;
                 }
                 .report-table td.task-content {
                     text-align: left;
@@ -2426,38 +2402,46 @@ try:
                 }
                 .report-table td.date {
                     width: 120px;
+                    text-align: center;
                 }
                 .report-table td.status {
                     width: 100px;
+                    text-align: center;
                 }
                 </style>
                 """, unsafe_allow_html=True)
 
-                # HTML 테이블 생성
-                html_table = "<table class='report-table'>"
-                html_table += "<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>"
-                
-                for _, row in filtered_df.iterrows():
-                    content = row['업무내용']
-                    # URL을 하이퍼링크로 변환
-                    if 'http' in str(content):
-                        words = str(content).split()
-                        for i, word in enumerate(words):
-                            if word.startswith(('http://', 'https://')):
-                                words[i] = f'<a href="{word}" target="_blank">{word}</a>'
-                        content = ' '.join(words)
+                if not filtered_df.empty:
+                    # HTML 테이블 생성
+                    table_rows = []
+                    table_rows.append("<table class='report-table'>")
+                    table_rows.append("<tr><th>업무구분</th><th>업무내용</th><th>보고일</th><th>보고상태</th></tr>")
                     
-                    html_table += f"""
-                    <tr>
-                        <td class='task-type'>{row['타입']}</td>
-                        <td class='task-content'>{content}</td>
-                        <td class='date'>{row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''}</td>
-                        <td class='status'>{row['보고상태']}</td>
-                    </tr>
-                    """
-                
-                html_table += "</table>"
-                st.markdown(html_table, unsafe_allow_html=True)
+                    for _, row in filtered_df.iterrows():
+                        content = str(row['업무내용'])
+                        # URL을 하이퍼링크로 변환
+                        if 'http' in content:
+                            words = content.split()
+                            for i, word in enumerate(words):
+                                if word.startswith(('http://', 'https://')):
+                                    words[i] = f'<a href="{word}" target="_blank">{word}</a>'
+                                content = ' '.join(words)
+                            
+                            report_date = row['보고일'].strftime('%Y-%m-%d') if pd.notna(row['보고일']) else ''
+                            
+                            table_rows.append(f"""
+                            <tr>
+                                <td class='task-type'>{row['타입']}</td>
+                                <td class='task-content'>{content}</td>
+                                <td class='date'>{report_date}</td>
+                                <td class='status'>{row['보고상태']}</td>
+                            </tr>
+                            """)
+                        
+                        table_rows.append("</table>")
+                        st.markdown(''.join(table_rows), unsafe_allow_html=True)
+                    else:
+                        st.info("조회된 데이터가 없습니다.")
             
             st.markdown("<br>", unsafe_allow_html=True)
             
