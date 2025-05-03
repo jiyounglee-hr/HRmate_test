@@ -2481,13 +2481,19 @@ try:
                 # 데이터 행 추가
                 for _, row in schedule_df.iterrows():
                     table_html += '<tr>'
-                    for col in schedule_df.columns:
+                    current_month = datetime.now().month  # 현재 월 가져오기
+                    for idx, col in enumerate(schedule_df.columns):
                         cell_value = row[col]
-                        if col == schedule_df.columns[0]:  # 첫 번째 열(구분)
+                        if idx == 0:  # 첫 번째 열(구분)
                             table_html += f'<td style="background-color: #f0f2f6; text-align: center; color: #000000;">{cell_value}</td>'
                         else:
-                            # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
-                            if "진행" in str(cell_value).lower():
+                            # 현재 월에 해당하는 열인지 확인 (1월은 첫 번째 열이므로 idx가 1)
+                            is_current_month = idx == current_month
+                            
+                            if is_current_month and cell_value and cell_value != "":
+                                # 현재 월이고 내용이 있는 경우 빨간 배경과 흰색 글씨
+                                table_html += f'<td style="background-color: #ff3333; text-align: center; color: #FFFFFF;">{cell_value}</td>'
+                            elif "진행" in str(cell_value).lower():
                                 table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #EE6C6C;">{cell_value}</td>'
                             elif "계획" in str(cell_value).lower():
                                 table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #A6A6A6;">{cell_value}</td>'
