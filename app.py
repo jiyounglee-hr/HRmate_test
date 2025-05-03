@@ -2237,7 +2237,15 @@ try:
                 # 엑셀 파일에서 연간일정 시트 읽기
                 schedule_df = pd.read_excel("임직원 기초 데이터.xlsx", sheet_name="연간일정")
                 
-                if not schedule_df.empty:
+                # 데이터 전처리
+                schedule_df = schedule_df.fillna("")  # NaN 값을 빈 문자열로 변환
+                
+                # 모든 컬럼의 데이터를 문자열로 변환
+                for col in schedule_df.columns:
+                    schedule_df[col] = schedule_df[col].astype(str)
+                
+                # 데이터프레임이 비어있지 않은지 확인
+                if len(schedule_df) > 0:
                     # HTML 스타일 정의
                     st.markdown("""
                     <style>
@@ -2317,7 +2325,7 @@ try:
                             cell_value = schedule_df.iloc[row_idx].get(month, "")
                             
                             # NaN 값 처리 및 병합된 셀 처리
-                            if pd.isna(cell_value):
+                            if pd.isna(cell_value) or cell_value == "":
                                 # 이전 행의 값이 있으면 사용
                                 if month in previous_values:
                                     cell_value = previous_values[month]
@@ -2326,7 +2334,7 @@ try:
                                     cell_value = ""
                                     cell_class = ""
                             else:
-                                previous_values[month] = cell_value
+                                previous_values[month] = str(cell_value)
                                 cell_class = ""
                             
                             table_html += f"<td{cell_class}>{cell_value}</td>"
