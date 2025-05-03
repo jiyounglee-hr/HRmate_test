@@ -2235,9 +2235,9 @@ try:
                 }
                 .schedule-table th, .schedule-table td {
                     border: 1px solid #ddd;
-                    padding: 8px;
+                    padding: 4px;
                     text-align: center;
-                    min-width: 80px;
+                    min-width: 50px;
                     color: #A6A6A6;
                 }
                 .schedule-table th {
