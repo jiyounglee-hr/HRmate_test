@@ -2288,11 +2288,11 @@ try:
                         else:
                             # 셀에 "진행" 또는 "계획" 텍스트가 있는 경우 배경색 변경
                             if "진행" in str(cell_value).lower():
-                                table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                                table_html += f'<td style="background-color: #FFE5E5; text-align: center; color: #EE6C6C;">{cell_value}</td>'
                             elif "계획" in str(cell_value).lower():
                                 table_html += f'<td style="background-color: #F2F2F2; text-align: center; color: #A6A6A6;">{cell_value}</td>'
                             elif cell_value and cell_value != "":  # 그 외 텍스트가 있는 경우
-                                table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #A6A6A6;">{cell_value}</td>'
+                                table_html += f'<td style="background-color: #FFE5E6; text-align: center; color: #EE6C6C;">{cell_value}</td>'
                             else:
                                 table_html += f'<td style="text-align: center; color: #A6A6A6;">{cell_value}</td>'
                     table_html += '</tr>'
