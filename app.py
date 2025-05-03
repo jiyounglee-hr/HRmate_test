@@ -779,14 +779,17 @@ try:
                         marker_colors=['#4A4A4A', '#FF4B4B'],
                         textinfo='label+percent',
                         textposition='inside',
-                        showlegend=False
+                        showlegend=False,
+                        textfont=dict(color='white')  # 텍스트 색상을 흰색으로 설정
                     )])
                     
                     fig.update_layout(
+                        title="성별",
+                        title_x=0.5,
+                        title_y=0.95,
                         width=300,
                         height=300,
-                        title="성별",
-                        margin=dict(t=0, b=0, l=0, r=0),
+                        margin=dict(t=30, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)'
                     )
