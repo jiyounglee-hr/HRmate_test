@@ -2573,8 +2573,6 @@ try:
         elif menu == "🚀 채용_지원자 관리":
             st.markdown("##### 🚀 채용_지원자 관리")
             st.markdown("<br>", unsafe_allow_html=True)
-
-
             with st.expander("📝 채용전형관리 링크", expanded=True):
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️채용 전형 시스템</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
@@ -2677,19 +2675,22 @@ try:
                                 st.warning(f"임시 파일 정리 중 오류 발생: {str(e)}")
             
             st.markdown("<br>", unsafe_allow_html=True)
-
+            # 임시 데이터베이스 링크
+            st.markdown('''
+            <a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" 
+            target="_blank" 
+            style="
+                text-decoration: none; 
+                color: #1b1b1e;
+                background-color: #f0f2f6;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 12px;
+                display: inline-block;
+                ">
+                🔗 지원서 관리 DB (준비중)
+            </a>
             ''', unsafe_allow_html=True)
-            # 주요 기능 소개
-            st.markdown("##### 주요 기능 (개발 예정)")
-            st.markdown("""
-            <div style="font-size: 14px;">
-            ㆍ지원서 접수 현황 관리<br>
-            ㆍ지원자 정보 데이터베이스 구축<br>
-            ㆍ지원서 평가 및 피드백 시스템<br>
-            ㆍ채용 프로세스 진행 현황 추적<br>
-            ㆍ합격/불합격 통보 자동화<br>
-            ㆍ지원자 통계 및 리포트 생성<br>
-            </div>
-            """, unsafe_allow_html=True)
+
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
