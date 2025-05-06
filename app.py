@@ -29,6 +29,7 @@ import pytz
 import gspread
 import tempfile
 from PyPDF2 import PdfMerger
+import gdown
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -2611,19 +2612,8 @@ try:
             # 2. 다운로드 함수
             def download_pdf_from_drive(file_id, save_path):
                 try:
-                    # 공개 파일에 대한 직접 다운로드 URL 생성
-                    url = f"https://drive.google.com/uc?export=download&confirm=t&id={file_id}"
-                    session = requests.Session()
-                    
-                    # 첫 번째 요청으로 쿠키 획득
-                    response = session.get(url, stream=True)
-                    
-                    # 파일 저장
-                    with open(save_path, 'wb') as f:
-                        for chunk in response.iter_content(chunk_size=32768):
-                            if chunk:
-                                f.write(chunk)
-                        
+                    url = f'https://drive.google.com/uc?id={file_id}'
+                    gdown.download(url, save_path, quiet=True)
                 except Exception as e:
                     st.error(f"파일 다운로드 중 오류 발생: {str(e)}")
                     raise
