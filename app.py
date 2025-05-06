@@ -2574,43 +2574,12 @@ try:
             st.markdown("##### 🚀 채용_지원자 관리")
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # 임시 데이터베이스 링크
-            st.markdown('''
-            <a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" 
-            target="_blank" 
-            style="
-                text-decoration: none; 
-                color: #1b1b1e;
-                background-color: #f0f2f6;
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-size: 12px;
-                display: inline-block;
-                ">
-                🔗 지원서 관리 DB (준비중)
-            </a>
-                        
+
             with st.expander("📝 채용전형관리 링크", expanded=True):
-                st.link_button(
-                    "▫️채용 전형 시스템",
-                    "https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/",
-                    use_container_width=True,
-                )
-                st.link_button(
-                    "▫️면접 평가서 관리",
-                    "https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin",
-                    use_container_width=True,
-                )
-                st.link_button(
-                    "▫️면접 평가서 DB",
-                    "https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0",
-                    use_container_width=True,
-                )
-                st.link_button(
-                    "▫️평가기준 및 채용공고 DB",
-                    "https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0",
-                    use_container_width=True,
-                )
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️채용 전형 시스템</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
             
             
             st.markdown("<br>", unsafe_allow_html=True)
