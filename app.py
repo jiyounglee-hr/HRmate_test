@@ -2637,7 +2637,7 @@ try:
                         return False
 
                 # 3. PDF 병합 UI
-                links = st.text_area("Google Drive PDF 링크들 (한 줄에 하나씩)", height=100)
+                links = st.text_area("Google Drive PDF 링크를 '링크가있는 모든 사용자'로 공유하고, 한 줄에 하나씩 입력해주세요.", height=100)
 
                 if st.button("구글 드라이브 PDF 병합"):
                     link_list = [l.strip() for l in links.splitlines() if l.strip()]
