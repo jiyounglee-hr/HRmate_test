@@ -2627,25 +2627,31 @@ try:
                     st.warning("PDF 링크를 입력해주세요.")
                 else:
                     with st.spinner("PDF 병합 중..."):
-                        with tempfile.TemporaryDirectory() as tmpdir:
+                        # 임시 디렉토리 생성
+                        temp_dir = tempfile.mkdtemp()
+                        try:
                             merger = PdfMerger()
                             for i, link in enumerate(link_list):
                                 file_id = extract_file_id(link)
                                 if not file_id:
                                     st.error(f"링크 오류: {link}")
                                     continue
-                                pdf_path = f"{tmpdir}/file_{i}.pdf"
+                                
+                                # Windows 경로 형식으로 PDF 파일 경로 생성
+                                pdf_path = os.path.join(temp_dir, f'file_{i}.pdf')
                                 try:
                                     download_pdf_from_drive(file_id, pdf_path)
                                     merger.append(pdf_path)
                                 except Exception as e:
-                                    st.error(f"{link} 다운로드 실패: {e}")
+                                    st.error(f"{link} 다운로드 실패: {str(e)}")
                             
                             try:
-                                output_path = f"{tmpdir}/merged_result.pdf"
+                                # 병합된 PDF 저장
+                                output_path = os.path.join(temp_dir, 'merged_result.pdf')
                                 merger.write(output_path)
                                 merger.close()
 
+                                # 다운로드 버튼 생성
                                 with open(output_path, "rb") as f:
                                     st.download_button(
                                         label="📥 병합된 PDF 다운로드",
@@ -2654,7 +2660,14 @@ try:
                                         mime="application/pdf"
                                     )
                             except Exception as e:
-                                st.error(f"PDF 병합 중 오류 발생: {e}")
+                                st.error(f"PDF 병합 중 오류 발생: {str(e)}")
+                        finally:
+                            # 임시 파일들 정리
+                            try:
+                                import shutil
+                                shutil.rmtree(temp_dir)
+                            except Exception as e:
+                                st.error(f"임시 파일 정리 중 오류 발생: {str(e)}")
             
             st.markdown("<br>", unsafe_allow_html=True)
             # 임시 데이터베이스 링크
