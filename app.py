@@ -2612,13 +2612,24 @@ try:
             # 2. 다운로드 함수
             def download_pdf_from_drive(file_id, save_path):
                 try:
+                    # 구글 드라이브 공유 URL 형식으로 변환
                     url = f'https://drive.google.com/uc?id={file_id}'
-                    # gdown의 download 함수 대신 download_file 함수 사용
-                    output = gdown.download_file(url, save_path, quiet=False, fuzzy=True)
+                    
+                    # gdown으로 다운로드 시도
+                    output = gdown.download(url, save_path, quiet=False, fuzzy=True)
+                    
+                    # 다운로드 결과 확인
                     if output is None:
                         st.error(f"파일 다운로드 실패: {url}")
                         return False
-                    return True
+                        
+                    # 파일 존재 여부와 크기 확인
+                    if os.path.exists(save_path) and os.path.getsize(save_path) > 0:
+                        return True
+                    else:
+                        st.error(f"다운로드된 파일이 올바르지 않습니다: {save_path}")
+                        return False
+                        
                 except Exception as e:
                     st.error(f"파일 다운로드 중 오류 발생: {str(e)}")
                     return False
@@ -2651,11 +2662,8 @@ try:
                                 
                                 # 다운로드 시도
                                 if download_pdf_from_drive(file_id, pdf_path):
-                                    if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
-                                        merger.append(pdf_path)
-                                        download_success = True
-                                    else:
-                                        st.error(f"{link} 다운로드 실패: 파일이 올바르게 생성되지 않았습니다.")
+                                    merger.append(pdf_path)
+                                    download_success = True
                                 else:
                                     st.error(f"{link} 다운로드에 실패했습니다.")
                             
