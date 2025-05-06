@@ -2573,11 +2573,26 @@ try:
         elif menu == "🚀 채용_지원자 관리":
             st.markdown("##### 🚀 채용_지원자 관리")
             st.markdown("<br>", unsafe_allow_html=True)
+            # CSS 스타일 정의
+            st.markdown("""
+                <style>
+                .link-hover {
+                    text-decoration: none;
+                    color: #1b1b1e;
+                    font-size: 13px;
+                    transition: color 0.3s;
+                }
+                .link-hover:hover {
+                    color: #0066ff !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
             with st.expander("📝 채용전형관리 링크", expanded=True):
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" style="text-decoration: none; color: #1b1b1e; font-size: 13px; transition: color 0.3s;" onmouseover="this.style.color=\'#0066ff\'" onmouseout="this.style.color=\'#1b1b1e\'">▫️채용 전형 시스템 : 가이드 및 면접평가서</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" style="text-decoration: none; color: #1b1b1e; font-size: 13px; transition: color 0.3s;" onmouseover="this.style.color=\'#0066ff\'" onmouseout="this.style.color=\'#1b1b1e\'">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" style="text-decoration: none; color: #1b1b1e; font-size: 13px; transition: color 0.3s;" onmouseover="this.style.color=\'#0066ff\'" onmouseout="this.style.color=\'#1b1b1e\'">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" style="text-decoration: none; color: #1b1b1e; font-size: 13px; transition: color 0.3s;" onmouseover="this.style.color=\'#0066ff\'" onmouseout="this.style.color=\'#1b1b1e\'">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️채용 전형 시스템 : 가이드 및 면접평가서</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
             
             
             st.markdown("<br>", unsafe_allow_html=True)
