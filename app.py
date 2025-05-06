@@ -2626,7 +2626,7 @@ try:
                 st.markdown('</div>', unsafe_allow_html=True)
 
                 # 2. 면접 전형
-                st.markdown('<div class="category-title">2️3️⃣ 면접 전형</div>', unsafe_allow_html=True)
+                st.markdown('<div class="category-title">3️⃣ 면접 전형</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app" target="_blank" class="link-hover">▫️채용 가이드 및 AI분석</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
