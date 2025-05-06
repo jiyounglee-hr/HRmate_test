@@ -2596,7 +2596,7 @@ try:
                     color: #1b1b1e;
                     font-size: 14px;
                     font-weight: 600;
-                    margin-top: 3px;
+                    margin-top: 5px;
                     margin-bottom: 2px;
                     line-height: 1;
                 }
@@ -2610,19 +2610,27 @@ try:
             
             with st.expander("👇 링크 바로가기 ", expanded=True):
                 # 1. 지원자 접수
-                st.markdown('<div class="category-title">1️⃣ 지원자 접수</div>', unsafe_allow_html=True)
+                st.markdown('<div class="category-title">1️⃣ 포지션 오픈</div>', unsafe_allow_html=True)
+                st.markdown('<div class="link-container">', unsafe_allow_html=True)
+                st.markdown('<a href="https://neurophethr.notion.site/Career_ADMIN-74f617b482894f5ba7196833eeaed2ef?pvs=4" target="_blank" class="link-hover">▫️뉴로핏 커리어 공고 업데이트</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://app.oopy.io/home?utm_source=oopy&utm_medium=homepage" target="_blank" class="link-hover">▫️뉴로핏 커리어 웹호스팅(우피)</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️뉴로핏 커리어 </a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+                # 1. 지원자 접수
+                st.markdown('<div class="category-title">2️⃣ 지원자 접수</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1o5tLJr-6NbYZiImU7IKBUTtjVaeU-HI_pNxNvvF2f5c/edit?gid=126612072#gid=126612072" target="_blank" class="link-hover">▫️구글 지원자 DB</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️지원자 정보 업데이트</a>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
                 # 2. 면접 전형
-                st.markdown('<div class="category-title">2️⃣ 면접 전형</div>', unsafe_allow_html=True)
+                st.markdown('<div class="category-title">2️3️⃣ 면접 전형</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app" target="_blank" class="link-hover">▫️채용 가이드 및 AI분석</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️면접평가서 DB</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
