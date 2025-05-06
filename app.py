@@ -2584,23 +2584,42 @@ try:
                     font-size: 13px;
                     transition: color 0.3s;
                     display: inline-block;
-                    margin: 2px 0;
+                    margin: 4px 0;
                 }
                 .link-hover:hover {
                     color: #0066ff !important;
                     text-decoration: none !important;
                 }
+                .category-title {
+                    color: #1b1b1e;
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-top: 15px;
+                    margin-bottom: 8px;
+                }
+                .link-container {
+                    margin-left: 10px;
+                }
                 </style>
             """, unsafe_allow_html=True)
             
-            with st.expander("📝 채용 관련 링크 ", expanded=True):
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️지원자 리스트 : 구글 지원자 DB</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️채용 전형 시스템 : 가이드 및 면접평가서</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접 평가서 관리 : 면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
+            with st.expander("📝 채용 관리 시스템", expanded=True):
+                # 1. 지원자 접수
+                st.markdown('<div class="category-title">1️⃣ 지원자 접수</div>', unsafe_allow_html=True)
+                st.markdown('<div class="link-container">', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1o5tLJr-6NbYZiImU7IKBUTtjVaeU-HI_pNxNvvF2f5c/edit?gid=126612072#gid=126612072" target="_blank" class="link-hover">▫️구글 지원자 DB</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️지원자 업데이트</a>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+                # 2. 면접 전형
+                st.markdown('<div class="category-title">2️⃣ 면접 전형</div>', unsafe_allow_html=True)
+                st.markdown('<div class="link-container">', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app" target="_blank" class="link-hover">▫️채용 가이드 및 AI분석</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️면접평가서 DB</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
-            
-            
+                st.markdown('</div>', unsafe_allow_html=True)
+
             st.markdown("<br>", unsafe_allow_html=True)
             
             # PDF 병합 기능
