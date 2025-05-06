@@ -2613,7 +2613,7 @@ try:
                 st.markdown('<div class="category-title">1️⃣ 지원자 접수</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1o5tLJr-6NbYZiImU7IKBUTtjVaeU-HI_pNxNvvF2f5c/edit?gid=126612072#gid=126612072" target="_blank" class="link-hover">▫️구글 지원자 DB</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️지원자 업데이트</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️지원자 정보 업데이트</a>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
                 # 2. 면접 전형
