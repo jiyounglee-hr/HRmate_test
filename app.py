@@ -2611,34 +2611,18 @@ try:
             # 2. 다운로드 함수
             def download_pdf_from_drive(file_id, save_path):
                 try:
-                    # 구글 드라이브 API 인증
-                    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-                    credentials_dict = {
-                        "type": st.secrets["google_credentials"]["type"],
-                        "project_id": st.secrets["google_credentials"]["project_id"],
-                        "private_key_id": st.secrets["google_credentials"]["private_key_id"],
-                        "private_key": st.secrets["google_credentials"]["private_key"],
-                        "client_email": st.secrets["google_credentials"]["client_email"],
-                        "client_id": st.secrets["google_credentials"]["client_id"],
-                        "auth_uri": st.secrets["google_credentials"]["auth_uri"],
-                        "token_uri": st.secrets["google_credentials"]["token_uri"],
-                        "auth_provider_x509_cert_url": st.secrets["google_credentials"]["auth_provider_x509_cert_url"],
-                        "client_x509_cert_url": st.secrets["google_credentials"]["client_x509_cert_url"]
-                    }
-                    credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
-                    gc = gspread.authorize(credentials)
+                    # 공개 파일에 대한 직접 다운로드 URL 생성
+                    url = f"https://drive.google.com/uc?export=download&confirm=t&id={file_id}"
+                    session = requests.Session()
                     
-                    # 구글 드라이브 API로 파일 다운로드
-                    headers = {
-                        'Authorization': f'Bearer {credentials.create_delegated("").access_token}'
-                    }
-                    url = f'https://www.googleapis.com/drive/v3/files/{file_id}?alt=media'
-                    response = requests.get(url, headers=headers)
-                    response.raise_for_status()  # 오류 발생시 예외 발생
+                    # 첫 번째 요청으로 쿠키 획득
+                    response = session.get(url, stream=True)
                     
                     # 파일 저장
                     with open(save_path, 'wb') as f:
-                        f.write(response.content)
+                        for chunk in response.iter_content(chunk_size=32768):
+                            if chunk:
+                                f.write(chunk)
                         
                 except Exception as e:
                     st.error(f"파일 다운로드 중 오류 발생: {str(e)}")
