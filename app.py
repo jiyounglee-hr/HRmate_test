@@ -2576,21 +2576,24 @@ try:
             # CSS 스타일 정의
             st.markdown("""
                 <style>
+                a {
+                    text-decoration: none !important;
+                }
                 .link-hover {
-                    text-decoration: none;
                     color: #1b1b1e;
                     font-size: 13px;
                     transition: color 0.3s;
+                    display: inline-block;
+                    margin: 2px 0;
                 }
                 .link-hover:hover {
                     color: #0066ff !important;
+                    text-decoration: none !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
-
-            st.markdown("###### 📝 채용 관리 시스템 바로가기")
             
-            with st.expander(" 채용 관련 링크 👇)", expanded=True):
+            with st.expander("📝 채용 관련 링크 👇)", expanded=True):
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️지원자 리스트 : 구글 지원자 DB</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️채용 전형 시스템 : 가이드 및 면접평가서</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접 평가서 관리 : 면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
