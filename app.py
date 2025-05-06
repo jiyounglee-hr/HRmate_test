@@ -2583,9 +2583,10 @@ try:
                     color: #1b1b1e;
                     font-size: 13px;
                     transition: color 0.3s;
-                    display: inline-block;
+                    display: block;
                     margin: 0;
-                    line-height: 1.2;
+                    padding: 0;
+                    line-height: 1;
                 }
                 .link-hover:hover {
                     color: #0066ff !important;
@@ -2595,12 +2596,13 @@ try:
                     color: #1b1b1e;
                     font-size: 14px;
                     font-weight: 600;
-                    margin-top: 10px;
-                    margin-bottom: 4px;
+                    margin-top: 8px;
+                    margin-bottom: 2px;
+                    line-height: 1;
                 }
                 .link-container {
                     margin-left: 10px;
-                    line-height: 1.2;
+                    line-height: 1;
                 }
                 </style>
             """, unsafe_allow_html=True)
