@@ -2573,7 +2573,7 @@ try:
         elif menu == "📝 지원서 관리":
             st.markdown("##### 📝 지원서 관리")
             st.markdown("<br>", unsafe_allow_html=True)
-            with st.sidebar.expander("🚀 채용전형관리"):
+            with st.expander("🚀 채용전형관리"):
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️채용 전형 시스템</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
