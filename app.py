@@ -2613,10 +2613,15 @@ try:
             def download_pdf_from_drive(file_id, save_path):
                 try:
                     url = f'https://drive.google.com/uc?id={file_id}'
-                    gdown.download(url, save_path, quiet=True)
+                    # gdown의 download 함수 대신 download_file 함수 사용
+                    output = gdown.download_file(url, save_path, quiet=False, fuzzy=True)
+                    if output is None:
+                        st.error(f"파일 다운로드 실패: {url}")
+                        return False
+                    return True
                 except Exception as e:
                     st.error(f"파일 다운로드 중 오류 발생: {str(e)}")
-                    raise
+                    return False
 
             # 3. PDF 병합 UI
             links = st.text_area("Google Drive PDF 링크들 (한 줄에 하나씩)", height=100)
@@ -2633,6 +2638,8 @@ try:
                         
                         try:
                             merger = PdfMerger()
+                            download_success = False
+                            
                             for i, link in enumerate(link_list):
                                 file_id = extract_file_id(link)
                                 if not file_id:
@@ -2641,35 +2648,39 @@ try:
                                 
                                 # Windows 경로 형식으로 PDF 파일 경로 생성
                                 pdf_path = os.path.join(temp_dir, f'file_{i}.pdf')
-                                try:
-                                    url = f'https://drive.google.com/uc?id={file_id}'
-                                    gdown.download(url, pdf_path, quiet=True)
-                                    if os.path.exists(pdf_path):  # 파일이 실제로 생성되었는지 확인
+                                
+                                # 다운로드 시도
+                                if download_pdf_from_drive(file_id, pdf_path):
+                                    if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
                                         merger.append(pdf_path)
+                                        download_success = True
                                     else:
-                                        st.error(f"{link} 다운로드 실패: 파일이 생성되지 않았습니다.")
-                                except Exception as e:
-                                    st.error(f"{link} 다운로드 실패: {str(e)}")
-                            
-                            try:
-                                # 병합된 PDF 저장
-                                output_path = os.path.join(temp_dir, 'merged_result.pdf')
-                                merger.write(output_path)
-                                merger.close()
-
-                                # 파일이 실제로 생성되었는지 확인
-                                if os.path.exists(output_path):
-                                    with open(output_path, "rb") as f:
-                                        st.download_button(
-                                            label="📥 병합된 PDF 다운로드",
-                                            data=f,
-                                            file_name="merged_result.pdf",
-                                            mime="application/pdf"
-                                        )
+                                        st.error(f"{link} 다운로드 실패: 파일이 올바르게 생성되지 않았습니다.")
                                 else:
-                                    st.error("PDF 병합 파일 생성에 실패했습니다.")
-                            except Exception as e:
-                                st.error(f"PDF 병합 중 오류 발생: {str(e)}")
+                                    st.error(f"{link} 다운로드에 실패했습니다.")
+                            
+                            if download_success:
+                                try:
+                                    # 병합된 PDF 저장
+                                    output_path = os.path.join(temp_dir, 'merged_result.pdf')
+                                    merger.write(output_path)
+                                    merger.close()
+
+                                    # 파일이 실제로 생성되었는지 확인
+                                    if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                                        with open(output_path, "rb") as f:
+                                            st.download_button(
+                                                label="📥 병합된 PDF 다운로드",
+                                                data=f,
+                                                file_name="merged_result.pdf",
+                                                mime="application/pdf"
+                                            )
+                                    else:
+                                        st.error("PDF 병합 파일 생성에 실패했습니다.")
+                                except Exception as e:
+                                    st.error(f"PDF 병합 중 오류 발생: {str(e)}")
+                            else:
+                                st.error("다운로드에 성공한 PDF 파일이 없습니다.")
                         finally:
                             # 임시 파일들 정리
                             try:
@@ -2677,7 +2688,7 @@ try:
                                 if os.path.exists(temp_dir):
                                     shutil.rmtree(temp_dir)
                             except Exception as e:
-                                st.error(f"임시 파일 정리 중 오류 발생: {str(e)}")
+                                st.warning(f"임시 파일 정리 중 오류 발생: {str(e)}")
             
             st.markdown("<br>", unsafe_allow_html=True)
             # 임시 데이터베이스 링크
