@@ -2606,8 +2606,9 @@ try:
                 }
                 </style>
             """, unsafe_allow_html=True)
+            st.markdown("###### 📝 채용 관리 시스템")
             
-            with st.expander("📝 채용 관리 시스템", expanded=True):
+            with st.expander("👇 링크 바로가기 ", expanded=True):
                 # 1. 지원자 접수
                 st.markdown('<div class="category-title">1️⃣ 지원자 접수</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
