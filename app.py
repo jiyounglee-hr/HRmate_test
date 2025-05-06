@@ -27,6 +27,8 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import pytz
 import gspread
+import tempfile
+from PyPDF2 import PdfMerger
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -594,6 +596,8 @@ if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
     st.session_state.menu = "⏰ 초과근무 조회"
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
+if st.sidebar.button("📝 지원서 관리", use_container_width=True):
+    st.session_state.menu = "📝 지원서 관리"
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
@@ -2568,6 +2572,102 @@ try:
                 display: inline-block;
                 ">
                 🔗 업무보고 및 주요일정 DB
+            </a>
+            ''', unsafe_allow_html=True)
+
+        # 지원서 관리 메뉴
+        elif menu == "📝 지원서 관리":
+            st.markdown("##### 📝 지원서 관리")
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 개발 예정 안내 메시지
+            st.info("🚧 현재 개발 진행 중입니다.")
+            
+            # 주요 기능 소개
+            st.markdown("##### 주요 기능 (개발 예정)")
+            st.markdown("""
+            <div style="font-size: 14px;">
+            ㆍ지원서 접수 현황 관리<br>
+            ㆍ지원자 정보 데이터베이스 구축<br>
+            ㆍ지원서 평가 및 피드백 시스템<br>
+            ㆍ채용 프로세스 진행 현황 추적<br>
+            ㆍ합격/불합격 통보 자동화<br>
+            ㆍ지원자 통계 및 리포트 생성<br>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # PDF 병합 기능
+            st.markdown("##### PDF 병합")
+            
+            # 1. 파일 ID 추출 함수
+            def extract_file_id(link):
+                try:
+                    return link.split("/d/")[1].split("/")[0]
+                except:
+                    return None
+
+            # 2. 다운로드 함수
+            def download_pdf_from_drive(file_id, save_path):
+                url = f"https://drive.google.com/uc?export=download&id={file_id}"
+                response = requests.get(url)
+                with open(save_path, "wb") as f:
+                    f.write(response.content)
+
+            # 3. PDF 병합 UI
+            links = st.text_area("Google Drive PDF 링크들 (한 줄에 하나씩)", height=100)
+
+            if st.button("PDF 병합하기"):
+                link_list = [l.strip() for l in links.splitlines() if l.strip()]
+                if not link_list:
+                    st.warning("PDF 링크를 입력해주세요.")
+                else:
+                    with st.spinner("PDF 병합 중..."):
+                        with tempfile.TemporaryDirectory() as tmpdir:
+                            merger = PdfMerger()
+                            for i, link in enumerate(link_list):
+                                file_id = extract_file_id(link)
+                                if not file_id:
+                                    st.error(f"링크 오류: {link}")
+                                    continue
+                                pdf_path = f"{tmpdir}/file_{i}.pdf"
+                                try:
+                                    download_pdf_from_drive(file_id, pdf_path)
+                                    merger.append(pdf_path)
+                                except Exception as e:
+                                    st.error(f"{link} 다운로드 실패: {e}")
+                            
+                            try:
+                                output_path = f"{tmpdir}/merged_result.pdf"
+                                merger.write(output_path)
+                                merger.close()
+
+                                with open(output_path, "rb") as f:
+                                    st.download_button(
+                                        label="📥 병합된 PDF 다운로드",
+                                        data=f,
+                                        file_name="merged_result.pdf",
+                                        mime="application/pdf"
+                                    )
+                            except Exception as e:
+                                st.error(f"PDF 병합 중 오류 발생: {e}")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            # 임시 데이터베이스 링크
+            st.markdown('''
+            <a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" 
+            target="_blank" 
+            style="
+                text-decoration: none; 
+                color: #1b1b1e;
+                background-color: #f0f2f6;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 12px;
+                display: inline-block;
+                ">
+                🔗 지원서 관리 DB (준비중)
             </a>
             ''', unsafe_allow_html=True)
 
