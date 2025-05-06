@@ -2577,7 +2577,7 @@ try:
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️채용 전형 시스템</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="color: #1b1b1e; font-size: 13px;">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e; font-size: 13px;">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
   
             # 개발 예정 안내 메시지
             st.info("🚧 현재 개발 진행 중입니다.")
@@ -2626,7 +2626,7 @@ try:
                     return False
 
             # 3. PDF 병합 UI
-            links = st.text_area("Google Drive PDF 링크들 (한 줄에 하나씩)", height=100)
+            links = st.text_area("Google Drive PDF 링크가있는 모든 사용자(뷰어)로 설정하고 한 줄에 하나씩 입력해주세요.)", height=100)
 
             if st.button("PDF 병합하기"):
                 link_list = [l.strip() for l in links.splitlines() if l.strip()]
