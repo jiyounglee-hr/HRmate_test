@@ -588,16 +588,17 @@ if st.sidebar.button("😊 임직원 명부", use_container_width=True):
 
 st.sidebar.markdown("#### HR Surpport")
 # HR Support 섹션
+if st.sidebar.button("🚀 채용 전형 관리", use_container_width=True):
+    st.session_state.menu = "🚀 채용 전형 관리"
+if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+    st.session_state.menu = "📋 채용 처우협상"
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
     st.session_state.menu = "🏦 기관제출용 인원현황"
-if st.sidebar.button("📋 채용_처우협상", use_container_width=True):
-    st.session_state.menu = "📋 채용_처우협상"
 if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
     st.session_state.menu = "⏰ 초과근무 조회"
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
-if st.sidebar.button("🚀 채용_지원자 관리", use_container_width=True):
-    st.session_state.menu = "🚀 채용_지원자 관리"
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
@@ -1534,7 +1535,7 @@ try:
             else:
                 st.error("데이터를 불러오는 중 오류가 발생했습니다.")
 
-        elif menu == "📋 채용_처우협상":
+        elif menu == "📋 채용 처우협상":
             st.markdown("##### 🔎 처우 기본정보")
             
             # 직군 매핑 정의
@@ -2570,8 +2571,8 @@ try:
             ''', unsafe_allow_html=True)
 
         # 지원서 관리 메뉴
-        elif menu == "🚀 채용_지원자 관리":
-            st.markdown("##### 🚀 채용_지원자 관리")
+        elif menu == "🚀 채용 전형 관리":
+            st.markdown("##### 🚀 채용 전형 관리")
             st.markdown("<br>", unsafe_allow_html=True)
             # CSS 스타일 정의
             st.markdown("""
