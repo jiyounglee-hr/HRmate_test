@@ -2610,7 +2610,7 @@ try:
             
             with st.expander("👇 링크 바로가기 ", expanded=True):
                 # 1. 지원자 접수
-                st.markdown('<div class="category-title">1️⃣ 포지션 오픈</div>', unsafe_allow_html=True)
+                st.markdown('<div class="category-title">1️⃣ 채용공고 관리</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
                 st.markdown('<a href="https://neurophethr.notion.site/Career_ADMIN-74f617b482894f5ba7196833eeaed2ef?pvs=4" target="_blank" class="link-hover">▫️뉴로핏 커리어 공고 업데이트</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://app.oopy.io/home?utm_source=oopy&utm_medium=homepage" target="_blank" class="link-hover">▫️뉴로핏 커리어 웹호스팅(우피)</a>', unsafe_allow_html=True)
