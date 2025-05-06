@@ -2587,10 +2587,13 @@ try:
                 }
                 </style>
             """, unsafe_allow_html=True)
+
+            st.markdown("###### 📝 채용 관리 시스템 바로가기")
             
-            with st.expander("📝 채용전형관리 링크", expanded=True):
+            with st.expander(" 채용 관련 링크 👇)", expanded=True):
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️지원자 리스트 : 구글 지원자 DB</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/" target="_blank" class="link-hover">▫️채용 전형 시스템 : 가이드 및 면접평가서</a>', unsafe_allow_html=True)
-                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접 평가서 관리</a>', unsafe_allow_html=True)
+                st.markdown('<a href="https://hr-resume-uzu5bngyefgcv5ykngnhcd.streamlit.app/~/+/?page=admin" target="_blank" class="link-hover">▫️면접 평가서 관리 : 면접평가서 조회 및 PDF 다운로드</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1zwYJ2hwneCeSgd6p4s9ngll8PDmhLhq9qOTRo5SLCz8/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️면접 평가서 DB</a>', unsafe_allow_html=True)
                 st.markdown('<a href="https://docs.google.com/spreadsheets/d/1SfVtvaHgXesDFtdFozt9CJD8aQpPBrK76AxNj-OOfFE/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️평가기준 및 채용공고 DB</a>', unsafe_allow_html=True)
             
@@ -2598,7 +2601,7 @@ try:
             st.markdown("<br>", unsafe_allow_html=True)
             
             # PDF 병합 기능
-            st.markdown("##### PDF 병합")
+            st.markdown("###### 📑이력서 PDF 병합")
             
             # 1. 파일 ID 추출 함수
             def extract_file_id(link):
@@ -2690,22 +2693,6 @@ try:
                                 st.warning(f"임시 파일 정리 중 오류 발생: {str(e)}")
             
             st.markdown("<br>", unsafe_allow_html=True)
-            # 임시 데이터베이스 링크
-            st.markdown('''
-            <a href="https://docs.google.com/spreadsheets/d/1KjlfACJIzNLerJQ38ti4VlPbJh3t5gDobpi-wr28zf8/edit?gid=0#gid=0" 
-            target="_blank" 
-            style="
-                text-decoration: none; 
-                color: #1b1b1e;
-                background-color: #f0f2f6;
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-size: 12px;
-                display: inline-block;
-                ">
-                🔗 지원서 관리 DB (준비중)
-            </a>
-            ''', unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
