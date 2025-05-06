@@ -581,10 +581,11 @@ if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
 if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
     st.session_state.menu = "🔔 인사팀 업무 공유"
-if st.sidebar.button("🔍 임직원 검색", use_container_width=True):
-    st.session_state.menu = "🔍 임직원 검색"
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
     st.session_state.menu = "😊 임직원 명부"
+if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
+    st.session_state.menu = "🔍 연락처/생일 검색"
+
 
 st.sidebar.markdown("#### HR Surpport")
 # HR Support 섹션
@@ -1284,8 +1285,8 @@ try:
                 use_container_width=False
             )
 
-        elif menu == "🔍 임직원 검색":
-            st.markdown("##### 🔍 연락처 검색")
+        elif menu == "🔍 연락처/생일 검색":
+            st.markdown("##### 🔍 연연락처/생일 검색")
             
             # 검색 부분을 컬럼으로 나누기
             search_col, space_col = st.columns([0.3, 0.7])
