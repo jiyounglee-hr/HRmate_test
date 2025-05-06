@@ -2596,7 +2596,7 @@ try:
                     color: #1b1b1e;
                     font-size: 14px;
                     font-weight: 600;
-                    margin-top: 8px;
+                    margin-top: 3px;
                     margin-bottom: 2px;
                     line-height: 1;
                 }
