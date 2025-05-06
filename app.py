@@ -588,8 +588,8 @@ if st.sidebar.button("😊 임직원 명부", use_container_width=True):
 
 st.sidebar.markdown("#### HR Surpport")
 # HR Support 섹션
-if st.sidebar.button("🚀 채용 전형 관리", use_container_width=True):
-    st.session_state.menu = "🚀 채용 전형 관리"
+if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
+    st.session_state.menu = "🚀 채용 전형관리"
 if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
     st.session_state.menu = "📋 채용 처우협상"
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
@@ -2571,8 +2571,8 @@ try:
             ''', unsafe_allow_html=True)
 
         # 지원서 관리 메뉴
-        elif menu == "🚀 채용 전형 관리":
-            st.markdown("##### 🚀 채용 전형 관리")
+        elif menu == "🚀 채용 전형관리":
+            st.markdown("##### 🚀 채용 전형관리")
             st.markdown("<br>", unsafe_allow_html=True)
             # CSS 스타일 정의
             st.markdown("""
