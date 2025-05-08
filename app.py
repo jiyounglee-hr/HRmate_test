@@ -2292,7 +2292,7 @@ try:
         elif menu == "🔔 인사팀 업무 공유":
             st.markdown("##### 🔔 인사팀 업무 공유")
             # 업무보고 데이터 가져오기
-            @st.cache_data(ttl=60)  # 5분마다 캐시 갱신
+            @st.cache_data(ttl=60)  # 1분마다 캐시 갱신
             def get_work_report_data():
                 try:
                     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -2391,7 +2391,6 @@ try:
                         # 업무구분 
                         html_output.append(f'<td style="width: 20%; text-align: left; background-color: #f0f2f6; font-size: 13px;""> {row["업무구분"]}</td>')
                         # 업무내용
-                        # HTML로 입력된 경우 그대로 사용
                         업무내용 = row["업무내용"]
                         if not 업무내용.startswith("<"):
                             # 여러 줄 지원 및 URL 자동 링크 변환
@@ -2492,7 +2491,7 @@ try:
                         background-color: white;
                     }
                     .schedule-table tr:nth-child(even) td {
-                        background-color: #f8f9fa;
+                        background-color: #ffffff; 
                     }
                     .schedule-table td:first-child {
                         background-color: #F2F2F2;
@@ -2757,7 +2756,7 @@ try:
                     else:
                         with st.spinner("PDF 병합 중..."):
                             try:
-                                merger = PdfMerger()
+                                merger = PdfMerger() 
                                 
                                 # 업로드된 파일들을 병합
                                 for uploaded_file in uploaded_files:
