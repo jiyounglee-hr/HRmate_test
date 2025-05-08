@@ -2399,7 +2399,7 @@ try:
                             # URL 패턴 찾기
                             url_pattern = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
                             # "링크" 텍스트 찾기
-                            link_pattern = r'링크'
+                            link_pattern = r'링크' 
                             
                             # URL이 있는지 확인
                             urls = re.findall(url_pattern, 업무내용)
@@ -2411,7 +2411,7 @@ try:
                                         업무내용 = re.sub(link_pattern, f'<a href="{url}" target="_blank">링크</a>', 업무내용, count=1)
                                     else:
                                         # "링크" 텍스트가 없으면 URL 자체를 링크로 변환
-                                        업무내용 = 업무내용.replace(url, f'<a href="{url}" target="_blank">{url}</a>')
+                                        업무내용 = 업무내용.replace(url, f'<a href="{url}" target="_blank">링크</a>')
                         
                         html_output.append(f'<td style="width: 85%; text-align: left; padding-left: 15px; font-size: 13px;">{업무내용}</td>')
                         html_output.append("</tr>")
