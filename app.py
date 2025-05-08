@@ -2396,9 +2396,23 @@ try:
                         if not 업무내용.startswith("<"):
                             # 여러 줄 지원 및 URL 자동 링크 변환
                             업무내용 = 업무내용.replace("\n", "<br>")
-                            업무내용 = re.sub(r'(https?://\S+)', r'<a href="\1" target="_blank">\1</a>', 업무내용)
-                        # '보기>' 텍스트에 링크 심기
-                        업무내용 = 업무내용.replace("링크", '<a href="URL">링크></a>')
+                            # URL 패턴 찾기
+                            url_pattern = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
+                            # "링크" 텍스트 찾기
+                            link_pattern = r'링크'
+                            
+                            # URL이 있는지 확인
+                            urls = re.findall(url_pattern, 업무내용)
+                            if urls:
+                                # 각 URL에 대해
+                                for url in urls:
+                                    # "링크" 텍스트가 있으면 해당 텍스트를 URL로 대체
+                                    if re.search(link_pattern, 업무내용):
+                                        업무내용 = re.sub(link_pattern, f'<a href="{url}" target="_blank">링크</a>', 업무내용, count=1)
+                                    else:
+                                        # "링크" 텍스트가 없으면 URL 자체를 링크로 변환
+                                        업무내용 = 업무내용.replace(url, f'<a href="{url}" target="_blank">{url}</a>')
+                        
                         html_output.append(f'<td style="width: 85%; text-align: left; padding-left: 15px; font-size: 13px;">{업무내용}</td>')
                         html_output.append("</tr>")
                     
