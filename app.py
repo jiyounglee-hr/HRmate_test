@@ -2833,19 +2833,24 @@ try:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # 채용진행년도 선택
-                    years = sorted(recruitment_df['채용진행년도'].unique(), reverse=True)
-                    selected_year = st.selectbox("채용진행년도", years)
+                    # 채용진행년도 선택 (문자열이 섞여있을 수 있으므로 필터링)
+                    years = [year for year in recruitment_df['채용진행년도'].unique() if isinstance(year, (int, float)) and year != 0]
+                    years = sorted(years, reverse=True)
+                    if years:
+                        selected_year = st.selectbox("채용진행년도", years)
+                    else:
+                        st.error("유효한 채용진행년도 데이터가 없습니다.")
+                        return
                 
                 with col2:
                     # 채용상태 선택
-                    statuses = ['전체'] + sorted(recruitment_df['채용상태'].unique())
+                    statuses = ['전체'] + sorted([str(status) for status in recruitment_df['채용상태'].unique() if pd.notna(status)])
                     selected_status = st.selectbox("채용상태", statuses)
 
-                # 데이터 필터링
+                # 데이터 필터링 (채용진행년도가 숫자인 경우만 필터링)
                 filtered_df = recruitment_df[recruitment_df['채용진행년도'] == selected_year]
                 if selected_status != '전체':
-                    filtered_df = filtered_df[filtered_df['채용상태'] == selected_status]
+                    filtered_df = filtered_df[filtered_df['채용상태'].astype(str) == selected_status]
 
                 # 통계 계산
                 stats_df = filtered_df.groupby('본부').agg({
