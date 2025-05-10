@@ -2797,9 +2797,16 @@ try:
                     # 엑셀 파일에서 "채용-공고현황" 시트 읽기
                     df = pd.read_excel(file_path, sheet_name="채용-공고현황")
                     
-                    # 날짜 컬럼 변환
+                    # 날짜 컬럼 변환 시도
                     if '공고게시일자' in df.columns:
-                        df['공고게시일자'] = pd.to_datetime(df['공고게시일자'])
+                        # 원본 값 보존
+                        df['공고게시일자_원본'] = df['공고게시일자'].astype(str)
+                        # 날짜 변환 시도
+                        df['공고게시일자'] = pd.to_datetime(df['공고게시일자'], errors='coerce')
+                        # 변환 실패한 경우 원본 값으로 복원
+                        df.loc[df['공고게시일자'].isna(), '공고게시일자'] = df.loc[df['공고게시일자'].isna(), '공고게시일자_원본']
+                        # 임시 컬럼 삭제
+                        df = df.drop('공고게시일자_원본', axis=1)
                     
                     return df
                 except Exception as e:
@@ -2873,7 +2880,7 @@ try:
                         "TO": st.column_config.NumberColumn("TO", width=80),
                         "확정": st.column_config.NumberColumn("확정", width=80),
                         "채용상태": st.column_config.TextColumn("채용상태", width=100),
-                        "공고게시일자": st.column_config.DateColumn("공고게시일자", width=120, format="YYYY-MM-DD"),
+                        "공고게시일자": st.column_config.TextColumn("공고게시일자", width=120),
                         "채용진행년도": st.column_config.NumberColumn("채용진행년도", width=100)
                     },
                     hide_index=False
