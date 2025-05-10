@@ -3055,7 +3055,7 @@ try:
                 # 현재 디렉토리에서 엑셀 파일 경로 설정
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
-                
+                 
                 # 엑셀 파일에서 "채용-지원자" 시트 읽기
                 df = pd.read_excel(file_path, sheet_name="채용-지원자")
                 
