@@ -3162,6 +3162,9 @@ try:
                         margin=dict(t=70),  # 상단 여백 설정
                         xaxis_tickangle=45
                     )
+                    
+                    # 차트 표시
+                    st.plotly_chart(fig_result, use_container_width=True)
                 
                 with col1:
                     # 상세 통계 표시
@@ -3183,4 +3186,4 @@ try:
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")    
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")   
