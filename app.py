@@ -2875,7 +2875,7 @@ try:
                 stats_df = pd.concat([stats_df, total_row])
 
                 # 통계 표시
-                col_stats1, col_stats2 = st.columns([0.5, 0.5]) 
+                col_stats1, col_stats2, col3 = st.columns([0.4, 0.4, 0.2]) 
                 
                 with col_stats1:
                     st.dataframe(
@@ -2923,7 +2923,10 @@ try:
                     
                     # 차트 표시
                     st.plotly_chart(fig_to, use_container_width=True)
-
+                
+                with col3:
+                    # 여백 컬럼
+                    st.empty()
                 # 상세 리스트 표시
                 st.markdown("###### 📋 채용 포지션 리스트")
                 
