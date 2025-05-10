@@ -2919,7 +2919,7 @@ try:
 
             st.markdown("##### 🚀 면접 현황")
             
-            # 면접 현황 데이터 로드
+            # 면접 현황 데이터 로드 
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_interview_data():
                 try:
