@@ -3045,139 +3045,139 @@ try:
             else:
                 st.warning("면접 현황 데이터를 불러올 수 없습니다.")
 
-        st.markdown("---")
-        st.markdown("##### 💡 지원자 접수 통계")
-        
-        # 지원자 통계 데이터 로드
-        @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-        def load_applicant_stats():
-            try:
-                # 현재 디렉토리에서 엑셀 파일 경로 설정
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
-                
-                # 엑셀 파일에서 "채용-지원자" 시트 읽기
-                df = pd.read_excel(file_path, sheet_name="채용-지원자")
-                
-                # 성명이 0인 행 제거
-                df = df[df['성명'] != 0]
-                df = df[df['성명'] != '0']
-                
-                # 등록날짜에서 연도 추출
-                df['지원연도'] = pd.to_datetime(df['등록날짜']).dt.year
-                
-                return df
-            except Exception as e:
-                st.error(f"지원자 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-                return None
+            st.markdown("---")
+            st.markdown("##### 💡 지원자 접수 통계")
+            
+            # 지원자 통계 데이터 로드
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            def load_applicant_stats():
+                try:
+                    # 현재 디렉토리에서 엑셀 파일 경로 설정
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    
+                    # 엑셀 파일에서 "채용-지원자" 시트 읽기
+                    df = pd.read_excel(file_path, sheet_name="채용-지원자")
+                    
+                    # 성명이 0인 행 제거
+                    df = df[df['성명'] != 0]
+                    df = df[df['성명'] != '0']
+                    
+                    # 등록날짜에서 연도 추출
+                    df['지원연도'] = pd.to_datetime(df['등록날짜']).dt.year
+                    
+                    return df
+                except Exception as e:
+                    st.error(f"지원자 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None
 
-        # 데이터 로드
-        applicant_df = load_applicant_stats()
-        
-        if applicant_df is not None and len(applicant_df) > 0:
-            # 연도 선택
-            years = sorted(applicant_df['지원연도'].unique(), reverse=True)
-            selected_year = st.selectbox("조회연도", years, key="applicant_year")
+            # 데이터 로드
+            applicant_df = load_applicant_stats()
             
-            # 선택된 연도의 데이터만 필터링
-            year_df = applicant_df[applicant_df['지원연도'] == selected_year]
-            
-            # 접수방법 통계
-            col1, col2 = st.columns(2)
-            
-            with col1:
+            if applicant_df is not None and len(applicant_df) > 0:
+                # 연도 선택
+                years = sorted(applicant_df['지원연도'].unique(), reverse=True)
+                selected_year = st.selectbox("조회연도", years, key="applicant_year")
                 
-                # 접수방법 순서 정의
-                channel_order = ['뉴로핏커리어', '사내추천', '원티드', '헤드헌팅', '점핏', '인재서치', '기타']
+                # 선택된 연도의 데이터만 필터링
+                year_df = applicant_df[applicant_df['지원연도'] == selected_year]
                 
-                # 접수방법별 카운트
-                channel_stats = year_df['접수방법'].value_counts().reindex(channel_order).fillna(0)
-                total_channel = channel_stats.sum()
-                # 차트 생성
-                fig_channel = px.bar(
-                    x=channel_stats.index,
-                    y=channel_stats.values,
-                    labels={'x': '', 'y': '지원자 수'},
-                    title=f"{selected_year}년 접수방법별 지원자 현황 (총 {int(total_channel):,}명)"
-                )
+                # 접수방법 통계
+                col1, col2 = st.columns(2)
                 
-                # 차트 스타일 설정
-                colors = ['#FF3333' if x == '뉴로핏커리어' else 'rgb(158, 202, 225)' for x in channel_stats.index]
-                fig_channel.update_traces(marker_color=colors)
-                # 막대 위에 값 표시 추가
-                fig_channel.update_traces(
-                    text=channel_stats.values.astype(int),
-                    textposition='outside'
-                )
-                fig_channel.update_layout(
-                    showlegend=False,
-                    height=450,
-                    title_x=0,
-                    title_y=0.95,
-                    margin=dict(t=70)  # 상단 여백을 더 크게 증가
-                )
-                
-                # 차트 표시
-                st.plotly_chart(fig_channel, use_container_width=True)
-            with col2:
-                 # 여백 컬럼
-                st.empty()
+                with col1:
+                    
+                    # 접수방법 순서 정의
+                    channel_order = ['뉴로핏커리어', '사내추천', '원티드', '헤드헌팅', '점핏', '인재서치', '기타']
+                    
+                    # 접수방법별 카운트
+                    channel_stats = year_df['접수방법'].value_counts().reindex(channel_order).fillna(0)
+                    total_channel = channel_stats.sum()
+                    # 차트 생성
+                    fig_channel = px.bar(
+                        x=channel_stats.index,
+                        y=channel_stats.values,
+                        labels={'x': '', 'y': '지원자 수'},
+                        title=f"{selected_year}년 접수방법별 지원자 현황 (총 {int(total_channel):,}명)"
+                    )
+                    
+                    # 차트 스타일 설정
+                    colors = ['#FF3333' if x == '뉴로핏커리어' else 'rgb(158, 202, 225)' for x in channel_stats.index]
+                    fig_channel.update_traces(marker_color=colors)
+                    # 막대 위에 값 표시 추가
+                    fig_channel.update_traces(
+                        text=channel_stats.values.astype(int),
+                        textposition='outside'
+                    )
+                    fig_channel.update_layout(
+                        showlegend=False,
+                        height=450,
+                        title_x=0,
+                        title_y=0.95,
+                        margin=dict(t=70)  # 상단 여백을 더 크게 증가
+                    )
+                    
+                    # 차트 표시
+                    st.plotly_chart(fig_channel, use_container_width=True)
+                with col2:
+                    # 여백 컬럼
+                    st.empty()
 
-            col1, col2 = st.columns([0.7, 0.3])
-            with col1:
+                col1, col2 = st.columns([0.7, 0.3])
+                with col1:
+                    
+                    # 전형결과 순서 정의
+                    result_order = [
+                        '[1]서류검토', '[2]서류합격', '[3]1차면접합격', '[4]2차면접합격', '[5]최종합격',
+                        '서류불합격', '1차면접불합격', '2차면접불합격', '면접불참', '입사포기', '보류', '연락안됨'
+                    ]
+                    
+                    # 전형결과별 카운트
+                    result_stats = year_df['전형 결과'].value_counts().reindex(result_order).fillna(0)
+                    total = result_stats.sum()
+                    
+                    # '합계' 항목 제외
+                    result_stats = result_stats[result_stats.index != '합계']
+                    
+                    # 차트 생성
+                    fig_result = px.bar(
+                        x=result_stats.index,
+                        y=result_stats.values,
+                        labels={'x': '전형 결과', 'y': '지원자 수'},
+                        title=f"{selected_year}년 전형결과별 현황 (총 {int(total):,}명)"
+                    )
+                    
+                    # 차트 스타일 설정
+                    fig_result.update_traces(marker_color='rgb(158, 202, 225)')
+                    fig_result.update_layout(
+                        showlegend=False,
+                        height=400,
+                        title_x=0,
+                        title_y=0.95,
+                        xaxis_tickangle=45
+                    )
+                    
+                    # 차트 표시
+                    st.plotly_chart(fig_result, use_container_width=True)
                 
-                # 전형결과 순서 정의
-                result_order = [
-                    '[1]서류검토', '[2]서류합격', '[3]1차면접합격', '[4]2차면접합격', '[5]최종합격',
-                    '서류불합격', '1차면접불합격', '2차면접불합격', '면접불참', '입사포기', '보류', '연락안됨'
-                ]
-                
-                # 전형결과별 카운트
-                result_stats = year_df['전형 결과'].value_counts().reindex(result_order).fillna(0)
-                total = result_stats.sum()
-                
-                # '합계' 항목 제외
-                result_stats = result_stats[result_stats.index != '합계']
-                
-                # 차트 생성
-                fig_result = px.bar(
-                    x=result_stats.index,
-                    y=result_stats.values,
-                    labels={'x': '전형 결과', 'y': '지원자 수'},
-                    title=f"{selected_year}년 전형결과별 현황 (총 {int(total):,}명)"
-                )
-                
-                # 차트 스타일 설정
-                fig_result.update_traces(marker_color='rgb(158, 202, 225)')
-                fig_result.update_layout(
-                    showlegend=False,
-                    height=400,
-                    title_x=0,
-                    title_y=0.95,
-                    xaxis_tickangle=45
-                )
-                
-                # 차트 표시
-                st.plotly_chart(fig_result, use_container_width=True)
-            
-            with col1:
-                # 상세 통계 표시
-                st.markdown("##### 📋 상세 통계")
-                stats_df = pd.DataFrame({
-                    '전형 결과': result_stats.index,
-                    '인원수': result_stats.values
-                })
-                
-                st.dataframe(
-                    stats_df,
-                    column_config={
-                        "전형 결과": st.column_config.TextColumn("전형 결과", width=150),
-                        "인원수": st.column_config.NumberColumn("인원수", width=100)
-                    },
-                    hide_index=True  
-                )
-        else:
-            st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
+                with col1:
+                    # 상세 통계 표시
+                    st.markdown("##### 📋 상세 통계")
+                    stats_df = pd.DataFrame({
+                        '전형 결과': result_stats.index,
+                        '인원수': result_stats.values
+                    })
+                    
+                    st.dataframe(
+                        stats_df,
+                        column_config={
+                            "전형 결과": st.column_config.TextColumn("전형 결과", width=150),
+                            "인원수": st.column_config.NumberColumn("인원수", width=100)
+                        },
+                        hide_index=True  
+                    )
+            else:
+                st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")   
