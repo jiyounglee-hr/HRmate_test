@@ -3097,7 +3097,7 @@ try:
                 fig_channel = px.bar(
                     x=channel_stats.index,
                     y=channel_stats.values,
-                    labels={'x': '접수방법', 'y': '지원자 수'},
+                    labels={'x': '', 'y': '지원자 수'},
                     title=f"{selected_year}년 접수방법별 지원자 현황 (총 {int(total_channel):,}명)"
                 )
                 
@@ -3110,10 +3110,10 @@ try:
                 )
                 fig_channel.update_layout(
                     showlegend=False,
-                    height=400,
+                    height=450,
                     title_x=0,
                     title_y=0.95,
-                    margin=dict(t=100)  # 상단 여백을 더 크게 증가
+                    margin=dict(t=80)  # 상단 여백을 더 크게 증가
                 )
                 
                 # 차트 표시
