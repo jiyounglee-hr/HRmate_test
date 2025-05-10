@@ -2862,6 +2862,9 @@ try:
                     '채용상태': lambda x: ', '.join(sorted(set(x)))  # 중복 제거하고 정렬하여 표시
                 }).reset_index()
 
+                # 본부명 기준으로 내림차순 정렬
+                stats_df = stats_df.sort_values('본부', ascending=False)
+
                 # 합계 행 추가
                 total_row = pd.DataFrame({
                     '본부': ['합계'],
@@ -2872,7 +2875,7 @@ try:
                 stats_df = pd.concat([stats_df, total_row])
 
                 # 통계 표시
-                col_stats1, col_stats2 = st.columns([0.5, 0.5])
+                col_stats1, col_stats2 = st.columns([0.5, 0.5]) 
                 
                 with col_stats1:
                     st.dataframe(
@@ -2887,8 +2890,41 @@ try:
                     )
                 
                 with col_stats2:
-                    # 여백 컬럼
-                    st.empty()
+                    # 본부별 TO 차트
+                    # 합계 행 제외하고 본부별 TO 데이터 준비
+                    dept_to_df = stats_df[stats_df['본부'] != '합계'].copy()
+                    # 본부명 기준으로 내림차순 정렬
+                    dept_to_df = dept_to_df.sort_values('본부', ascending=False)
+                    
+                    # 수평 막대 차트 생성
+                    fig_to = px.bar(
+                        dept_to_df,
+                        y='본부',
+                        x='TO',
+                        orientation='h',
+                        title=f"{selected_year}년 본부별 TO 현황"
+                    )
+                    
+                    # 차트 스타일 설정
+                    fig_to.update_traces(
+                        marker_color='#FFB6B6',
+                        text=dept_to_df['TO'],
+                        textposition='outside'
+                    )
+                    
+                    fig_to.update_layout(
+                        height=350,
+                        showlegend=False,
+                        title_x=0,
+                        title_y=0.95,
+                        margin=dict(t=70, r=20, l=20),
+                        xaxis_title="",
+                        yaxis_title="",
+                        yaxis=dict(autorange="reversed")  # 위에서 아래로 정렬
+                    )
+                    
+                    # 차트 표시
+                    st.plotly_chart(fig_to, use_container_width=True)
 
                 # 상세 리스트 표시
                 st.markdown("###### 📋 채용 포지션 리스트")
