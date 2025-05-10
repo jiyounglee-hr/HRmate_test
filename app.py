@@ -3184,7 +3184,7 @@ try:
                     fig_result = px.bar(
                         x=result_stats.index,
                         y=result_stats.values,
-                        labels={'x': '전형 결과', 'y': '지원자 수'},
+                        labels={'x': '', 'y': '지원자 수'},
                         title=f"{selected_year}년 전형결과별 현황 (총 {int(total):,}명)"
                     )
                     
