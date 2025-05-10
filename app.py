@@ -3086,7 +3086,6 @@ try:
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("##### 📊 접수방법별 통계")
                 
                 # 접수방법 순서 정의
                 channel_order = ['뉴로핏커리어', '사내추천', '원티드', '헤드헌팅', '점핏', '인재서치', '기타']
@@ -3107,7 +3106,7 @@ try:
                 fig_channel.update_layout(
                     showlegend=False,
                     height=400,
-                    title_x=0.5,
+                    title_x=0,
                     title_y=0.95
                 )
                 
@@ -3116,7 +3115,9 @@ try:
             with col2:
                  # 여백 컬럼
                 st.empty()
-                
+
+            # 전형결과 통계
+            col1, col2 = st.columns(0.7, 0.3)                
             with col1:
                 st.markdown("##### 📊 전형결과별 통계")
                 
@@ -3146,14 +3147,15 @@ try:
                 fig_result.update_layout(
                     showlegend=False,
                     height=400,
-                    title_x=0.5,
+                    title_x=0,
                     title_y=0.95,
                     xaxis_tickangle=45
                 )
                 
                 # 차트 표시
                 st.plotly_chart(fig_result, use_container_width=True)
-                
+            
+            with col2:
                 # 상세 통계 표시
                 st.markdown("##### 📋 상세 통계")
                 stats_df = pd.DataFrame({
