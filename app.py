@@ -2902,7 +2902,6 @@ try:
                         y='본부',
                         x='TO',
                         orientation='h',
-                        title=f"{selected_year}년 본부별 TO 현황"
                     )
                     
                     # 차트 스타일 설정
@@ -2913,7 +2912,7 @@ try:
                     )
                     
                     fig_to.update_layout(
-                        height=350,
+                        height=320,
                         showlegend=False,
                         title_x=0,
                         title_y=0.95,
