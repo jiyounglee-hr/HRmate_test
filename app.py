@@ -2797,11 +2797,12 @@ try:
                     # 엑셀 파일에서 "채용-공고현황" 시트 읽기 
                     df = pd.read_excel(file_path, sheet_name="채용-공고현황")
                     
-                    # 채용진행년도를 숫자로 변환
+                    # 채용진행년도를 문자열로 변환
                     if '채용진행년도' in df.columns:
-                        df['채용진행년도'] = pd.to_numeric(df['채용진행년도'], errors='coerce')
-                        # NA 값은 0으로 채움
-                        df['채용진행년도'] = df['채용진행년도'].fillna(0).astype(int)
+                        df['채용진행년도'] = df['채용진행년도'].astype(str)
+                        # 빈 문자열이나 'nan'은 제외
+                        df = df[df['채용진행년도'].str.strip() != '']
+                        df = df[df['채용진행년도'] != 'nan']
                     
                     # TO와 확정 컬럼을 숫자로 변환
                     if 'TO' in df.columns:
@@ -2833,19 +2834,18 @@ try:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # 채용진행년도 선택 (문자열이 섞여있을 수 있으므로 필터링)
-                    years = [year for year in recruitment_df['채용진행년도'].unique() if isinstance(year, (int, float)) and year != 0]
-                    years = sorted(years, reverse=True)
+                    # 채용진행년도 선택 (문자열 처리)
+                    years = sorted(recruitment_df['채용진행년도'].unique(), reverse=True)
                     if not years:
                         st.error("유효한 채용진행년도 데이터가 없습니다.")
-                    selected_year = st.selectbox("채용진행년도", years if years else [datetime.now().year])
+                    selected_year = st.selectbox("채용진행년도", years if years else [str(datetime.now().year)])
                 
                 with col2:
                     # 채용상태 선택
                     statuses = ['전체'] + sorted([str(status) for status in recruitment_df['채용상태'].unique() if pd.notna(status)])
                     selected_status = st.selectbox("채용상태", statuses)
 
-                # 데이터 필터링 (채용진행년도가 숫자인 경우만 필터링)
+                # 데이터 필터링 (문자열 비교)
                 filtered_df = recruitment_df[recruitment_df['채용진행년도'] == selected_year]
                 if selected_status != '전체':
                     filtered_df = filtered_df[filtered_df['채용상태'].astype(str) == selected_status]
