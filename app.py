@@ -2946,7 +2946,12 @@ try:
                         "TO": st.column_config.NumberColumn("TO", width=80),
                         "확정": st.column_config.NumberColumn("확정", width=80),
                         "채용상태": st.column_config.TextColumn("채용상태", width=100),
-                        "공고게시일자": st.column_config.TextColumn("공고게시일자", width=120)
+                        "공고게시일자": st.column_config.DateColumn(
+                            "공고게시일자",
+                            width=120,
+                            format="YYYY-MM-DD"
+                        ),
+                        "채용진행년도": st.column_config.NumberColumn("채용진행년도", width=100)
                     },
                     hide_index=False
                 )
