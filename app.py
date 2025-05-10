@@ -3103,6 +3103,11 @@ try:
                 
                 # 차트 스타일 설정
                 fig_channel.update_traces(marker_color='rgb(55, 83, 109)')
+                # 막대 위에 값 표시 추가
+                fig_channel.update_traces(
+                    text=channel_stats.values.astype(int),
+                    textposition='outside'
+                )
                 fig_channel.update_layout(
                     showlegend=False,
                     height=400,
@@ -3127,10 +3132,10 @@ try:
                 
                 # 전형결과별 카운트
                 result_stats = year_df['전형 결과'].value_counts().reindex(result_order).fillna(0)
-                
-                # 합계 추가
                 total = result_stats.sum()
-                result_stats['합계'] = total
+                
+                # '합계' 항목 제외
+                result_stats = result_stats[result_stats.index != '합계']
                 
                 # 차트 생성
                 fig_result = px.bar(
