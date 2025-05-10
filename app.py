@@ -2933,6 +2933,10 @@ try:
                     # 면접일자가 비어있는 행 제거
                     df = df.dropna(subset=['면접일자'])
                     
+                    # 성명이 0인 행 제거
+                    df = df[df['성명'] != 0]
+                    df = df[df['성명'] != '0']
+                    
                     # 면접일자를 datetime으로 변환
                     def convert_to_datetime(x):
                         try:
@@ -2972,24 +2976,27 @@ try:
                 col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
                 
                 with col1:
-                    # 시작일 선택
+                    # 시작일 선택 (오늘 - 15일)
                     start_date = st.date_input(
                         "시작일",
-                        value=datetime.now().date() - timedelta(days=30),
+                        value=datetime.now().date() - timedelta(days=15),
                         help="면접 시작일을 선택하세요."
                     )
                 
                 with col2:
-                    # 종료일 선택
+                    # 종료일 선택 (오늘 + 30일)
                     end_date = st.date_input(
                         "종료일",
-                        value=datetime.now().date(),
+                        value=datetime.now().date() + timedelta(days=30),
                         help="면접 종료일을 선택하세요."
                     )
                 
                 with col3:
-                    # 전형구분 선택 (None 값 처리)
-                    interview_types = ['전체'] + sorted([str(t) for t in interview_df['전형구분'].unique() if pd.notna(t)])
+                    # 전형구분 선택 (None 값과 0 값 처리)
+                    interview_types = ['전체'] + sorted([
+                        str(t) for t in interview_df['전형구분'].unique() 
+                        if pd.notna(t) and str(t) != '0' and str(t) != '0.0' and t != 0
+                    ])
                     selected_type = st.selectbox("전형구분", interview_types)
 
                 # 데이터 필터링
@@ -3032,4 +3039,4 @@ try:
                 st.warning("면접 현황 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")  
