@@ -3123,13 +3123,13 @@ try:
                     # 여백 컬럼
                     st.empty()
 
-                col1, col2 = st.columns([0.7, 0.3])
+                col1, col2 = st.columns([0.9, 0.1])
                 with col1:
                     
                     # 전형결과 순서 정의
                     result_order = [
-                        '[1]서류검토', '[2]서류합격', '[3]1차면접합격', '[4]2차면접합격', '[5]최종합격',
-                        '서류불합격', '1차면접불합격', '2차면접불합격', '면접불참', '입사포기', '보류', '연락안됨'
+                        '[1]서류검토', '[2]서류합격', '[3]1차면접합격', '[4]2차면접합격', '[5]최종합격','입사포기',
+                        '서류불합격', '1차면접불합격', '2차면접불합격', '면접불참',  '보류', '연락안됨'
                     ]
                     
                     # 전형결과별 카운트
@@ -3149,16 +3149,19 @@ try:
                     
                     # 차트 스타일 설정
                     fig_result.update_traces(marker_color='rgb(158, 202, 225)')
+                    # 막대 위에 값 표시 추가
+                    fig_result.update_traces(
+                        text=result_stats.values.astype(int),
+                        textposition='outside'
+                    )
                     fig_result.update_layout(
                         showlegend=False,
                         height=400,
                         title_x=0,
                         title_y=0.95,
+                        margin=dict(t=70),  # 상단 여백 설정
                         xaxis_tickangle=45
                     )
-                    
-                    # 차트 표시
-                    st.plotly_chart(fig_result, use_container_width=True)
                 
                 with col1:
                     # 상세 통계 표시
@@ -3180,4 +3183,4 @@ try:
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")   
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")    
