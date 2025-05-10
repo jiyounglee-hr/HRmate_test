@@ -2912,13 +2912,11 @@ try:
                     )
                     
                     fig_to.update_layout(
-                        height=320,
+                        height=300,
                         showlegend=False,
                         title_x=0,
                         title_y=0.95,
                         margin=dict(t=70, r=20, l=20),
-                        xaxis_title="",
-                        yaxis_title="",
                         yaxis=dict(autorange="reversed")  # 위에서 아래로 정렬
                     )
                     
