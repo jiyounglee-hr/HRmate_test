@@ -3102,7 +3102,8 @@ try:
                 )
                 
                 # 차트 스타일 설정
-                fig_channel.update_traces(marker_color='rgb(55, 83, 109)')
+                colors = ['#FF3333' if x == '뉴로핏커리어' else 'rgb(158, 202, 225)' for x in channel_stats.index]
+                fig_channel.update_traces(marker_color=colors)
                 # 막대 위에 값 표시 추가
                 fig_channel.update_traces(
                     text=channel_stats.values.astype(int),
@@ -3113,7 +3114,7 @@ try:
                     height=450,
                     title_x=0,
                     title_y=0.95,
-                    margin=dict(t=50)  # 상단 여백을 더 크게 증가
+                    margin=dict(t=70)  # 상단 여백을 더 크게 증가
                 )
                 
                 # 차트 표시
