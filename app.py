@@ -2902,21 +2902,22 @@ try:
                         y='본부',
                         x='TO',
                         orientation='h',
+                        title=""  # 제목 제거
                     )
                     
                     # 차트 스타일 설정
                     fig_to.update_traces(
-                        marker_color='#FFB6B6',
+                        marker_color='#FF4B4B',
                         text=dept_to_df['TO'],
                         textposition='outside'
                     )
                     
                     fig_to.update_layout(
-                        height=300,
+                        height=350,
                         showlegend=False,
-                        title_x=0,
-                        title_y=0.95,
-                        margin=dict(t=70, r=20, l=20),
+                        margin=dict(t=30, r=20, l=20),  # 상단 여백
+                        xaxis_title="",
+                        yaxis_title="",
                         yaxis=dict(autorange="reversed")  # 위에서 아래로 정렬
                     )
                     
