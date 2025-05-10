@@ -3092,13 +3092,13 @@ try:
                 
                 # 접수방법별 카운트
                 channel_stats = year_df['접수방법'].value_counts().reindex(channel_order).fillna(0)
-                
+                total_channel = channel_stats.sum()
                 # 차트 생성
                 fig_channel = px.bar(
                     x=channel_stats.index,
                     y=channel_stats.values,
                     labels={'x': '접수방법', 'y': '지원자 수'},
-                    title=f"{selected_year}년 접수방법별 지원자 현황"
+                    title=f"{selected_year}년 접수방법별 지원자 현황 (총 {int(total_channel):,}명)"
                 )
                 
                 # 차트 스타일 설정
