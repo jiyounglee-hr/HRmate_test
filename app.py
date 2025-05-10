@@ -3148,7 +3148,8 @@ try:
                     )
                     
                     # 차트 스타일 설정
-                    fig_result.update_traces(marker_color='rgb(158, 202, 225)')
+                    colors = ['#FF4B4B' if x in ['[5]최종합격', '입사포기'] else '#FFB6B6' for x in result_stats.index]
+                    fig_result.update_traces(marker_color=colors) 
                     # 막대 위에 값 표시 추가
                     fig_result.update_traces(
                         text=result_stats.values.astype(int),
