@@ -3115,9 +3115,9 @@ try:
             with col2:
                  # 여백 컬럼
                 st.empty()
-                
+
+            col1, col2 = st.columns([0.7, 0.3])
             with col1:
-                st.markdown("##### 📊 전형결과별 통계")
                 
                 # 전형결과 순서 정의
                 result_order = [
