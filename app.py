@@ -2913,7 +2913,7 @@ try:
                     )
                     
                     fig_to.update_layout(
-                        height=350,
+                        height=280,
                         showlegend=False,
                         margin=dict(t=30, r=20, l=20),  # 상단 여백
                         xaxis_title="",
