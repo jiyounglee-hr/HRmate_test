@@ -2968,7 +2968,7 @@ try:
                     selected_type = st.selectbox("전형구분", interview_types)
 
                 # 데이터 필터링
-                filtered_df = interview_df[
+                filtered_df = interview_df[ 
                     (interview_df['면접일시'].dt.date >= start_date) &
                     (interview_df['면접일시'].dt.date <= end_date)
                 ]
