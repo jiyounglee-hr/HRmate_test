@@ -2934,6 +2934,9 @@ try:
                 filtered_df = filtered_df.reset_index(drop=True)
                 filtered_df.index = filtered_df.index + 1
                 
+                # 날짜 형식 변경
+                filtered_df['공고게시일자'] = pd.to_datetime(filtered_df['공고게시일자']).dt.strftime('%Y-%m-%d')
+                
                 # 표시할 컬럼 선택 및 정렬
                 display_df = filtered_df[['본부', '부서', '포지션명', 'TO', '확정', '채용상태', '공고게시일자', '채용진행년도']]
                 
