@@ -2834,15 +2834,17 @@ try:
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # 채용진행년도 선택 (문자열 처리)
-                    years = sorted(recruitment_df['채용진행년도'].unique(), reverse=True)
+                    # 채용진행년도 선택 (문자열 처리, '0' 제외)
+                    years = sorted([year for year in recruitment_df['채용진행년도'].unique() 
+                                  if year not in ['0', 'nan', ''] and year.strip()], reverse=True)
                     if not years:
                         st.error("유효한 채용진행년도 데이터가 없습니다.")
                     selected_year = st.selectbox("채용진행년도", years if years else [str(datetime.now().year)])
                 
                 with col2:
-                    # 채용상태 선택
-                    statuses = ['전체'] + sorted([str(status) for status in recruitment_df['채용상태'].unique() if pd.notna(status)])
+                    # 채용상태 선택 ('0' 제외) 
+                    statuses = ['전체'] + sorted([str(status) for status in recruitment_df['채용상태'].unique() 
+                                                if pd.notna(status) and str(status) not in ['0', 'nan', ''] and str(status).strip()])
                     selected_status = st.selectbox("채용상태", statuses)
 
                 # 데이터 필터링 (문자열 비교)
