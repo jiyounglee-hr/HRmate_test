@@ -2932,7 +2932,23 @@ try:
                     
                     # 면접일시 컬럼을 datetime으로 변환
                     if '면접일시' in df.columns:
-                        df['면접일시'] = pd.to_datetime(df['면접일시'], errors='coerce')
+                        # 엑셀 날짜 숫자 형식 처리
+                        def convert_datetime(x):
+                            try:
+                                if isinstance(x, (int, float)):
+                                    return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
+                                elif isinstance(x, str):
+                                    return pd.to_datetime(x, errors='coerce')
+                                elif isinstance(x, pd.Timestamp):
+                                    return x
+                                else:
+                                    return pd.NaT
+                            except:
+                                return pd.NaT
+                        
+                        df['면접일시'] = df['면접일시'].apply(convert_datetime)
+                        # NaT 값 제거
+                        df = df.dropna(subset=['면접일시'])
                     
                     return df
                 except Exception as e:
@@ -2942,7 +2958,7 @@ try:
             # 데이터 로드
             interview_df = load_interview_data()
             
-            if interview_df is not None:
+            if interview_df is not None and len(interview_df) > 0:
                 # 조회 조건 설정
                 col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
                 
@@ -2963,42 +2979,46 @@ try:
                     )
                 
                 with col3:
-                    # 전형구분 선택
-                    interview_types = ['전체'] + sorted(interview_df['전형구분'].unique().tolist())
+                    # 전형구분 선택 (None 값 처리)
+                    interview_types = ['전체'] + sorted([str(t) for t in interview_df['전형구분'].unique() if pd.notna(t)])
                     selected_type = st.selectbox("전형구분", interview_types)
 
                 # 데이터 필터링
-                filtered_df = interview_df[ 
-                    (interview_df['면접일시'].dt.date >= start_date) &
-                    (interview_df['면접일시'].dt.date <= end_date)
-                ]
+                mask = (
+                    (interview_df['면접일시'].dt.date >= pd.Timestamp(start_date).date()) &
+                    (interview_df['면접일시'].dt.date <= pd.Timestamp(end_date).date())
+                )
+                filtered_df = interview_df[mask]
                 
                 if selected_type != '전체':
-                    filtered_df = filtered_df[filtered_df['전형구분'] == selected_type]
+                    filtered_df = filtered_df[filtered_df['전형구분'].astype(str) == selected_type]
 
-                # 표시할 컬럼 선택
-                display_columns = ['채용분야', '성명', '전형구분', '면접일시', '특이사항']
-                display_df = filtered_df[display_columns].copy()
-                
-                # 면접일시 포맷 변경
-                display_df['면접일시'] = display_df['면접일시'].dt.strftime('%Y-%m-%d %H:%M')
-                
-                # 인덱스 1부터 시작하도록 설정
-                display_df = display_df.reset_index(drop=True)
-                display_df.index = display_df.index + 1
-                
-                # 데이터프레임 표시
-                st.dataframe(
-                    display_df,
-                    column_config={
-                        "채용분야": st.column_config.TextColumn("채용분야", width=150),
-                        "성명": st.column_config.TextColumn("성명", width=100),
-                        "전형구분": st.column_config.TextColumn("전형구분", width=100),
-                        "면접일시": st.column_config.TextColumn("면접일시", width=150),
-                        "특이사항": st.column_config.TextColumn("특이사항", width=300)
-                    },
-                    hide_index=False
-                )
+                if len(filtered_df) > 0:
+                    # 표시할 컬럼 선택
+                    display_columns = ['채용분야', '성명', '전형구분', '면접일시', '특이사항']
+                    display_df = filtered_df[display_columns].copy()
+                    
+                    # 면접일시 포맷 변경
+                    display_df['면접일시'] = display_df['면접일시'].dt.strftime('%Y-%m-%d %H:%M')
+                    
+                    # 인덱스 1부터 시작하도록 설정
+                    display_df = display_df.reset_index(drop=True)
+                    display_df.index = display_df.index + 1
+                    
+                    # 데이터프레임 표시
+                    st.dataframe(
+                        display_df,
+                        column_config={
+                            "채용분야": st.column_config.TextColumn("채용분야", width=150),
+                            "성명": st.column_config.TextColumn("성명", width=100),
+                            "전형구분": st.column_config.TextColumn("전형구분", width=100),
+                            "면접일시": st.column_config.TextColumn("면접일시", width=150),
+                            "특이사항": st.column_config.TextColumn("특이사항", width=300)
+                        },
+                        hide_index=False
+                    )
+                else:
+                    st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
             else:
                 st.warning("면접 현황 데이터를 불러올 수 없습니다.")
 
