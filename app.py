@@ -2933,6 +2933,9 @@ try:
                     # 면접일자가 비어있는 행 제거
                     df = df.dropna(subset=['면접일자'])
                     
+                    # 면접일자를 datetime으로 변환
+                    df['면접일자'] = pd.to_datetime(df['면접일자'])
+                    
                     return df
                 except Exception as e:
                     st.error(f"면접 현황 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
@@ -2998,7 +3001,7 @@ try:
                             "면접일시": st.column_config.TextColumn("면접일시", width=200),
                             "특이사항": st.column_config.TextColumn("특이사항", width=300)
                         },
-                        hide_index=False 
+                        hide_index=False  
                     )
                 else:
                     st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
