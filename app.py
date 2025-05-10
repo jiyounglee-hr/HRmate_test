@@ -3198,7 +3198,7 @@ try:
                     )
                     
                     fig_result.update_layout(
-                        height=6000,
+                        height=600,
                         showlegend=False,
                         title_x=0,
                         title_y=0.95,
