@@ -2855,14 +2855,16 @@ try:
                 # 통계 계산
                 stats_df = filtered_df.groupby('본부').agg({
                     'TO': 'sum',
-                    '확정': 'sum'
+                    '확정': 'sum',
+                    '채용상태': lambda x: ', '.join(sorted(set(x)))  # 중복 제거하고 정렬하여 표시
                 }).reset_index()
 
                 # 합계 행 추가
                 total_row = pd.DataFrame({
                     '본부': ['합계'],
                     'TO': [stats_df['TO'].sum()],
-                    '확정': [stats_df['확정'].sum()]
+                    '확정': [stats_df['확정'].sum()],
+                    '채용상태': ['']  # 합계 행의 채용상태는 빈 값으로
                 })
                 stats_df = pd.concat([stats_df, total_row])
 
@@ -2872,9 +2874,10 @@ try:
                     stats_df,
                     column_config={
                         "본부": st.column_config.TextColumn("본부", width=150),
-                        "TO": st.column_config.NumberColumn("TO", width=100),
-                        "확정": st.column_config.NumberColumn("확정", width=100)
-                    },
+                        "TO": st.column_config.NumberColumn("TO", width=80),
+                        "확정": st.column_config.NumberColumn("확정", width=80),
+                        "채용상태": st.column_config.TextColumn("채용상태", width=200)
+                    }, 
                     hide_index=True
                 )
 
