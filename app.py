@@ -2827,8 +2827,7 @@ try:
                     return None
 
             # 데이터 로드
-            recruitment_df = load_recruitment_data()
-            st.markdown("###### 본부별 채용 현황")         
+            recruitment_df = load_recruitment_data()     
             if recruitment_df is not None:
                 # 조회 조건 설정
                 col1, col2, col3 = st.columns([0.2, 0.2, 0.6])
@@ -2892,7 +2891,7 @@ try:
                     st.empty()
 
                 # 상세 리스트 표시
-                st.markdown("##### 📋 채용 상세 현황")
+                st.markdown("###### 📋 채용 포지션 리스트")
                 
                 # 데이터프레임 인덱스 재설정 (1부터 시작)
                 filtered_df = filtered_df.reset_index(drop=True)
