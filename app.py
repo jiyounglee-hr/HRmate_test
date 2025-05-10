@@ -3110,7 +3110,7 @@ try:
                 )
                 fig_channel.update_layout(
                     showlegend=False,
-                    height=400,
+                    height=350,
                     title_x=0,
                     title_y=0.95
                 )
