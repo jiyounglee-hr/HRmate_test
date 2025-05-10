@@ -3156,7 +3156,7 @@ try:
                     )
                     fig_result.update_layout(
                         showlegend=False,
-                        height=400,
+                        height=450,
                         title_x=0,
                         title_y=0.95,
                         margin=dict(t=70),  # 상단 여백 설정
@@ -3166,22 +3166,6 @@ try:
                     # 차트 표시
                     st.plotly_chart(fig_result, use_container_width=True)
                 
-                with col1:
-                    # 상세 통계 표시
-                    st.markdown("##### 📋 상세 통계")
-                    stats_df = pd.DataFrame({
-                        '전형 결과': result_stats.index,
-                        '인원수': result_stats.values
-                    })
-                    
-                    st.dataframe(
-                        stats_df,
-                        column_config={
-                            "전형 결과": st.column_config.TextColumn("전형 결과", width=150),
-                            "인원수": st.column_config.NumberColumn("인원수", width=100)
-                        },
-                        hide_index=True  
-                    )
             else:
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
 
