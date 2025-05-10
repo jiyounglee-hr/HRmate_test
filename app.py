@@ -2919,7 +2919,7 @@ try:
 
             st.markdown("##### 🚀 면접 현황")
             
-            # 면접 현황 데이터 로드 
+            # 면접 현황 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_interview_data():
                 try:
@@ -2930,25 +2930,8 @@ try:
                     # 엑셀 파일에서 "채용-면접" 시트 읽기
                     df = pd.read_excel(file_path, sheet_name="채용-면접")
                     
-                    # 면접일시 컬럼을 datetime으로 변환
-                    if '면접일시' in df.columns:
-                        # 엑셀 날짜 숫자 형식 처리
-                        def convert_datetime(x):
-                            try:
-                                if isinstance(x, (int, float)):
-                                    return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
-                                elif isinstance(x, str):
-                                    return pd.to_datetime(x, errors='coerce')
-                                elif isinstance(x, pd.Timestamp):
-                                    return x
-                                else:
-                                    return pd.NaT
-                            except:
-                                return pd.NaT
-                        
-                        df['면접일시'] = df['면접일시'].apply(convert_datetime)
-                        # NaT 값 제거
-                        df = df.dropna(subset=['면접일시'])
+                    # 면접일자가 비어있는 행 제거
+                    df = df.dropna(subset=['면접일자'])
                     
                     return df
                 except Exception as e:
@@ -2968,7 +2951,7 @@ try:
                         "시작일",
                         value=datetime.now().date() - timedelta(days=30),
                         help="면접 시작일을 선택하세요."
-                    )
+                    ).strftime('%Y-%m-%d')
                 
                 with col2:
                     # 종료일 선택
@@ -2976,7 +2959,7 @@ try:
                         "종료일",
                         value=datetime.now().date(),
                         help="면접 종료일을 선택하세요."
-                    )
+                    ).strftime('%Y-%m-%d')
                 
                 with col3:
                     # 전형구분 선택 (None 값 처리)
@@ -2984,11 +2967,10 @@ try:
                     selected_type = st.selectbox("전형구분", interview_types)
 
                 # 데이터 필터링
-                mask = (
-                    (interview_df['면접일시'].dt.date >= pd.Timestamp(start_date).date()) &
-                    (interview_df['면접일시'].dt.date <= pd.Timestamp(end_date).date())
-                )
-                filtered_df = interview_df[mask]
+                filtered_df = interview_df[
+                    (interview_df['면접일자'] >= start_date) &
+                    (interview_df['면접일자'] <= end_date)
+                ]
                 
                 if selected_type != '전체':
                     filtered_df = filtered_df[filtered_df['전형구분'].astype(str) == selected_type]
@@ -3020,7 +3002,7 @@ try:
                 else:
                     st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
             else:
-                st.warning("면접 현황 데이터를 불러올 수 없습니다.") 
+                st.warning("면접 현황 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
