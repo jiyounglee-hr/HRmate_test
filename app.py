@@ -2951,7 +2951,7 @@ try:
                         "시작일",
                         value=datetime.now().date() - timedelta(days=30),
                         help="면접 시작일을 선택하세요."
-                    ).strftime('%Y-%m-%d')
+                    )
                 
                 with col2:
                     # 종료일 선택
@@ -2959,7 +2959,7 @@ try:
                         "종료일",
                         value=datetime.now().date(),
                         help="면접 종료일을 선택하세요."
-                    ).strftime('%Y-%m-%d')
+                    )
                 
                 with col3:
                     # 전형구분 선택 (None 값 처리)
@@ -2968,8 +2968,8 @@ try:
 
                 # 데이터 필터링
                 filtered_df = interview_df[
-                    (interview_df['면접일자'] >= start_date) &
-                    (interview_df['면접일자'] <= end_date)
+                    (interview_df['면접일자'].dt.date >= start_date) &
+                    (interview_df['면접일자'].dt.date <= end_date)
                 ]
                 
                 if selected_type != '전체':
@@ -2977,11 +2977,11 @@ try:
 
                 if len(filtered_df) > 0:
                     # 표시할 컬럼 선택
-                    display_columns = ['채용분야', '성명', '전형구분', '면접일시', '특이사항']
+                    display_columns = ['채용분야', '성명', '전형구분', '면접일자', '면접일시', '특이사항']
                     display_df = filtered_df[display_columns].copy()
                     
-                    # 면접일시 포맷 변경
-                    display_df['면접일시'] = display_df['면접일시'].dt.strftime('%Y-%m-%d %H:%M')
+                    # 면접일자 포맷 변경
+                    display_df['면접일자'] = display_df['면접일자'].dt.strftime('%Y-%m-%d')
                     
                     # 인덱스 1부터 시작하도록 설정
                     display_df = display_df.reset_index(drop=True)
@@ -2994,10 +2994,11 @@ try:
                             "채용분야": st.column_config.TextColumn("채용분야", width=150),
                             "성명": st.column_config.TextColumn("성명", width=100),
                             "전형구분": st.column_config.TextColumn("전형구분", width=100),
-                            "면접일시": st.column_config.TextColumn("면접일시", width=150),
+                            "면접일자": st.column_config.TextColumn("면접일자", width=100),
+                            "면접일시": st.column_config.TextColumn("면접일시", width=200),
                             "특이사항": st.column_config.TextColumn("특이사항", width=300)
                         },
-                        hide_index=False
+                        hide_index=False 
                     )
                 else:
                     st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
