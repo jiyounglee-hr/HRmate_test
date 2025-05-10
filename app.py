@@ -3020,7 +3020,7 @@ try:
                 else:
                     st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
             else:
-                st.warning("면접 현황 데이터를 불러올 수 없습니다.")
+                st.warning("면접 현황 데이터를 불러올 수 없습니다.") 
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
