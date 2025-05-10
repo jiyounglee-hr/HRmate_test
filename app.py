@@ -2934,7 +2934,30 @@ try:
                     df = df.dropna(subset=['면접일자'])
                     
                     # 면접일자를 datetime으로 변환
-                    df['면접일자'] = pd.to_datetime(df['면접일자'])
+                    def convert_to_datetime(x):
+                        try:
+                            if pd.isna(x):
+                                return None
+                            elif isinstance(x, (datetime, pd.Timestamp)):
+                                return x
+                            elif isinstance(x, date):
+                                return datetime.combine(x, time())
+                            elif isinstance(x, time):
+                                return datetime.combine(datetime.now().date(), x)
+                            elif isinstance(x, str):
+                                return pd.to_datetime(x)
+                            elif isinstance(x, (int, float)):
+                                # 엑셀 날짜 숫자 처리
+                                return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
+                            else:
+                                return None
+                        except:
+                            return None
+
+                    df['면접일자'] = df['면접일자'].apply(convert_to_datetime)
+                    
+                    # 변환 실패한 데이터 제거
+                    df = df.dropna(subset=['면접일자'])
                     
                     return df
                 except Exception as e:
@@ -3001,7 +3024,7 @@ try:
                             "면접일시": st.column_config.TextColumn("면접일시", width=200),
                             "특이사항": st.column_config.TextColumn("특이사항", width=300)
                         },
-                        hide_index=False  
+                        hide_index=False
                     )
                 else:
                     st.info("선택한 기간에 해당하는 면접 데이터가 없습니다.")
