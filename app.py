@@ -3113,7 +3113,7 @@ try:
                     height=400,
                     title_x=0,
                     title_y=0.95,
-                    margin=dict(t=80)  # 상단 여백을 더 크게 증가
+                    margin=dict(t=100)  # 상단 여백을 더 크게 증가
                 )
                 
                 # 차트 표시
