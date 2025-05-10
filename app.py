@@ -3055,7 +3055,7 @@ try:
                 # 현재 디렉토리에서 엑셀 파일 경로 설정
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
-                 
+                
                 # 엑셀 파일에서 "채용-지원자" 시트 읽기
                 df = pd.read_excel(file_path, sheet_name="채용-지원자")
                 
@@ -3124,7 +3124,7 @@ try:
                 ]
                 
                 # 전형결과별 카운트
-                result_stats = year_df['전형결과'].value_counts().reindex(result_order).fillna(0)
+                result_stats = year_df['전형 결과'].value_counts().reindex(result_order).fillna(0)
                 
                 # 합계 추가
                 total = result_stats.sum()
@@ -3134,7 +3134,7 @@ try:
                 fig_result = px.bar(
                     x=result_stats.index,
                     y=result_stats.values,
-                    labels={'x': '전형결과', 'y': '지원자 수'},
+                    labels={'x': '전형 결과', 'y': '지원자 수'},
                     title=f"{selected_year}년 전형결과별 현황 (총 {int(total):,}명)"
                 )
                 
@@ -3154,14 +3154,14 @@ try:
                 # 상세 통계 표시
                 st.markdown("##### 📋 상세 통계")
                 stats_df = pd.DataFrame({
-                    '전형결과': result_stats.index,
+                    '전형 결과': result_stats.index,
                     '인원수': result_stats.values
                 })
                 
                 st.dataframe(
                     stats_df,
                     column_config={
-                        "전형결과": st.column_config.TextColumn("전형결과", width=150),
+                        "전형 결과": st.column_config.TextColumn("전형 결과", width=150),
                         "인원수": st.column_config.NumberColumn("인원수", width=100)
                     },
                     hide_index=True 
