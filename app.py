@@ -2794,8 +2794,20 @@ try:
                     current_dir = os.path.dirname(os.path.abspath(__file__))
                     file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
                     
-                    # 엑셀 파일에서 "채용-공고현황" 시트 읽기
+                    # 엑셀 파일에서 "채용-공고현황" 시트 읽기 
                     df = pd.read_excel(file_path, sheet_name="채용-공고현황")
+                    
+                    # 채용진행년도를 숫자로 변환
+                    if '채용진행년도' in df.columns:
+                        df['채용진행년도'] = pd.to_numeric(df['채용진행년도'], errors='coerce')
+                        # NA 값은 0으로 채움
+                        df['채용진행년도'] = df['채용진행년도'].fillna(0).astype(int)
+                    
+                    # TO와 확정 컬럼을 숫자로 변환
+                    if 'TO' in df.columns:
+                        df['TO'] = pd.to_numeric(df['TO'], errors='coerce').fillna(0).astype(int)
+                    if '확정' in df.columns:
+                        df['확정'] = pd.to_numeric(df['확정'], errors='coerce').fillna(0).astype(int)
                     
                     # 날짜 컬럼 변환 시도
                     if '공고게시일자' in df.columns:
