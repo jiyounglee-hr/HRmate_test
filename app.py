@@ -2797,6 +2797,12 @@ try:
                     # 엑셀 파일에서 "채용-공고현황" 시트 읽기 
                     df = pd.read_excel(file_path, sheet_name="채용-공고현황")
                     
+                    # 채용진행년도를 문자열로 변환
+                    if '채용진행년도' in df.columns:
+                        df['채용진행년도'] = df['채용진행년도'].astype(str)
+                        # 빈 문자열이나 'nan'은 제외
+                        df = df[df['채용진행년도'].str.strip() != '']
+                        df = df[df['채용진행년도'] != 'nan']
                     
                     # TO와 확정 컬럼을 숫자로 변환
                     if 'TO' in df.columns:
