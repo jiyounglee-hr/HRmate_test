@@ -3115,9 +3115,7 @@ try:
             with col2:
                  # 여백 컬럼
                 st.empty()
-
-            # 전형결과 통계
-            col1, col2 = st.columns(0.7, 0.3)                
+                
             with col1:
                 st.markdown("##### 📊 전형결과별 통계")
                 
@@ -3155,7 +3153,7 @@ try:
                 # 차트 표시
                 st.plotly_chart(fig_result, use_container_width=True)
             
-            with col2:
+            with col1:
                 # 상세 통계 표시
                 st.markdown("##### 📋 상세 통계")
                 stats_df = pd.DataFrame({
@@ -3169,7 +3167,7 @@ try:
                         "전형 결과": st.column_config.TextColumn("전형 결과", width=150),
                         "인원수": st.column_config.NumberColumn("인원수", width=100)
                     },
-                    hide_index=True 
+                    hide_index=True  
                 )
         else:
             st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
