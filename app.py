@@ -2916,7 +2916,7 @@ try:
                 )
             else:
                 st.warning("채용현황 데이터를 불러올 수 없습니다.")
-
+            st.markdown("---")
             st.markdown("##### 🚀 면접 현황")
             
             # 면접 현황 데이터 로드
@@ -2973,14 +2973,14 @@ try:
             
             if interview_df is not None and len(interview_df) > 0:
                 # 조회 조건 설정
-                col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+                col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.2, 0.4 ])
                 
                 with col1:
                     # 시작일 선택 (오늘 - 15일)
                     start_date = st.date_input(
                         "시작일",
                         value=datetime.now().date() - timedelta(days=15),
-                        help="면접 시작일을 선택하세요."
+                        help="면접일정 조회 시작일을 선택하세요."
                     )
                 
                 with col2:
@@ -2988,7 +2988,7 @@ try:
                     end_date = st.date_input(
                         "종료일",
                         value=datetime.now().date() + timedelta(days=30),
-                        help="면접 종료일을 선택하세요."
+                        help="면접일정 조회 종료일을 선택하세요."
                     )
                 
                 with col3:
@@ -2998,7 +2998,10 @@ try:
                         if pd.notna(t) and str(t) != '0' and str(t) != '0.0' and t != 0
                     ])
                     selected_type = st.selectbox("전형구분", interview_types)
-
+                
+                with col4:
+                    # 여백 컬럼
+                    st.empty()
                 # 데이터 필터링
                 filtered_df = interview_df[
                     (interview_df['면접일자'].dt.date >= start_date) &
