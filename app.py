@@ -3164,7 +3164,7 @@ try:
                         "전형결과": st.column_config.TextColumn("전형결과", width=150),
                         "인원수": st.column_config.NumberColumn("인원수", width=100)
                     },
-                    hide_index=True
+                    hide_index=True 
                 )
         else:
             st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
