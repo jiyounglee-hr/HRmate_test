@@ -2917,7 +2917,90 @@ try:
             else:
                 st.warning("채용현황 데이터를 불러올 수 없습니다.")
 
-            st.markdown("##### 🚀 지원자 현황")
+            st.markdown("##### 🚀 면접 현황")
+            
+            # 면접 현황 데이터 로드
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            def load_interview_data():
+                try:
+                    # 현재 디렉토리에서 엑셀 파일 경로 설정
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    
+                    # 엑셀 파일에서 "채용-면접" 시트 읽기
+                    df = pd.read_excel(file_path, sheet_name="채용-면접")
+                    
+                    # 면접일시 컬럼을 datetime으로 변환
+                    if '면접일시' in df.columns:
+                        df['면접일시'] = pd.to_datetime(df['면접일시'], errors='coerce')
+                    
+                    return df
+                except Exception as e:
+                    st.error(f"면접 현황 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None
+
+            # 데이터 로드
+            interview_df = load_interview_data()
+            
+            if interview_df is not None:
+                # 조회 조건 설정
+                col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+                
+                with col1:
+                    # 시작일 선택
+                    start_date = st.date_input(
+                        "시작일",
+                        value=datetime.now().date() - timedelta(days=30),
+                        help="면접 시작일을 선택하세요."
+                    )
+                
+                with col2:
+                    # 종료일 선택
+                    end_date = st.date_input(
+                        "종료일",
+                        value=datetime.now().date(),
+                        help="면접 종료일을 선택하세요."
+                    )
+                
+                with col3:
+                    # 전형구분 선택
+                    interview_types = ['전체'] + sorted(interview_df['전형구분'].unique().tolist())
+                    selected_type = st.selectbox("전형구분", interview_types)
+
+                # 데이터 필터링
+                filtered_df = interview_df[
+                    (interview_df['면접일시'].dt.date >= start_date) &
+                    (interview_df['면접일시'].dt.date <= end_date)
+                ]
+                
+                if selected_type != '전체':
+                    filtered_df = filtered_df[filtered_df['전형구분'] == selected_type]
+
+                # 표시할 컬럼 선택
+                display_columns = ['채용분야', '성명', '전형구분', '면접일시', '특이사항']
+                display_df = filtered_df[display_columns].copy()
+                
+                # 면접일시 포맷 변경
+                display_df['면접일시'] = display_df['면접일시'].dt.strftime('%Y-%m-%d %H:%M')
+                
+                # 인덱스 1부터 시작하도록 설정
+                display_df = display_df.reset_index(drop=True)
+                display_df.index = display_df.index + 1
+                
+                # 데이터프레임 표시
+                st.dataframe(
+                    display_df,
+                    column_config={
+                        "채용분야": st.column_config.TextColumn("채용분야", width=150),
+                        "성명": st.column_config.TextColumn("성명", width=100),
+                        "전형구분": st.column_config.TextColumn("전형구분", width=100),
+                        "면접일시": st.column_config.TextColumn("면접일시", width=150),
+                        "특이사항": st.column_config.TextColumn("특이사항", width=300)
+                    },
+                    hide_index=False
+                )
+            else:
+                st.warning("면접 현황 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
