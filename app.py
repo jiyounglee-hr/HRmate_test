@@ -3182,27 +3182,30 @@ try:
                     
                     # 차트 생성
                     fig_result = px.bar(
-                        x=result_stats.index,
-                        y=result_stats.values,
-                        labels={'x': '', 'y': '지원자 수'},
+                        x=result_stats.values,
+                        y=result_stats.index,
+                        orientation='h',  # 수평 방향으로 변경
+                        labels={'x': '지원자 수', 'y': ''},
                         title=f"{selected_year}년 전형결과별 현황 (총 {int(total):,}명)"
                     )
                     
                     # 차트 스타일 설정
                     colors = ['#FF4B4B' if x in ['[5]최종합격', '입사포기'] else '#FFB6B6' for x in result_stats.index]
-                    fig_result.update_traces(marker_color=colors) 
-                    # 막대 위에 값 표시 추가
                     fig_result.update_traces(
+                        marker_color=colors,
                         text=result_stats.values.astype(int),
                         textposition='outside'
                     )
+                    
                     fig_result.update_layout(
-                        showlegend=False,
                         height=450,
+                        showlegend=False,
                         title_x=0,
                         title_y=0.95,
-                        margin=dict(t=70),  # 상단 여백 설정
-                        xaxis_tickangle=45
+                        margin=dict(t=70, r=20, l=20),
+                        xaxis_title="",
+                        yaxis_title="",
+                        yaxis=dict(autorange="reversed")  # 위에서 아래로 정렬
                     )
                     
                     # 차트 표시
