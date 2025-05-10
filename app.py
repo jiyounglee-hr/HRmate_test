@@ -3164,7 +3164,7 @@ try:
                     # 여백 컬럼
                     st.empty()
 
-                col1, col2 = st.columns([0.9, 0.1])
+                col1, col2 = st.columns([0.7, 0.3])
                 with col1:
                     
                     # 전형결과 순서 정의
@@ -3198,7 +3198,7 @@ try:
                     )
                     
                     fig_result.update_layout(
-                        height=450,
+                        height=6000,
                         showlegend=False,
                         title_x=0,
                         title_y=0.95,
