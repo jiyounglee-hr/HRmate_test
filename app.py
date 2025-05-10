@@ -3102,7 +3102,7 @@ try:
                     )
                     
                     # 차트 스타일 설정
-                    colors = ['#FF3333' if x == '뉴로핏커리어' else 'rgb(158, 202, 225)' for x in channel_stats.index]
+                    colors = ['#FF4B4B' if x == '뉴로핏커리어' else '#FFB6B6' for x in channel_stats.index]
                     fig_channel.update_traces(marker_color=colors)
                     # 막대 위에 값 표시 추가
                     fig_channel.update_traces(
