@@ -3113,8 +3113,11 @@ try:
                 
                 # 차트 표시
                 st.plotly_chart(fig_channel, use_container_width=True)
-            
             with col2:
+                 # 여백 컬럼
+                st.empty()
+                
+            with col1:
                 st.markdown("##### 📊 전형결과별 통계")
                 
                 # 전형결과 순서 정의
