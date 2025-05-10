@@ -2765,7 +2765,7 @@ try:
                                 # 병합된 PDF를 메모리에 저장
                                 merged_pdf = BytesIO()
                                 merger.write(merged_pdf)
-                                merger.close()
+                                merger.close() 
                                 
                                 # 다운로드 버튼 생성
                                 st.download_button(
