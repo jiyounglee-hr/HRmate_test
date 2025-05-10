@@ -2828,10 +2828,10 @@ try:
 
             # 데이터 로드
             recruitment_df = load_recruitment_data()
-            
+            st.markdown("###### 본부별 채용 현황")         
             if recruitment_df is not None:
                 # 조회 조건 설정
-                col1, col2 = st.columns(2)
+                col1, col2, col3 = st.columns([0.2, 0.2, 0.6])
                 
                 with col1:
                     # 채용진행년도 선택 (문자열 처리, '0' 제외)
@@ -2842,10 +2842,14 @@ try:
                     selected_year = st.selectbox("채용진행년도", years if years else [str(datetime.now().year)])
                 
                 with col2:
-                    # 채용상태 선택 ('0' 제외) 
+                    # 채용상태 선택 ('0' 제외)
                     statuses = ['전체'] + sorted([str(status) for status in recruitment_df['채용상태'].unique() 
                                                 if pd.notna(status) and str(status) not in ['0', 'nan', ''] and str(status).strip()])
                     selected_status = st.selectbox("채용상태", statuses)
+                
+                with col3:
+                    # 여백 컬럼
+                    st.empty()
 
                 # 데이터 필터링 (문자열 비교)
                 filtered_df = recruitment_df[recruitment_df['채용진행년도'] == selected_year]
@@ -2869,17 +2873,23 @@ try:
                 stats_df = pd.concat([stats_df, total_row])
 
                 # 통계 표시
-                st.markdown("##### 📊 본부별 채용 현황")
-                st.dataframe(
-                    stats_df,
-                    column_config={
-                        "본부": st.column_config.TextColumn("본부", width=150),
-                        "TO": st.column_config.NumberColumn("TO", width=80),
-                        "확정": st.column_config.NumberColumn("확정", width=80),
-                        "채용상태": st.column_config.TextColumn("채용상태", width=200)
-                    }, 
-                    hide_index=True
-                )
+                col_stats1, col_stats2 = st.columns([0.5, 0.5])
+                
+                with col_stats1:
+                    st.dataframe(
+                        stats_df,
+                        column_config={
+                            "본부": st.column_config.TextColumn("본부", width=150),
+                            "TO": st.column_config.NumberColumn("TO", width=80),
+                            "확정": st.column_config.NumberColumn("확정", width=80),
+                            "채용상태": st.column_config.TextColumn("채용상태", width=200)
+                        },
+                        hide_index=True
+                    )
+                
+                with col_stats2:
+                    # 여백 컬럼
+                    st.empty()
 
                 # 상세 리스트 표시
                 st.markdown("##### 📋 채용 상세 현황")
