@@ -2785,8 +2785,101 @@ try:
         # 채용현황 메뉴
         elif menu == "🚀 채용현황":
             st.markdown("##### 🚀 채용현황")
-            st.info("🔨 현재 개발 진행중인 기능입니다.")
-            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 채용현황 데이터 로드
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            def load_recruitment_data():
+                try:
+                    # 현재 디렉토리에서 엑셀 파일 경로 설정
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    
+                    # 엑셀 파일에서 "채용-공고현황" 시트 읽기
+                    df = pd.read_excel(file_path, sheet_name="채용-공고현황")
+                    
+                    # 날짜 컬럼 변환
+                    if '공고게시일자' in df.columns:
+                        df['공고게시일자'] = pd.to_datetime(df['공고게시일자'])
+                    
+                    return df
+                except Exception as e:
+                    st.error(f"채용현황 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None
+
+            # 데이터 로드
+            recruitment_df = load_recruitment_data()
+            
+            if recruitment_df is not None:
+                # 조회 조건 설정
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    # 채용진행년도 선택
+                    years = sorted(recruitment_df['채용진행년도'].unique(), reverse=True)
+                    selected_year = st.selectbox("채용진행년도", years)
+                
+                with col2:
+                    # 채용상태 선택
+                    statuses = ['전체'] + sorted(recruitment_df['채용상태'].unique())
+                    selected_status = st.selectbox("채용상태", statuses)
+
+                # 데이터 필터링
+                filtered_df = recruitment_df[recruitment_df['채용진행년도'] == selected_year]
+                if selected_status != '전체':
+                    filtered_df = filtered_df[filtered_df['채용상태'] == selected_status]
+
+                # 통계 계산
+                stats_df = filtered_df.groupby('본부').agg({
+                    'TO': 'sum',
+                    '확정': 'sum'
+                }).reset_index()
+
+                # 합계 행 추가
+                total_row = pd.DataFrame({
+                    '본부': ['합계'],
+                    'TO': [stats_df['TO'].sum()],
+                    '확정': [stats_df['확정'].sum()]
+                })
+                stats_df = pd.concat([stats_df, total_row])
+
+                # 통계 표시
+                st.markdown("##### 📊 본부별 채용 현황")
+                st.dataframe(
+                    stats_df,
+                    column_config={
+                        "본부": st.column_config.TextColumn("본부", width=150),
+                        "TO": st.column_config.NumberColumn("TO", width=100),
+                        "확정": st.column_config.NumberColumn("확정", width=100)
+                    },
+                    hide_index=True
+                )
+
+                # 상세 리스트 표시
+                st.markdown("##### 📋 채용 상세 현황")
+                
+                # 데이터프레임 인덱스 재설정 (1부터 시작)
+                filtered_df = filtered_df.reset_index(drop=True)
+                filtered_df.index = filtered_df.index + 1
+                
+                # 표시할 컬럼 선택 및 정렬
+                display_df = filtered_df[['본부', '부서', '포지션명', 'TO', '확정', '채용상태', '공고게시일자', '채용진행년도']]
+                
+                st.dataframe(
+                    display_df,
+                    column_config={
+                        "본부": st.column_config.TextColumn("본부", width=120),
+                        "부서": st.column_config.TextColumn("부서", width=120),
+                        "포지션명": st.column_config.TextColumn("포지션명", width=150),
+                        "TO": st.column_config.NumberColumn("TO", width=80),
+                        "확정": st.column_config.NumberColumn("확정", width=80),
+                        "채용상태": st.column_config.TextColumn("채용상태", width=100),
+                        "공고게시일자": st.column_config.DateColumn("공고게시일자", width=120, format="YYYY-MM-DD"),
+                        "채용진행년도": st.column_config.NumberColumn("채용진행년도", width=100)
+                    },
+                    hide_index=False
+                )
+            else:
+                st.warning("채용현황 데이터를 불러올 수 없습니다.")
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
