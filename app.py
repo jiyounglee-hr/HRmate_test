@@ -579,6 +579,8 @@ if st.sidebar.button("📊 인원현황", use_container_width=True):
     st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
+if st.sidebar.button("🚀 채용현황", use_container_width=True):
+    st.session_state.menu = "🚀 채용현황"
 if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
     st.session_state.menu = "🔔 인사팀 업무 공유"
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
@@ -2779,6 +2781,12 @@ try:
                                 st.error(f"PDF 병합 중 오류가 발생했습니다: {str(e)}")
                 elif not uploaded_files:
                     st.info("PDF 파일을 선택해주세요.")
+
+        # 채용현황 메뉴
+        elif menu == "🚀 채용현황":
+            st.markdown("##### 🚀 채용현황")
+            st.info("🔨 현재 개발 진행중인 기능입니다.")
+            st.markdown("<br>", unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
