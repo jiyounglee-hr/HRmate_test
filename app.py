@@ -2917,5 +2917,7 @@ try:
             else:
                 st.warning("채용현황 데이터를 불러올 수 없습니다.")
 
+            st.markdown("##### 🚀 지원자 현황")
+
 except Exception as e:
     st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}") 
