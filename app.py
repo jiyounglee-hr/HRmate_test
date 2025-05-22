@@ -71,14 +71,14 @@ def calculate_experience(experience_text):
     """경력기간을 계산하는 함수"""
     from datetime import datetime
     import pandas as pd
-    import re
+    import re  
     
     # 영문 월을 숫자로 변환하는 딕셔너리
     month_dict = {
         'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
         'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
     }
-    
+      
     total_months = 0
     experience_periods = []
     
@@ -851,10 +851,12 @@ try:
                 입사자_df = df[df['입사일'].dt.year == 2025][['성명', '팀', '직위', '입사일']]
                 if not 입사자_df.empty:
                     입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
+                    # 입사일 컬럼을 문자열로 변환
+                    입사자_df['입사일'] = 입사자_df['입사일'].dt.strftime('%Y-%m-%d')
                     입사자_df = 입사자_df.reset_index(drop=True)
                     입사자_df.index = 입사자_df.index + 1
                     입사자_df = 입사자_df.rename_axis('No.')
-                    st.dataframe(입사자_df.style.format({'입사일': lambda x: x.strftime('%Y-%m-%d')}),
+                    st.dataframe(입사자_df,
                                use_container_width=True)
                 else:
                     st.info("2025년 입사 예정자가 없습니다.")
@@ -864,10 +866,12 @@ try:
                 퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
                 if not 퇴사자_df.empty:
                     퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
+                    # 퇴사일 컬럼을 문자열로 변환
+                    퇴사자_df['퇴사일'] = 퇴사자_df['퇴사일'].dt.strftime('%Y-%m-%d')
                     퇴사자_df = 퇴사자_df.reset_index(drop=True)
                     퇴사자_df.index = 퇴사자_df.index + 1
                     퇴사자_df = 퇴사자_df.rename_axis('No.')
-                    st.dataframe(퇴사자_df.style.format({'퇴사일': lambda x: x.strftime('%Y-%m-%d')}),
+                    st.dataframe(퇴사자_df,
                                use_container_width=True)
                 else:
                     st.info("2025년 퇴사자가 없습니다.")
@@ -1633,6 +1637,11 @@ try:
                         # salary_table.xlsx 파일 읽기
                         salary_table = pd.read_excel("salary_table.xlsx")
                         
+                        # 숫자 컬럼들을 float 타입으로 변환
+                        numeric_columns = ['최소연봉', '평균연봉', '최대연봉', '연차']
+                        for col in numeric_columns:
+                            salary_table[col] = pd.to_numeric(salary_table[col], errors='coerce')
+                        
                         # 선택된 직군상세에 해당하는 직군 가져오기
                         selected_job_category = job_mapping[job_role]
                         
@@ -1656,9 +1665,9 @@ try:
                         filtered_data = filtered_data.iloc[0]
                         
                         # 해당 직군의 임금 데이터 가져오기
-                        min_salary = filtered_data['최소연봉']
-                        max_salary = filtered_data['최대연봉']
-                        avg_salary = (min_salary + max_salary) / 2
+                        min_salary = round(float(filtered_data['최소연봉']))
+                        max_salary = round(float(filtered_data['최대연봉']))
+                        avg_salary = round(float(filtered_data['평균연봉']))
 
                         # 분석 결과 표시
                         st.markdown("<br>", unsafe_allow_html=True)
@@ -1670,9 +1679,9 @@ try:
                         st.markdown(f"""
                         <div style="font-size: 1rem;">
                         <strong>현재 연봉 : {int(current_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp; </strong>
-                        <strong>최소 연봉 : {int(min_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                        <strong style="color: red;">평균 연봉 : {int(avg_salary):,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
-                        <strong>최대 연봉 : {int(max_salary):,}만원</strong>
+                        <strong>최소 연봉 : {min_salary:,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                        <strong style="color: red;">평균 연봉 : {avg_salary:,}만원 &nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                        <strong>최대 연봉 : {max_salary:,}만원</strong>
                         </div>
                         """, unsafe_allow_html=True)
                         st.markdown("<br>", unsafe_allow_html=True)
@@ -1688,10 +1697,10 @@ try:
                             ].sort_values('연차')
                             
                             if not related_data.empty:
-                                # 모든 연봉 컬럼을 정수로 변환
-                                related_data['최소연봉'] = related_data['최소연봉'].astype(int)
-                                related_data['평균연봉'] = related_data['평균연봉'].astype(int)
-                                related_data['최대연봉'] = related_data['최대연봉'].astype(int)
+                                # 모든 연봉 컬럼을 반올림하여 정수로 변환
+                                related_data['최소연봉'] = related_data['최소연봉'].astype(float).round().astype(int)
+                                related_data['평균연봉'] = related_data['평균연봉'].astype(float).round().astype(int)
+                                related_data['최대연봉'] = related_data['최대연봉'].astype(float).round().astype(int)
                                 
                                 st.dataframe(
                                     related_data[['연차', '최소연봉', '평균연봉', '최대연봉']].rename(
@@ -1710,7 +1719,7 @@ try:
                                         '최대연봉(만원)': st.column_config.Column(width=100)
                                     }
                                 )
-                            else:
+                            else: 
                                 st.info("해당 직군의 임금테이블 데이터가 없습니다.")
                         
                         with col2:
@@ -1734,34 +1743,43 @@ try:
                             recommended_salary = current_salary
                                                 
                         # 최종보상 계산
-                        final_compensation = current_salary + other_salary
+                        final_compensation = float(current_salary) + float(other_salary)
                         
                         # 제시금액 계산 로직
                         def calculate_suggested_salary(total_comp, min_salary, avg_salary, max_salary):
+                            total_comp = float(total_comp)
+                            min_salary = float(min_salary)
+                            avg_salary = float(avg_salary)
+                            max_salary = float(max_salary)
+                            
                             increase_10 = total_comp * 1.1
                             increase_5 = total_comp * 1.05
                             increase_2 = total_comp * 1.02
                             
                             if increase_10 <= avg_salary:
-                                return int(increase_10)
+                                return round(increase_10)
                             elif increase_5 < avg_salary:
-                                return int(avg_salary)
+                                return round(avg_salary)
                             elif increase_5 >= avg_salary and total_comp <= avg_salary:
-                                return int(increase_5)
+                                return round(increase_5)
                             elif total_comp > avg_salary and total_comp <= max_salary:
-                                return int(increase_2)
+                                return round(increase_2)
                             else:
                                 return "[별도 계산 필요]"
 
-                        # 제시금액 계산
+                        # 제시금액 계산 
                         suggested_salary = calculate_suggested_salary(
                             final_compensation, 
                             min_salary, 
                             avg_salary, 
                             max_salary
                         )
+                        
                         # 연봉 보존율 계산
-                        preservation_rate = (suggested_salary / final_compensation) * 100
+                        if isinstance(suggested_salary, str):
+                            preservation_rate = 0
+                        else:
+                            preservation_rate = round((float(suggested_salary) / float(final_compensation)) * 100, 1)
 
                         # 현재 상황에 맞는 제시금액 계산 로직 결정
                         if final_compensation * 1.1 < avg_salary:
@@ -1792,7 +1810,7 @@ try:
                         - 특이사항: {education_notes}
 
                         [참고]
-                        - {calculation_logic}
+                        - {calculation_logic} 
                         - 기존 보상총액 보존율: {preservation_rate:.1f}%
                         """)
                         # 상세 분석 결과 expander
@@ -2352,12 +2370,12 @@ try:
                 
                 with col1:
                     # 보고상태 선택
-                    status_options = ['보고예정', '보고완료']
+                    status_options = ['보고예정', '보고완료', '🐯 보고예정', '🐯 보고완료']
                     selected_status = st.selectbox('보고상태', status_options)
 
-                    # 선택된 보고상태에 해당하는 데이터만 필터링
-                    status_filtered_df = report_df[report_df['보고상태'] == selected_status]
-                    
+                # 선택된 보고상태에 해당하는 데이터 필터링
+                status_filtered_df = report_df[report_df['보고상태'] == selected_status]
+
                 with col2:
                     # 타입과 보고일을 합친 옵션 생성
                     type_date_options = ['전체']
@@ -2369,11 +2387,23 @@ try:
                     selected_type_date = st.selectbox('타입 - 보고일자', type_date_options)
 
                 with col3:
-                    st.write("")
+                    # 🐯 보고 선택 시 비밀번호 확인
+                    if selected_status == '🐯 보고예정' or selected_status == '🐯 보고예정' :
+                        pw_col1, pw_col2 = st.columns([0.3, 0.7])
+                        with pw_col1:
+                            password = st.text_input("비밀번호를 입력하세요", type="password")
+                        with pw_col2:
+                            if not password:  # 비밀번호가 입력되지 않은 경우
+                                st.markdown('<p style="color: #F0B726; margin: 0;">비밀번호를 입력해주세요.</p>', unsafe_allow_html=True)
+                                st.stop()
+                            elif password != "0328":  # 비밀번호가 틀린 경우
+                                st.markdown('<p style="color: #FF4B4B; margin: 0;">비밀번호가 올바르지 않습니다.</p>', unsafe_allow_html=True)
+                                st.stop()  # 여기서 실행을 중단
+                            else:
+                                st.markdown('<p style="color: #00CC00; margin: 0;">인증되었습니다.</p>', unsafe_allow_html=True)
 
-                # 데이터 필터링
-                filtered_df = report_df[report_df['보고상태'] == selected_status]
-                
+                # 추가 필터링
+                filtered_df = status_filtered_df
                 if selected_type_date != '전체':
                     type_val, date_val = selected_type_date.split(' - ')
                     filtered_df = filtered_df[
@@ -3211,8 +3241,8 @@ try:
                     # 차트 표시
                     st.plotly_chart(fig_result, use_container_width=True)
                 
-            else:
+            else: 
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
-
-except Exception as e:
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")   
+ 
+except Exception as e: 
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")    
