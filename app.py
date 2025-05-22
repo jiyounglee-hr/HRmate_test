@@ -29,6 +29,24 @@ import pytz
 import gspread
 import tempfile
 from PyPDF2 import PdfMerger
+import msal
+from dotenv import load_dotenv
+
+# 환경 변수 로드
+load_dotenv()
+
+# Microsoft Azure AD 설정
+CLIENT_ID = os.getenv('AZURE_AD_CLIENT_ID')
+TENANT_ID = os.getenv('AZURE_AD_TENANT_ID')
+CLIENT_SECRET = os.getenv('AZURE_AD_CLIENT_SECRET')
+REDIRECT_URI = os.getenv('AZURE_AD_REDIRECT_URI', 'http://localhost:8501')
+
+# MSAL 앱 초기화
+msal_app = msal.ConfidentialClientApplication(
+    CLIENT_ID,
+    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+    client_credential=CLIENT_SECRET
+)
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -613,7 +631,43 @@ if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
-try:
+def login():
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+    
+    if st.session_state.user_info is None:
+        st.markdown("""
+        <div style='text-align: center; margin-top: 50px;'>
+            <h2>Neurophet HRMate</h2>
+            <p>Microsoft 계정으로 로그인하여 시작하세요.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("Microsoft 계정으로 로그인", use_container_width=True):
+            # Microsoft 로그인 URL 생성
+            auth_url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize"
+            params = {
+                "client_id": CLIENT_ID,
+                "response_type": "code",
+                "redirect_uri": REDIRECT_URI,
+                "scope": "openid profile email",
+                "response_mode": "query"
+            }
+            auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
+            
+            # 로그인 페이지로 리다이렉트
+            st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+            st.stop()
+    
+    return st.session_state.user_info
+
+# 메인 앱 시작
+def main():
+    user_info = login()
+    
+    if user_info is None:
+        st.stop()
+    
     # 데이터 로드
     df = load_data()
     
