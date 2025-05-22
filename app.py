@@ -36,10 +36,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Microsoft Azure AD 설정
-CLIENT_ID = os.getenv('AZURE_AD_CLIENT_ID')
-TENANT_ID = os.getenv('AZURE_AD_TENANT_ID')
-CLIENT_SECRET = os.getenv('AZURE_AD_CLIENT_SECRET')
-REDIRECT_URI = os.getenv('AZURE_AD_REDIRECT_URI', 'http://localhost:8501')
+CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
+TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
+CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
+REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "http://localhost:8501")
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
