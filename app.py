@@ -773,8 +773,11 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    # 브라우저 정보 표시
+    # 브라우저 정보 표시 및 체크
     show_browser_info()
+    
+    # 메인 앱 UI
+    st.title("HR Mate")
     
     # 로그인 처리
     is_logged_in = login()
