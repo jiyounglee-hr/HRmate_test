@@ -725,7 +725,7 @@ def main():
                 <script>
                     setTimeout(function() {{
                         document.getElementById('new-window-option').style.display = 'block';
-                    }}, 2000);
+                    }}, 1000);
                 </script>
             """, unsafe_allow_html=True)
             
