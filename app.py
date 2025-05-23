@@ -31,25 +31,21 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
-import streamlit.web.server.websocket_headers as websocket_headers
-import streamlit.components.v1 as components
-
 
 # 환경 변수 로드
-load_dotenv() 
+load_dotenv()
 
 # Microsoft Azure AD 설정
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-# 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "https://hrmatetest.streamlit.app/")
 
-# MSAL 설정
+# MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
-    client_id=CLIENT_ID,
-    client_credential=CLIENT_SECRET,
-    authority=f"https://login.microsoftonline.com/{TENANT_ID}"
+    CLIENT_ID,
+    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+    client_credential=CLIENT_SECRET
 )
 
 # 날짜 정규화 함수
@@ -104,7 +100,7 @@ def calculate_experience(experience_text):
     total_months = 0
     experience_periods = []
     
-    # 각 줄을 분리하여 처리 
+    # 각 줄을 분리하여 처리
     lines = experience_text.split('\n')
     current_company = None
     
@@ -305,66 +301,7 @@ st.set_page_config(
     page_title="HRmate",
     page_icon="👥",
     layout="wide"
-)
-
-# CSS 스타일 추가
-st.markdown("""
-    <style>
-    /* 사이드바 스타일 */
-    [data-testid="stSidebar"] {
-        min-width: 200px !important;
-        background-color: #f0f2f6;
-    }
-    
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-        font-size: 0.8rem !important;
-    }
-    
-    [data-testid="stSidebar"] .stRadio [role="radiogroup"] label {
-        font-size: 0.8rem !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-    
-    [data-testid="stSidebar"] a {
-        font-size: 0.8rem !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-    
-    [data-testid="stSidebar"] button {
-        width: 80% !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-
-    div[data-testid="stSidebarNav"] {
-        background-color: #f0f2f6;
-        padding: 10px;
-    }
-    
-    div[data-testid="stSidebarContent"] {
-        background-color: #f0f2f6;
-    }
-    
-    div[data-testid="stSidebarNav"] li div a:hover {
-        color: #FF0000 !important;
-        border: 2px solid #FF0000 !important;
-        border-radius: 4px;
-        padding: 10px;
-        background-color: white !important;
-    }
-    
-    div[data-testid="stSidebarNav"] li div a {
-        padding: 10px;
-        border: 2px solid transparent;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-    </style>
-""", unsafe_allow_html=True)
+) 
 
 # CSS 스타일 추가
 st.markdown("""
@@ -437,88 +374,47 @@ st.markdown("""
         line-height: 1.2 !important;
         text-align: left !important;
     }
-    .stButton > button {
-        background-color: white !important;
-        color: #1b1b1e !important;
-        border: none;
-        border-radius: 4px;
-        padding: 0.5rem 1rem;
-        margin: 0.2rem 0;
-        width: 100%;
-        text-align: left;
+    [data-testid="stSidebar"] [data-testid="stExpander"] {
+        width: 80% !important;
+        margin: 0.1rem auto !important;
+        display: block !important;
     }
-    .stButton > button:hover {
-        background-color: #f8f9fa !important;
-        color: #1b1b1e !important;
+    [data-testid="stSidebar"] section[data-testid="stSidebarNav"] {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
     }
-    div[data-testid="stSidebarNav"] {
-        background-color: #f0f2f6;
-        padding: 10px;
-    }
-    div[data-testid="stSidebarNav"] > ul {
-        padding-top: 2rem;
-    }
-    .st-emotion-cache-16txtl3 {
-        padding: 1rem;
-    }
-    
-    div[data-testid="stSidebarNav"] li div a:hover {
-        color: #FF0000 !important;
-        border: 2px solid #FF0000 !important;
-        border-radius: 4px;
-        padding: 10px;
-        background-color: white !important;
-    }
-    
-    div[data-testid="stSidebarNav"] li div a {
-        padding: 10px;
-        border: 2px solid transparent;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-    
-    div[data-testid="stSidebarNav"] {
-        background-color: #F8F9FA;
-        padding: 10px;
+    [data-testid="stSidebar"] hr {
+        margin: 0.5rem 0 !important;
     }
     </style>
-    
-    <script>
-        // User-Agent 정보 수집을 위한 이벤트 리스너
-        window.addEventListener('load', function() {
-            window.parent.postMessage({
-                type: "streamlit:user-agent",
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                vendor: navigator.vendor,
-                language: navigator.language
-            }, "*");
-        });
-    </script>
 """, unsafe_allow_html=True)
 
-
+def show_header():
+    """로고와 시스템 이름을 표시하는 함수"""
+    st.markdown("""
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+            </div>
+            <div class="title-container">
+                <h1>HRmate</h1>
+                <p>인원 현황 및 자동화 지원 시스템</p>
+            </div>
+        </div>
+        <div class="divider"><hr></div>
+    """, unsafe_allow_html=True)
 
 # Microsoft 로그인
 def login():
-    """로그인 처리 함수 - 인증 처리만 담당"""
+    """로그인 처리 함수"""
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
     
-    # 1. 먼저 세션에 저장된 사용자 정보 확인
-    if st.session_state.user_info is not None:
-        user_email = st.session_state.user_info.get('mail', '')
-        if user_email and check_authorization(user_email):
-            return True  # 이미 로그인되어 있고 권한도 있음
-        else:
-            # 권한이 없거나 이메일이 없는 경우 세션 초기화
-            st.session_state.user_info = None
-    
-    # 2. URL 파라미터에서 인증 코드 확인 (새로운 로그인 시도)
+    # URL 파라미터에서 인증 코드 확인
     query_params = st.query_params
     code = query_params.get("code", None)
     
-    if code:
+    if code and st.session_state.user_info is None:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
@@ -526,7 +422,7 @@ def login():
                 scopes=["User.Read"],
                 redirect_uri=REDIRECT_URI
             )
-             
+            
             if "access_token" in result:
                 # Microsoft Graph API를 사용하여 사용자 정보 가져오기
                 graph_data = requests.get(
@@ -535,15 +431,10 @@ def login():
                 ).json()
                 
                 if 'mail' in graph_data:
+                    st.session_state.user_info = graph_data
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
-                        st.session_state.user_info = graph_data
-                        # 자동 리디렉션 플래그 초기화
-                        st.session_state.auto_redirect_attempted = False
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
-                        # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
-                        st.query_params.clear()
-                        st.rerun()
                         return True
                     else:
                         st.error("권한이 없습니다. 인사팀에 문의하세요.")
@@ -559,11 +450,47 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
     
-    # 3. 로그인되지 않은 상태
-    return False
+    if st.session_state.user_info is None:
+        # 로그인 페이지 UI
+        st.markdown("""
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                    <p>인원 현황 및 자동화 지원 시스템</p>
+                </div>
+            </div>
+            <div class="divider"><hr></div>
+        """, unsafe_allow_html=True)
+        
+        # 로그인 버튼 생성
+        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
+        with col2:
+            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
+                # Microsoft 로그인 URL 생성
+                auth_url = msal_app.get_authorization_request_url(
+                    scopes=["User.Read"],
+                    redirect_uri=REDIRECT_URI,
+                    state=st.session_state.get("_session_id", "")
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                st.stop()
+    else:
+        # 로그인된 사용자의 이메일 확인
+        user_email = st.session_state.user_info.get('mail', '')
+        
+        # 권한 확인
+        if check_authorization(user_email):
+            return True
+        else:
+            st.error("권한이 없습니다. 관리자에게 문의하세요.")
+            st.session_state.user_info = None
+            return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-def load_authorized_emails(): 
+def load_authorized_emails():
     """권한이 있는 이메일 목록을 로드하는 함수"""
     try:
         # 엑셀 파일에서 권한 정보 읽기
@@ -579,9 +506,9 @@ def check_authorization(email):
     authorized_emails = load_authorized_emails()
     return email.lower() in [e.lower() for e in authorized_emails]
 
-# 로그인 확인 - 제거
-# if not login():
-#     st.stop()  # 로그인되지 않은 경우 실행 중지
+# 로그인 확인
+if not login():
+    st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -720,19 +647,6 @@ st.markdown("""
         display: block !important;
     }
     </style>
-    
-    <script>
-        // User-Agent 정보 수집을 위한 이벤트 리스너
-        window.addEventListener('load', function() {
-            window.parent.postMessage({
-                type: "streamlit:user-agent",
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                vendor: navigator.vendor,
-                language: navigator.language
-            }, "*");
-        });
-    </script>
 """, unsafe_allow_html=True)
 
 # 제목
@@ -741,7 +655,7 @@ st.sidebar.markdown("---")
 
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
-if st.sidebar.button("📊 인원현황1", use_container_width=True):
+if st.sidebar.button("📊 인원현황", use_container_width=True):
     st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
     st.session_state.menu = "📈 연도별 인원 통계"
@@ -768,158 +682,23 @@ if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
     st.session_state.menu = "📅 인사발령 내역"
 
-   
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 with st.sidebar.expander("💡 전사지원"):
     st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
-# 로그인된 사용자 정보 표시
-if 'user_info' in st.session_state and st.session_state.user_info is not None:
-    st.sidebar.markdown("---")
-    user_name = st.session_state.user_info.get('displayName', '사용자')
-    user_email = st.session_state.user_info.get('mail', '')
-    
-    st.sidebar.markdown(f"**👤 {user_name}**")
-    st.sidebar.markdown(f"📧 {user_email}")
-    
-    if st.sidebar.button("🚪 로그아웃", use_container_width=True):
-        st.session_state.user_info = None
-        # 자동 리디렉션 플래그 초기화
-        st.session_state.auto_redirect_attempted = False
-        st.rerun()
-
-# 기본 메뉴 설정 
+# 기본 메뉴 설정
 if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
 def main():
+    user_info = login()
     
-    # 로그인 처리
-    is_logged_in = login()
-    
-    if not is_logged_in:
-        # 로그인되지 않은 경우 - 로그인 화면 표시
-        st.markdown("""
-            <style>
-            .header-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                padding: 2rem;
-                text-align: center;
-            }
-            .logo-container img {
-                width: 130px;
-                margin-bottom: 1rem;
-            }
-            .title-container {
-                margin-top: 1rem;
-            }
-            .title-container h1 {
-                color: #1E3A8A;
-                font-size: 2.5rem;
-                font-weight: 700;
-                margin-bottom: 0.5rem;
-            }
-            .title-container p {
-                color: #4B5563;
-                font-size: 1.1rem;
-                font-weight: 500;
-            }
-            .divider {
-                margin: 2rem 0;
-            }
-            .divider hr {
-                border: none;
-                height: 1px;
-                background-color: #E5E7EB;
-            }
-            .stButton button {
-                background-color: #1E3A8A;
-                color: white;
-                font-weight: 500;
-                padding: 0.75rem 1.5rem;
-                border-radius: 0.375rem;
-                border: none;
-                width: 100%;
-                margin-top: 1rem;
-            }
-            .stButton button:hover {
-                background-color: #1E40AF;
-            }
-            </style>
-            <div class="header-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2">
-                </div>
-                <div class="title-container"> 
-                    <h1>HRmate</h1>
-                    <p>🔐 Microsoft 계정으로 로그인 중...</p>
-                </div>
-            </div>
-            <div class="divider"><hr></div>
-        """, unsafe_allow_html=True)
-        
-        # Microsoft 로그인 URL 생성
-        auth_url = msal_app.get_authorization_request_url(
-            scopes=["User.Read"],
-            redirect_uri=REDIRECT_URI,
-            state=st.session_state.get("_session_id", "")
-        )
-        
-        # 자동 리디렉션 시도 여부 확인
-        if 'auto_redirect_attempted' not in st.session_state:
-            st.session_state.auto_redirect_attempted = False
-        
-        # 로그인 실패 여부 확인
-        query_params = st.query_params
-        has_error = query_params.get("error", None) is not None
-        
-        if not st.session_state.auto_redirect_attempted and not has_error:
-            # 자동 리디렉션 시도
-            st.session_state.auto_redirect_attempted = True
-            
-            # 자동 리디렉션
-            st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
-                <script>
-                    setTimeout(function() {{
-                        window.location.href = '{auth_url}';
-                    }}, 2000);
-                </script>
-            """, unsafe_allow_html=True)
-            
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2:
-                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
-                st.link_button(
-                    "로그인하기",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True,
-                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
-                )
-        else:
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2:
-                if has_error:
-                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                else:
-                    st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
-                
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
-        
+    if user_info is None:
         st.stop()
     
-    # 로그인된 경우 - 기존 메인 로직 실행
     # 데이터 로드
     df = load_data()
     
@@ -1200,7 +979,7 @@ def main():
                     index=default_index,
                     key='tenure_year_select'
                 )
-             
+            
             with col2:
                 # 선택된 연도의 퇴사인원 계산
                 if selected_year == '전체':
