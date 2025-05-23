@@ -534,7 +534,7 @@ def login():
         .login-button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #1f77b4;
+            background-color: #ff3333;
             color: white;
             border: none;
             border-radius: 5px;
@@ -563,16 +563,14 @@ def login():
         </div>
     """, unsafe_allow_html=True)
     
-    # 로그인 컨테이너
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    
     # Microsoft 로그인 URL 생성
     auth_url = msal_app.get_authorization_request_url(
         scopes=["User.Read"],
         redirect_uri=REDIRECT_URI,
         state=generate_state()
     )
-    
+    # 로그인 컨테이너
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
     st.markdown(f'<a href="{auth_url}" class="login-button">Microsoft로 로그인</a>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
