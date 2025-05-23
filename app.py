@@ -409,6 +409,40 @@ def login():
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
     
+    # URL 파라미터에서 인증 코드 확인
+    query_params = st.experimental_get_query_params()
+    auth_code = query_params.get("code", [None])[0]
+    
+    if auth_code:
+        try:
+            # 인증 코드로 토큰 받기
+            token_response = msal_app.acquire_token_by_authorization_code(
+                auth_code,
+                scopes=["openid", "profile", "email"],
+                redirect_uri=REDIRECT_URI
+            )
+            
+            if "access_token" in token_response:
+                # 사용자 정보 가져오기
+                headers = {
+                    'Authorization': f'Bearer {token_response["access_token"]}',
+                    'Content-Type': 'application/json'
+                }
+                response = requests.get('https://graph.microsoft.com/v1.0/me', headers=headers)
+                
+                if response.status_code == 200:
+                    user_info = response.json()
+                    st.session_state.user_info = user_info
+                    # URL에서 인증 코드 제거
+                    st.experimental_set_query_params()
+                    st.experimental_rerun()
+                else:
+                    st.error("사용자 정보를 가져오는데 실패했습니다.")
+            else:
+                st.error("인증 토큰을 받아오는데 실패했습니다.")
+        except Exception as e:
+            st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
+    
     if st.session_state.user_info is None:
         show_header()
         st.markdown("""
