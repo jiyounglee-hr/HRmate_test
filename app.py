@@ -720,11 +720,11 @@ def main():
             
             # Meta refresh를 사용한 자동 리디렉션
             st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
+                <meta http-equiv="refresh" content="2;url={auth_url}" target="_blank">
                 <script>
                     // 백업용 JavaScript 리디렉션
                     setTimeout(function() {{
-                        window.location.href = '{auth_url}';
+                        window.open('{auth_url}', '_blank');
                     }}, 2000);
                 </script>
             """, unsafe_allow_html=True)
