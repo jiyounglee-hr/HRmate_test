@@ -472,26 +472,15 @@ def login():
         # 로그인 버튼 생성
         col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
         with col2:
-            # Microsoft 로그인 URL 생성
-            auth_url = msal_app.get_authorization_request_url(
-                scopes=["User.Read"],
-                redirect_uri=REDIRECT_URI,
-                state=st.session_state.get("_session_id", "")
-            )
-            
-            # st.link_button을 사용하여 직접 링크로 이동
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
-            # 디버깅용 - 개발 환경에서만 표시
-            with st.expander("🔧 디버그 정보 (개발용)", expanded=False):
-                st.write("로그인 URL:", auth_url)
-                st.write("REDIRECT_URI:", REDIRECT_URI)
-        return False
+            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
+                # Microsoft 로그인 URL 생성
+                auth_url = msal_app.get_authorization_request_url(
+                    scopes=["User.Read"],
+                    redirect_uri=REDIRECT_URI,
+                    state=st.session_state.get("_session_id", "")
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                st.stop()
     else:
         # 로그인된 사용자의 이메일 확인
         user_email = st.session_state.user_info.get('mail', '')
