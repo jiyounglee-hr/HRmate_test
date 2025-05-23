@@ -488,7 +488,6 @@ def login():
             return False
     
     # 로그인 UI 표시
-    st.title("로그인")
     st.markdown("""
         <style>
         .login-container {
@@ -523,6 +522,7 @@ def login():
         </style>
     """, unsafe_allow_html=True)
     
+    st.markdown('<h2 class="login-title">로그인인</h2>', unsafe_allow_html=True)
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     st.markdown('<h2 class="login-title">HRmate</h2>', unsafe_allow_html=True)
     st.markdown('<p style="text-align: center;">Microsoft 계정으로 로그인하세요.</p>', unsafe_allow_html=True)
