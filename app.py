@@ -714,17 +714,16 @@ def main():
                     👉 새 창으로 Microsoft 로그인하기
                 </a>
             """, unsafe_allow_html=True)
-            
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
             # Meta refresh를 사용한 자동 리디렉션
             st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}" target="_blank">
+                <meta http-equiv="refresh" content="2;url={auth_url}">
                 <script>
                     // 백업용 JavaScript 리디렉션
                     setTimeout(function() {{
-                        window.open('{auth_url}', '_blank');
+                        window.location.href = '{auth_url}';
                     }}, 2000);
                 </script>
             """, unsafe_allow_html=True)
