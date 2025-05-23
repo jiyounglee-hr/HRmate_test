@@ -431,11 +431,12 @@ def login():
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
                         st.session_state.user_info = graph_data
+                        # 자동 리디렉션 플래그 초기화
                         st.session_state.auto_redirect_attempted = False
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
-                        # URL 파라미터 제거 후 리디렉션
-                        new_url = REDIRECT_URI.split('?')[0]
-                        st.markdown(f'<meta http-equiv="refresh" content="0; url={new_url}">', unsafe_allow_html=True)
+                        # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
+                        st.query_params.clear()
+                        st.rerun()
                         return True
                     else:
                         st.error("권한이 없습니다. 인사팀에 문의하세요.")
@@ -708,7 +709,6 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
