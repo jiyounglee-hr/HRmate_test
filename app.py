@@ -697,6 +697,26 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        
+        # 브라우저 정보 디버그
+        with st.expander("🔍 브라우저 환경 정보", expanded=False):
+            st.write("### 브라우저 정보")
+            try:
+                user_agent = st.experimental_get_query_params().get("user-agent", [""])[0]
+                st.write("User-Agent:", user_agent)
+                st.write("저장된 User-Agent:", st.session_state.get("user_agent", "없음"))
+                st.write("엣지/팀즈 브라우저:", "✅ 예" if check_browser() else "❌ 아니오")
+                st.write("자동 리디렉션 시도:", "✅ 예" if st.session_state.get("auto_redirect_attempted", False) else "❌ 아니오")
+                st.write("### 세션 정보")
+                st.write("세션 ID:", st.session_state.get("_session_id", "없음"))
+                st.write("### 인증 정보")
+                st.write("로그인 상태:", "❌ 로그아웃" if not is_logged_in else "✅ 로그인")
+                st.write("### URL 정보")
+                st.write("현재 URL:", st.experimental_get_query_params())
+                st.write("REDIRECT_URI:", REDIRECT_URI)
+            except Exception as e:
+                st.error(f"디버그 정보 수집 중 오류 발생: {str(e)}")
+        
         st.markdown("""
             <div class="header-container">
                 <div class="logo-container">
