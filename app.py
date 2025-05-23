@@ -2482,8 +2482,8 @@ def main():
                             st.error("HR 권한이 없습니다. 접근이 제한됩니다.")
                             st.stop()
                         else:
-                            st.markdown("JK/HR 권한이 확인되었습니다.")
-
+                            st.markdown("<br>JK/HR 권한이 확인되었습니다.", unsafe_allow_html=True)
+                            
                 # 추가 필터링
                 filtered_df = status_filtered_df
                 if selected_type_date != '전체':
