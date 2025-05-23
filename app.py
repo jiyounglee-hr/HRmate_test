@@ -521,6 +521,7 @@ def login():
             max-width: 400px;
             margin: 40px auto;
             padding: 30px;
+            align-items: center;
             border-radius: 10px;
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -554,7 +555,7 @@ def login():
         <div class="header-container">
             <div class="logo-container">
                 <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-            </div>title-container
+            </div>
             <div class="title-container">
                 <h1>HRmate</h1>
                 <p>인원 현황 및 자동화 지원 시스템</p>
@@ -563,7 +564,7 @@ def login():
     """, unsafe_allow_html=True)
     
     # 로그인 컨테이너
-    st.markdown('<div class="title-container">', unsafe_allow_html=True)
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
     
     # Microsoft 로그인 URL 생성
     auth_url = msal_app.get_authorization_request_url(
