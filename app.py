@@ -661,7 +661,7 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     st.markdown("<br>", unsafe_allow_html=True)
     user_name = st.session_state.user_info.get('displayName', '사용자')
     
-    st.sidebar.markdown(f"로그인 정보 : **👤 {user_name}**")
+    st.sidebar.markdown(f" ** 👤접속자 : {user_name}**")
 
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
         st.session_state.user_info = None
