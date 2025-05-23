@@ -406,9 +406,10 @@ def show_header():
 
 # Microsoft 로그인
 def login():
-    if 'user_info' in st.session_state:
-        return True
-        
+    """로그인 처리 함수"""
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+    
     # URL 파라미터에서 인증 코드 확인
     query_params = st.query_params
     code = query_params.get("code", None)
@@ -430,12 +431,15 @@ def login():
                 ).json()
                 
                 if 'mail' in graph_data:
-                    st.session_state.user_info = {
-                        'email': graph_data['mail'],
-                        'name': graph_data.get('displayName', ''),
-                        'department': graph_data.get('department', '')
-                    }
-                    return True
+                    st.session_state.user_info = graph_data
+                    # 권한 확인
+                    if check_authorization(graph_data['mail']):
+                        st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
+                        return True
+                    else:
+                        st.error("권한이 없습니다. 관리자에게 문의하세요.")
+                        st.session_state.user_info = None
+                        return False
                 else:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
             else:
@@ -443,32 +447,62 @@ def login():
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
     
-    # 로그인 페이지 표시
-    st.markdown("""
-        <div class="header-container">
-            <div class="logo-container">
-                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+    if st.session_state.user_info is None:
+        # 로그인 페이지 UI
+        st.markdown("""
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                    <p>인원 현황 및 자동화 지원 시스템</p>
+                </div>
             </div>
-            <div class="title-container">
-                <h1>HRmate</h1>
-                <p>인원 현황 및 자동화 지원 시스템</p>
-            </div>
-        </div>
-        <div class="divider"><hr></div>
-    """, unsafe_allow_html=True)
+            <div class="divider"><hr></div>
+        """, unsafe_allow_html=True)
+        
+        # 로그인 버튼 생성
+        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
+        with col2:
+            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
+                # Microsoft 로그인 URL 생성
+                auth_url = msal_app.get_authorization_request_url(
+                    scopes=["User.Read"],
+                    redirect_uri=REDIRECT_URI,
+                    state=st.session_state.get("_session_id", "")
+                )
+                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                st.stop()
+    else:
+        # 로그인된 사용자의 이메일 확인
+        user_email = st.session_state.user_info.get('mail', '')
+        
+        # 권한 확인
+        if check_authorization(user_email):
+            st.success(f"환영합니다, {st.session_state.user_info.get('displayName', '사용자')}님!")
+            return True
+        else:
+            st.error("권한이 없습니다. 관리자에게 문의하세요.")
+            st.session_state.user_info = None
+            return False
 
-     # Microsoft 로그인 URL 생성
-    login_url = msal_app.get_authorization_request_url(
-        scopes=["User.Read"],
-        redirect_uri=REDIRECT_URI,
-        state="login_state"
-    )
-    col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
-    with col2:
-        # Streamlit link_button을 사용하여 로그인 버튼 표시
-        st.link_button("Microsoft 계정으로 로그인", login_url, type="primary", use_container_width=True)
-    
-    return False
+@st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+def load_authorized_emails():
+    """권한이 있는 이메일 목록을 로드하는 함수"""
+    try:
+        # 엑셀 파일에서 권한 정보 읽기
+        df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
+        authorized_emails = df['이메일'].dropna().tolist()
+        return authorized_emails
+    except Exception as e:
+        st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return [] 
+
+def check_authorization(email):
+    """이메일 권한을 확인하는 함수"""
+    authorized_emails = load_authorized_emails()
+    return email.lower() in [e.lower() for e in authorized_emails]
 
 # 로그인 확인
 if not login():
