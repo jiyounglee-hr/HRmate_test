@@ -713,11 +713,13 @@ def main():
             
              # 새 창으로 로그인 URL 열기 (엣지 대응)
             st.markdown(f"""
+                <meta http-equiv="refresh" content="2;url={auth_url}">
+                <a href="{auth_url}" target="_blank" id="auto_login_link" style="display:none;">자동로그인</a>
                 <script>
-                    window.open('{auth_url}', '_blank');
+                    document.getElementById('auto_login_link').click();
                 </script>
             """, unsafe_allow_html=True)
-            
+
             # Meta refresh를 사용한 자동 리디렉션
             st.markdown(f"""
                 <meta http-equiv="refresh" content="2;url={auth_url}">
