@@ -725,7 +725,7 @@ def main():
                 )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.1, 0.4, 0.5])
+            col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
             with col2:
                 # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
