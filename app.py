@@ -712,16 +712,28 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            # 로그인 버튼 표시 (숨겨진 상태)
+            # Streamlit 버튼 생성 및 자동 클릭
             st.markdown(f"""
-                <div id="login-container" style="display: none;">
-                    <a id="login-link" href="{auth_url}" target="_blank">로그인</a>
+                <div style="display: none;">
+                    <button class="stButton" id="auto-login-btn">
+                        <div class="stButtonLink">
+                            <a href="{auth_url}" target="_blank" data-testid="stLinkButton">
+                                <div data-testid="stLinkButton" class="st-emotion-cache-90vs4">Microsoft 계정으로 로그인</div>
+                            </a>
+                        </div>
+                    </button>
                 </div>
                 <script>
-                    // 페이지 로드 후 자동으로 로그인 링크 클릭
-                    window.addEventListener('load', function() {{
-                        setTimeout(function() {{
-                            document.getElementById('login-link').click();
+                    // DOM이 완전히 로드된 후 실행
+                    document.addEventListener('DOMContentLoaded', (event) => {{
+                        // 모든 Streamlit 요소가 로드될 때까지 대기
+                        const checkElement = setInterval(() => {{
+                            const buttons = document.querySelectorAll('a[data-testid="stLinkButton"]');
+                            if (buttons.length > 0) {{
+                                clearInterval(checkElement);
+                                // 마지막 버튼 클릭 (백업 버튼이 아닌 실제 로그인 버튼)
+                                buttons[0].click();
+                            }}
                         }}, 100);
                     }});
                 </script>
