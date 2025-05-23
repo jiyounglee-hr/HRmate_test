@@ -437,7 +437,7 @@ def login():
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
                         return True
                     else:
-                        st.error("권한이 없습니다. 관리자에게 문의하세요.")
+                        st.error("권한이 없습니다. 인사팀에 문의하세요.")
                         st.session_state.user_info = None
                         return False
                 else:
@@ -2472,20 +2472,17 @@ def main():
                     selected_type_date = st.selectbox('타입 - 보고일자', type_date_options)
 
                 with col3:
-                    # 🐯 보고 선택 시 비밀번호 확인
-                    if selected_status == '🐯 보고예정' or selected_status == '🐯 보고예정' :
-                        pw_col1, pw_col2 = st.columns([0.3, 0.7])
-                        with pw_col1:
-                            password = st.text_input("비밀번호를 입력하세요", type="password")
-                        with pw_col2:
-                            if not password:  # 비밀번호가 입력되지 않은 경우
-                                st.markdown('<p style="color: #F0B726; margin: 0;">비밀번호를 입력해주세요.</p>', unsafe_allow_html=True)
-                                st.stop()
-                            elif password != "0328":  # 비밀번호가 틀린 경우
-                                st.markdown('<p style="color: #FF4B4B; margin: 0;">비밀번호가 올바르지 않습니다.</p>', unsafe_allow_html=True)
-                                st.stop()  # 여기서 실행을 중단
-                            else:
-                                st.markdown('<p style="color: #00CC00; margin: 0;">인증되었습니다.</p>', unsafe_allow_html=True)
+                    # 🐯 보고 선택 시 HR 권한 확인
+                    if selected_status == '🐯 보고예정' or selected_status == '🐯 보고완료':
+                        # 현재 로그인된 사용자의 이메일 확인
+                        user_email = st.session_state.user_info.get('mail', '')
+                        
+                        # 권한 확인
+                        if not check_authorization(user_email):
+                            st.error("HR 권한이 없습니다. 접근이 제한됩니다.")
+                            st.stop()
+                        else:
+                            st.success("HR 권한이 확인되었습니다.")
 
                 # 추가 필터링
                 filtered_df = status_filtered_df
