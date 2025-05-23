@@ -656,7 +656,8 @@ with st.sidebar.expander("💡 전사지원"):
     st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
-st.markdown("<br><br>", unsafe_allow_html=True)
+
+
 # 로그인된 사용자 정보 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
 
@@ -1423,7 +1424,7 @@ def main():
             )
 
         elif menu == "🔍 연락처/생일 검색":
-            st.markdown("##### 🔍 연연락처/생일 검색")
+            st.markdown("##### 🔍 연락처/생일 검색")
             
             # 검색 부분을 컬럼으로 나누기
             search_col, space_col = st.columns([0.3, 0.7])
@@ -1750,7 +1751,7 @@ def main():
                 with col4:
                     current_salary = st.number_input("현재연봉 (만원)", min_value=0, step=100)
                 with col5:
-                    other_salary = st.number_input("기타 보상상 (만원)", min_value=0, step=100)
+                    other_salary = st.number_input("기타 보상 (만원)", min_value=0, step=100)
                 with col6:
                     desired_salary = st.number_input("희망연봉 (만원)", min_value=0, step=100)
                 with col7:
