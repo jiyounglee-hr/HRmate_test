@@ -725,7 +725,7 @@ def main():
             
             # 추가 안전장치: 자동 클릭되는 링크 버튼
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2:
+            with col2: 
                 st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
                 st.link_button(
                     "로그인하기",
