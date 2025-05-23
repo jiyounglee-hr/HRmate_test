@@ -390,6 +390,28 @@ st.markdown("""
     [data-testid="stSidebar"] hr {
         margin: 0.5rem 0 !important;
     }
+    .stButton > button {
+        background-color: #1E3A8A;
+        opacity: 0.85;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        margin: 0.2rem 0;
+    }
+    .stButton > button:hover {
+        background-color: #1E40AF;
+        opacity: 1;
+    }
+    div[data-testid="stSidebarNav"] {
+        background-color: #F8F9FA;
+    }
+    div[data-testid="stSidebarNav"] > ul {
+        padding-top: 2rem;
+    }
+    div[data-testid="stSidebarContent"] {
+        background-color: #F8F9FA;
+    }
     </style>
     
     <script>
@@ -704,8 +726,6 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    # 메인 앱 UI
-    st.title("HR Mate")
     
     # 로그인 처리
     is_logged_in = login()
