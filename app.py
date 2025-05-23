@@ -36,7 +36,7 @@ import streamlit.components.v1 as components
 from streamlit_js_eval import get_user_agent
 
 # 환경 변수 로드
-load_dotenv()
+load_dotenv() 
 
 # Microsoft Azure AD 설정
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
