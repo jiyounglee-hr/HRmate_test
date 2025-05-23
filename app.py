@@ -406,75 +406,67 @@ def show_header():
 
 # Microsoft 로그인
 def login():
-    if 'user_info' not in st.session_state:
-        st.session_state.user_info = None
-    
+    if 'user_info' in st.session_state:
+        return True
+        
     # URL 파라미터에서 인증 코드 확인
     query_params = st.query_params
-    auth_code = query_params.get("code")
+    code = query_params.get("code", [None])[0]
     
-    if auth_code:
+    if code:
         try:
-            # 인증 코드로 토큰 받기
-            token_response = msal_app.acquire_token_by_authorization_code(
-                auth_code,
-                scopes=["openid", "profile", "email"],
+            # 토큰 획득
+            result = msal_app.acquire_token_by_authorization_code(
+                code,
+                scopes=["User.Read"],
                 redirect_uri=REDIRECT_URI
             )
             
-            if "access_token" in token_response:
-                # 사용자 정보 가져오기
-                headers = {
-                    'Authorization': f'Bearer {token_response["access_token"]}',
-                    'Content-Type': 'application/json'
-                }
-                response = requests.get('https://graph.microsoft.com/v1.0/me', headers=headers)
+            if "access_token" in result:
+                # Microsoft Graph API를 사용하여 사용자 정보 가져오기
+                graph_data = requests.get(
+                    'https://graph.microsoft.com/v1.0/me',
+                    headers={'Authorization': 'Bearer ' + result['access_token']},
+                ).json()
                 
-                if response.status_code == 200:
-                    user_info = response.json()
-                    st.session_state.user_info = user_info
-                    # URL에서 인증 코드 제거
-                    st.query_params.clear()
-                    st.experimental_rerun()
-                else:
-                    st.error("사용자 정보를 가져오는데 실패했습니다.")
+                if 'mail' in graph_data:
+                    st.session_state.user_info = {
+                        'email': graph_data['mail'],
+                        'name': graph_data.get('displayName', ''),
+                        'department': graph_data.get('department', '')
+                    }
+                    st.rerun()
+                    return True
             else:
-                st.error("인증 토큰을 받아오는데 실패했습니다.")
+                st.error("토큰 획득에 실패했습니다.")
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
     
-    if st.session_state.user_info is None:
-        show_header()
-        st.markdown("""
-        <div style='text-align: center; margin-top: 50px;'>
-            <h2>Neurophet HRMate</h2>
-            <p>Microsoft 계정으로 로그인하여 시작하세요.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Microsoft 계정으로 로그인", use_container_width=True):
-            # Microsoft 로그인 URL 생성
-            auth_url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize"
-            params = {
-                "client_id": CLIENT_ID,
-                "response_type": "code",
-                "redirect_uri": REDIRECT_URI,
-                "scope": "openid profile email",
-                "response_mode": "query",
-                "state": "login"  # 상태 파라미터 추가
-            }
-            auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
-            
-            # JavaScript를 사용하여 리다이렉트
-            js = f"""
-            <script>
-                window.location.href = "{auth_url}";
-            </script>
-            """
-            st.markdown(js, unsafe_allow_html=True)
-            st.stop()
+    # 로그인 페이지 표시
+    st.title("로그인")
+    st.write("Microsoft 계정으로 로그인해주세요.")
     
-    return st.session_state.user_info
+    # Microsoft 로그인 버튼
+    login_url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize"
+    login_params = {
+        "client_id": CLIENT_ID,
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI,
+        "response_mode": "query",
+        "scope": "User.Read",
+        "state": "login_state"  # 상태 파라미터 추가
+    }
+    
+    login_url = f"{login_url}?{'&'.join([f'{k}={v}' for k, v in login_params.items()])}"
+    
+    # JavaScript를 사용하여 리다이렉트
+    st.markdown(f"""
+        <script>
+            window.location.href = "{login_url}";
+        </script>
+    """, unsafe_allow_html=True)
+    
+    return False
 
 # 로그인 확인
 if not login():
