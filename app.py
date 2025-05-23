@@ -504,7 +504,7 @@ def login():
         }
         .title-container h1 {
             margin: 0;
-            color: #1f77b4;
+            color: #1b1b1e;
             font-size: 2.5em;
         }
         .title-container p {
@@ -566,6 +566,7 @@ def login():
             <div class="title-container">
                 <h1>HRmate</h1>
                 <p>인원 현황 및 자동화 지원 시스템</p>
+                <div class="divider"><hr></div>
                 <a href="{auth_url}" class="login-button">Microsoft로 로그인</a>
             </div>
         </div>
