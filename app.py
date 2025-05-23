@@ -31,6 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
+import secrets
 
 # 환경 변수 로드
 load_dotenv()
@@ -3351,3 +3352,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def generate_state():
+    """Generate a random state for OAuth2 flow"""
+    return secrets.token_urlsafe(32)
