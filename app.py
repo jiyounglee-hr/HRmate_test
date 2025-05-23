@@ -459,16 +459,24 @@ def login():
             if "access_token" in result:
                 # 사용자 정보 조회
                 user_info = get_user_info(result["access_token"])
-                if user_info:
-                    # 권한 확인
-                    if check_authorization(user_info.get('mail')):
-                        st.session_state.user_info = user_info
-                        return True
-                    else:
-                        st.error("접근 권한이 없습니다. 관리자에게 문의하세요.")
-                        return False
-                else:
+                if not user_info:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
+                    return False
+                
+                # 이메일 주소 추출 및 소문자 변환
+                email = user_info.get('mail', user_info.get('userPrincipalName', ''))
+                if not email:
+                    st.error("사용자 이메일을 찾을 수 없습니다.")
+                    return False
+                
+                email = email.lower()
+                
+                # 권한 확인
+                if check_authorization(email):
+                    st.session_state.user_info = user_info
+                    return True
+                else:
+                    st.error("접근 권한이 없습니다. 관리자에게 문의하세요.")
                     return False
             else:
                 st.error("토큰 획득에 실패했습니다.")
