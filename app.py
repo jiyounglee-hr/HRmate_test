@@ -511,8 +511,8 @@ def check_authorization(email):
     return email.lower() in [e.lower() for e in authorized_emails]
 
 # 로그인 확인
-# if not login():
-#     st.stop()  # 로그인되지 않은 경우 실행 중지
+if not login():
+    st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
