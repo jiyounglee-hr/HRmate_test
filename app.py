@@ -416,6 +416,26 @@ st.markdown("""
     .st-emotion-cache-16txtl3 {
         padding: 1rem;
     }
+    
+    div[data-testid="stSidebarNav"] li div a:hover {
+        color: #FF0000 !important;
+        border: 2px solid #FF0000 !important;
+        border-radius: 4px;
+        padding: 10px;
+        background-color: white !important;
+    }
+    
+    div[data-testid="stSidebarNav"] li div a {
+        padding: 10px;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    div[data-testid="stSidebarNav"] {
+        background-color: #F8F9FA;
+        padding: 10px;
+    }
     </style>
     
     <script>
