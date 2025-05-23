@@ -342,6 +342,7 @@ st.markdown("""
         margin: 0 auto;
         padding: 1rem;
         text-align: center;
+        right: 300px;
     }
     .logo-container {
         position: absolute;
