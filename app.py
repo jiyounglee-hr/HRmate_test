@@ -39,7 +39,7 @@ load_dotenv()
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "http://localhost:8501")
+REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "https://hrmatetest.streamlit.app/")
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -419,7 +419,7 @@ def login():
             result = msal_app.acquire_token_by_authorization_code(
                 code,
                 scopes=["User.Read"],
-                redirect_uri="https://hrmatetest.streamlit.app/"  # 실제 배포된 URL로 변경
+                redirect_uri=REDIRECT_URI
             )
             
             if "access_token" in result:
@@ -450,7 +450,7 @@ def login():
     # Microsoft 로그인 URL 생성
     login_url = msal_app.get_authorization_request_url(
         scopes=["User.Read"],
-        redirect_uri="https://hrmatetest.streamlit.app/",  # 실제 배포된 URL로 변경
+        redirect_uri=REDIRECT_URI,
         state="login_state"
     )
     
