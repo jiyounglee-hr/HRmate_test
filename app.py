@@ -571,7 +571,7 @@ def login():
                 <div class="divider"><hr></div>
     """, unsafe_allow_html=True) 
     st.markdown(f'''
-        <div style="width:100%; text-align:center; "> 
+        <div style="width:100%; text-align:center;">
             <a href="{auth_url}" class="login-button">Microsoft로 로그인</a>
         </div>
     ''', unsafe_allow_html=True)
