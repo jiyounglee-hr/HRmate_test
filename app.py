@@ -543,6 +543,8 @@ def login():
             font-size: 1.1em;
             margin-top: 20px;
             transition: background-color 0.3s;
+            text-decoration: none;
+            color: white;
         }
         .login-button:hover {
             background-color: #1668a1;
