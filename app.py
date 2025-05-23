@@ -341,7 +341,7 @@ st.markdown("""
         max-width: 600px;
         margin: 0 auto;
         padding: 1rem;
-        text-align: center;
+        text-align: left;
     }
     .logo-container {
         position: absolute;
@@ -351,11 +351,12 @@ st.markdown("""
     }
     .title-container {
         padding-top: 1rem;
-        right: 300px;
+
     }
     .title-container h1 {
         margin: 0;
         color: #666;
+        right: 300px;
     }
     .title-container p {
         margin: 0.5rem 0 0 0;
