@@ -42,7 +42,24 @@ CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
 REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
-# MSAL 앱 초기화
+# User-Agent 체크를 위한 함수
+def check_browser():
+    """브라우저 환경을 체크하는 함수"""
+    if 'user_agent' not in st.session_state:
+        # Request headers에서 User-Agent 가져오기 시도
+        try:
+            user_agent = st.experimental_get_query_params().get("user-agent", [""])[0]
+        except:
+            user_agent = ""
+        st.session_state.user_agent = user_agent.lower()
+    
+    user_agent = st.session_state.user_agent
+    is_edge = "edg" in user_agent
+    is_teams = any(ua in user_agent for ua in ["teams", "microsoft teams"])
+    
+    return is_edge or is_teams
+
+# MSAL 설정
 msal_app = msal.ConfidentialClientApplication(
     CLIENT_ID,
     authority=f"https://login.microsoftonline.com/{TENANT_ID}",
@@ -712,39 +729,58 @@ def main():
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
-            # Meta refresh를 사용한 자동 리디렉션
-            st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
-                <script>
-                    // 백업용 JavaScript 리디렉션
-                    setTimeout(function() {{
-                        window.location.href = '{auth_url}';
-                    }}, 2000);
-                </script>
-            """, unsafe_allow_html=True)
+            # 브라우저 체크
+            is_restricted_browser = check_browser()
             
-            # 추가 안전장치: 자동 클릭되는 링크 버튼
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2: 
-                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
-                st.link_button(
-                    "로그인하기",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True,
-                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
-                )
+            if is_restricted_browser:
+                # 엣지/팀즈 브라우저인 경우
+                col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+                with col2:
+                    st.warning("⚠️ 엣지/팀즈 브라우저에서는 자동 로그인이 제한됩니다.")
+                    st.info("아래 버튼을 클릭하여 새 창에서 로그인해주세요.")
+                    st.link_button(
+                        "새 창에서 Microsoft 로그인",
+                        auth_url,
+                        type="primary",
+                        use_container_width=True
+                    )
+            else:
+                # 일반 브라우저인 경우 자동 리디렉션
+                st.markdown(f"""
+                    <meta http-equiv="refresh" content="2;url={auth_url}">
+                    <script>
+                        setTimeout(function() {{
+                            window.location.href = '{auth_url}';
+                        }}, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
+                
+                col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+                with col2:
+                    st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
+                    st.link_button(
+                        "로그인하기",
+                        auth_url,
+                        type="primary",
+                        use_container_width=True,
+                        help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
+                    )
             
             st.stop()
         else:
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
                     st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
                 else:
                     st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
-                # st.link_button을 사용하여 직접 링크로 이동
+                
+                # 브라우저 체크
+                is_restricted_browser = check_browser()
+                if is_restricted_browser:
+                    st.info("크롬 등 다른 브라우저에서 접속하시면 더 원활하게 이용하실 수 있습니다.")
+                
                 st.link_button(
                     "Microsoft 계정으로 로그인",
                     auth_url,
@@ -759,7 +795,7 @@ def main():
                     st.write("자동 리디렉션 시도됨:", st.session_state.auto_redirect_attempted)
                     st.write("에러 발생:", has_error)
         
-        st.stop()
+        st.stop() 
     
     # 로그인된 경우 - 기존 메인 로직 실행
     # 데이터 로드
