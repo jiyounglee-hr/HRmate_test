@@ -405,13 +405,14 @@ st.markdown("""
         color: #1b1b1e !important;
     }
     div[data-testid="stSidebarNav"] {
-        background-color: white;
+        background-color: #f0f2f6;
+        padding: 10px;
     }
     div[data-testid="stSidebarNav"] > ul {
         padding-top: 2rem;
     }
     div[data-testid="stSidebarContent"] {
-        background-color: white;
+        background-color: #f0f2f6;
     }
     .st-emotion-cache-16txtl3 {
         padding: 1rem;
