@@ -50,30 +50,30 @@ def get_browser_info():
     """브라우저 정보를 수집하는 함수"""
     try:
         user_agent = get_user_agent()
-        browser_info = {
-            'userAgent': user_agent,
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
+        if not user_agent:
+            user_agent = "알 수 없음"
         
         # 디버그 정보 저장
         if 'browser_debug' not in st.session_state:
             st.session_state.browser_debug = {}
         
         st.session_state.browser_debug.update({
-            'user_agent': user_agent.lower(),
-            'browser_info': browser_info,
+            'user_agent': user_agent.lower() if user_agent != "알 수 없음" else user_agent,
             'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }) 
+        })
         
-        return browser_info
+        return user_agent.lower() if user_agent != "알 수 없음" else user_agent, {}
+        
     except Exception as e:
         st.error(f"브라우저 정보 수집 중 오류 발생: {str(e)}")
-        return {}
+        return "알 수 없음", {}
 
 def check_browser():
     """브라우저 환경을 체크하는 함수"""
-    browser_info = get_browser_info()
-    user_agent = browser_info.get('userAgent', '').lower()
+    user_agent, _ = get_browser_info()
+    
+    if user_agent == "알 수 없음":
+        return False
     
     # 브라우저 패턴 체크
     is_edge = any(pattern in user_agent for pattern in ["edg/", "edge/", "edgios/", "edge-ios/"])
@@ -84,32 +84,35 @@ def check_browser():
 def show_browser_info():
     """브라우저 정보를 화면에 표시"""
     browser_debug = st.session_state.get('browser_debug', {})
-    user_agent = browser_debug.get('user_agent', '').lower()
+    user_agent = browser_debug.get('user_agent', '알 수 없음')
     
     with st.expander("🔍 브라우저 정보", expanded=True):
-        st.write("📱 현재 User-Agent:", browser_debug.get('user_agent', '알 수 없음'))
+        st.write("📱 현재 User-Agent:", user_agent)
         
-        # 브라우저 판단 결과
-        st.write("\n### 브라우저 판단")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.write("✅ Edge 브라우저" if "edg" in user_agent else "❌ Edge 브라우저")
-            st.write("✅ Teams 앱" if "teams" in user_agent else "❌ Teams 앱")
-            st.write("✅ 모바일" if any(m in user_agent for m in ['mobile', 'android', 'iphone']) else "❌ 모바일")
-        
-        with col2:
-            st.write("✅ Chrome" if "chrome" in user_agent and "edg" not in user_agent else "❌ Chrome")
-            st.write("✅ Firefox" if "firefox" in user_agent else "❌ Firefox")
-            st.write("✅ Safari" if "safari" in user_agent and "chrome" not in user_agent else "❌ Safari")
+        if user_agent != "알 수 없음":
+            # 브라우저 판단 결과
+            st.write("\n### 브라우저 판단")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.write("✅ Edge 브라우저" if "edg" in user_agent else "❌ Edge 브라우저")
+                st.write("✅ Teams 앱" if "teams" in user_agent else "❌ Teams 앱")
+                st.write("✅ 모바일" if any(m in user_agent for m in ['mobile', 'android', 'iphone']) else "❌ 모바일")
+            
+            with col2:
+                st.write("✅ Chrome" if "chrome" in user_agent and "edg" not in user_agent else "❌ Chrome")
+                st.write("✅ Firefox" if "firefox" in user_agent else "❌ Firefox")
+                st.write("✅ Safari" if "safari" in user_agent and "chrome" not in user_agent else "❌ Safari")
+            
+            # 브라우저 분기 처리 안내
+            if "edg" in user_agent or "teams" in user_agent:
+                st.warning("🎯 엣지/팀즈 브라우저 감지! 새창을 띄우는 로직이 적용됩니다.")
+            else:
+                st.success("✅ 새창 없이도 인증이 될 수 있는 브라우저입니다.")
+        else:
+            st.warning("⚠️ 브라우저 정보를 수집할 수 없습니다.")
         
         st.write("\n⏰ 마지막 체크 시간:", browser_debug.get('check_time', '알 수 없음'))
-        
-        # 브라우저 분기 처리 안내
-        if "edg" in user_agent or "teams" in user_agent:
-            st.warning("🎯 엣지/팀즈 브라우저 감지! 새창을 띄우는 로직이 적용됩니다.")
-        else:
-            st.success("✅ 새창 없이도 인증이 될 수 있는 브라우저입니다.")
 
 # MSAL 설정
 msal_app = msal.ConfidentialClientApplication(
