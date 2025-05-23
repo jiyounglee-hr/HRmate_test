@@ -447,19 +447,15 @@ def login():
     st.title("로그인")
     st.write("Microsoft 계정으로 로그인해주세요.")
     
-    # Microsoft 로그인 버튼
+    # Microsoft 로그인 URL 생성
     login_url = msal_app.get_authorization_request_url(
         scopes=["User.Read"],
         redirect_uri="https://hrmatetest.streamlit.app/",  # 실제 배포된 URL로 변경
         state="login_state"
     )
     
-    # JavaScript를 사용하여 리다이렉트
-    st.markdown(f"""
-        <script>
-            window.location.href = "{login_url}";
-        </script>
-    """, unsafe_allow_html=True)
+    # Streamlit link_button을 사용하여 로그인 버튼 표시
+    st.link_button("Microsoft 계정으로 로그인", login_url, type="primary", use_container_width=True)
     
     return False
 
