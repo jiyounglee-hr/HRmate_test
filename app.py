@@ -687,7 +687,7 @@ def main():
                 </div>
                 <div class="title-container">
                     <h1>HRmate</h1>
-                    <p>🔐 Microsoft 계정으로 로그인 중...</p>
+                    <p>🔐 Microsoft 계정으로 로그인 합니다.</p>
                 </div>
             </div>
             <div class="divider"><hr></div>
@@ -712,15 +712,23 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
+            # 자동으로 새 창에서 로그인 페이지 열기
+            st.markdown(f"""
+                <script>
+                    window.open('{auth_url}', '_blank');
+                </script>
+            """, unsafe_allow_html=True)
+            
             # 로그인 버튼 표시
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
+                st.warning("로그인 창이 열리지 않으면 아래 버튼을 클릭해주세요.")
                 st.link_button(
                     "Microsoft 계정으로 로그인",
                     auth_url,
                     type="primary",
                     use_container_width=True
-                )
+                ) 
             st.stop()
         else:
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
@@ -739,12 +747,6 @@ def main():
                     use_container_width=True
                 )
                 
-                # 디버깅용 정보 표시
-                with st.expander("🔧 디버그 정보", expanded=False):
-                    st.write("로그인 URL:", auth_url)
-                    st.write("REDIRECT_URI:", REDIRECT_URI)
-                    st.write("자동 리디렉션 시도됨:", st.session_state.auto_redirect_attempted)
-                    st.write("에러 발생:", has_error)
         
         st.stop()
     
