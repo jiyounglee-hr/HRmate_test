@@ -415,8 +415,7 @@ def login():
         return True
     
     # URL 파라미터에서 code 확인
-    query_params = st.experimental_get_query_params()
-    code = query_params.get("code", [None])[0]
+    code = st.query_params.get("code", None)
     
     if code:
         try:
