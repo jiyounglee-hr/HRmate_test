@@ -737,14 +737,13 @@ def main():
             
             st.stop()
         else:
-            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-            if has_error:
-                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-            else:
-                st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
-            
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
+            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
                 # st.link_button을 사용하여 직접 링크로 이동
                 st.link_button(
                     "Microsoft 계정으로 로그인",
