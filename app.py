@@ -1131,7 +1131,7 @@ def main():
                     index=default_index,
                     key='tenure_year_select'
                 )
-            
+             
             with col2:
                 # 선택된 연도의 퇴사인원 계산
                 if selected_year == '전체':
