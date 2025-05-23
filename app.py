@@ -407,12 +407,7 @@ def show_header():
 # Microsoft 로그인
 def login():
     # URL 파라미터에서 code 확인
-    query_params = st.experimental_get_query_params()
-    code = query_params.get("code", [None])[0]
-    
-    # URL 파라미터에서 인증 코드 확인
-    query_params = st.query_params
-    code = query_params.get("code", None)
+    code = st.query_params.get("code", None)
     
     if code and st.session_state.user_info is None:
         try:
