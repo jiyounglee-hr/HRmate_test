@@ -31,6 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
+from streamlit_javascript import st_javascript
 
 # 환경 변수 로드
 load_dotenv()
@@ -709,26 +710,48 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-            # 자동 리디렉션 시도
-            st.session_state.auto_redirect_attempted = True
-            
-            # Meta refresh를 사용한 자동 리디렉션
-            st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
+            # 브라우저 감지용 JavaScript 삽입
+            st.markdown("""
                 <script>
-                    // 백업용 JavaScript 리디렉션
-                    setTimeout(function() {{
-                        window.location.href = '{auth_url}';
-                    }}, 2000);
+                    const ua = navigator.userAgent;
+                    const isEdge = ua.includes("Edg/");
+                    window.localStorage.setItem("isEdge", isEdge);
                 </script>
             """, unsafe_allow_html=True)
             
+            # Edge 브라우저 여부 확인
+            is_edge = st_javascript("return window.localStorage.getItem('isEdge') === 'true';")
+            
+            # 자동 리디렉션 시도
+            st.session_state.auto_redirect_attempted = True
+            
+            if is_edge:
+                st.markdown(f"""
+                    <script>
+                        window.open("{auth_url}", "_blank");
+                    </script>
+                    <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
+                        <p style="margin: 0;">🔓 Edge 브라우저는 보안 정책상 새 창에서 로그인이 필요합니다.</p>
+                        <a href="{auth_url}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #ff4b4b;">여기를 클릭하여 로그인하세요</a>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                # 일반 브라우저용 리디렉션
+                st.markdown(f"""
+                    <meta http-equiv="refresh" content="2;url={auth_url}">
+                    <script>
+                        setTimeout(function() {{
+                            window.location.href = '{auth_url}';
+                        }}, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
+            
             # 추가 안전장치: 자동 클릭되는 링크 버튼
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-            with col2: 
+            with col2:
                 st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
                 st.link_button(
-                    "로그인하기",
+                    "로그인하기", 
                     auth_url,
                     type="primary",
                     use_container_width=True,
