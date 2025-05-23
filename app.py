@@ -46,39 +46,74 @@ REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 # User-Agent 체크를 위한 함수
 def get_browser_info():
     """브라우저 정보를 다양한 방법으로 수집하는 함수"""
-    user_agent = None
-    headers = {}
+    # JavaScript를 통한 브라우저 정보 수집
+    st.markdown("""
+        <div id="browser-info"></div>
+        <script>
+            function sendBrowserInfo() {
+                const info = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    vendor: navigator.vendor,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // LocalStorage에 저장
+                localStorage.setItem('browser_info', JSON.stringify(info));
+                
+                // 쿠키에도 저장
+                document.cookie = 'browser_info=' + JSON.stringify(info) + '; path=/';
+                
+                // DOM에 정보 저장 (Streamlit이 읽을 수 있도록)
+                document.getElementById('browser-info').setAttribute('data-info', JSON.stringify(info));
+                
+                // URL 파라미터로도 전달
+                const params = new URLSearchParams(window.location.search);
+                params.set('browser_info', JSON.stringify(info));
+                window.history.replaceState({}, '', '?' + params.toString());
+            }
+            
+            // 페이지 로드 시 실행
+            window.addEventListener('load', sendBrowserInfo);
+            
+            // 주기적으로 업데이트 (선택사항)
+            setInterval(sendBrowserInfo, 5000);
+        </script>
+    """, unsafe_allow_html=True)
     
-    # 방법 1: 직접 request 객체 접근
+    # URL 파라미터에서 정보 확인
     try:
-        import streamlit.web.server.websocket_headers as websocket_headers
-        headers = websocket_headers.get_headers()
-        user_agent = headers.get('User-Agent', '')
+        params = st.experimental_get_query_params()
+        browser_info = params.get('browser_info', [None])[0]
+        if browser_info:
+            import json
+            return json.loads(browser_info), {}
     except:
         pass
     
-    # 방법 2: 스크립트를 통한 수집
-    if not user_agent:
-        st.markdown("""
-            <script>
-                window.parent.postMessage({
-                    type: "streamlit:user-agent",
-                    userAgent: navigator.userAgent
-                }, "*");
-            </script>
-        """, unsafe_allow_html=True)
-    
-    # 방법 3: 세션 상태 확인
-    if not user_agent and 'browser_info' in st.session_state:
-        user_agent = st.session_state.browser_info.get('userAgent', '')
-    
-    return user_agent, headers
+    return None, {}
 
 def check_browser():
     """브라우저 환경을 체크하는 함수"""
     if 'user_agent' not in st.session_state:
-        user_agent, _ = get_browser_info()
-        st.session_state.user_agent = user_agent.lower() if user_agent else ""
+        browser_info, _ = get_browser_info()
+        if browser_info and isinstance(browser_info, dict):
+            user_agent = browser_info.get('userAgent', '').lower()
+        else:
+            user_agent = ''
+        st.session_state.user_agent = user_agent
+        
+        # 디버그 정보 저장
+        if 'browser_debug' not in st.session_state:
+            st.session_state.browser_debug = {}
+        
+        st.session_state.browser_debug.update({
+            'user_agent': user_agent,
+            'browser_info': browser_info,
+            'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
     
     user_agent = st.session_state.user_agent
     
@@ -89,17 +124,6 @@ def check_browser():
     is_edge = any(pattern in user_agent for pattern in edge_patterns)
     is_teams = any(pattern in user_agent for pattern in teams_patterns)
     
-    # 디버그 정보 저장
-    if 'browser_debug' not in st.session_state:
-        st.session_state.browser_debug = {}
-    
-    st.session_state.browser_debug.update({
-        'user_agent': user_agent,
-        'is_edge': is_edge,
-        'is_teams': is_teams,
-        'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    })
-     
     return is_edge or is_teams
 
 # MSAL 설정
@@ -761,6 +785,13 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
+    # 브라우저 디버그 정보 표시
+    if st.session_state.get('browser_debug'):
+        with st.expander("🔍 브라우저 디버그 정보", expanded=False):
+            st.write("📱 현재 User-Agent:", st.session_state.browser_debug.get('user_agent', '알 수 없음'))
+            st.write("💾 브라우저 정보:", st.session_state.browser_debug.get('browser_info', {}))
+            st.write("⏰ 마지막 체크 시간:", st.session_state.browser_debug.get('check_time', '알 수 없음'))
+
     # 로그인 처리
     is_logged_in = login()
     
