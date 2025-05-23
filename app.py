@@ -39,7 +39,8 @@ load_dotenv()
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "https://hrmatetest.streamlit.app/")
+# 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
+REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -435,6 +436,9 @@ def login():
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
+                        # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
+                        st.query_params.clear()
+                        st.rerun()
                         return True
                     else:
                         st.error("권한이 없습니다. 인사팀에 문의하세요.")
@@ -475,8 +479,14 @@ def login():
                     redirect_uri=REDIRECT_URI,
                     state=st.session_state.get("_session_id", "")
                 )
-                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                # JavaScript를 사용하여 새 창에서 로그인 페이지 열기 (팀즈 호환성 개선)
+                st.markdown(f"""
+                    <script>
+                        window.open('{auth_url}', '_self');
+                    </script>
+                """, unsafe_allow_html=True)
                 st.stop()
+        return False
     else:
         # 로그인된 사용자의 이메일 확인
         user_email = st.session_state.user_info.get('mail', '')
@@ -507,8 +517,8 @@ def check_authorization(email):
     return email.lower() in [e.lower() for e in authorized_emails]
 
 # 로그인 확인
-if not login():
-    st.stop()  # 로그인되지 않은 경우 실행 중지
+# if not login():
+#     st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -694,9 +704,8 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    user_info = login()
-    
-    if user_info is None:
+    # 로그인 처리
+    if not login():
         st.stop()
     
     # 데이터 로드
