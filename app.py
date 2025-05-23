@@ -709,30 +709,20 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-            
-            # 자동 리디렉션 시도
+            # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
-                <script>
-                    setTimeout(function() {{
-                        window.location.href = '{auth_url}';
-                    }}, 2000);
-                </script>
-            """, unsafe_allow_html=True)
-            
-            # 추가 안전장치: 자동 클릭되는 링크 버튼
+            # 로그인 버튼 표시
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
-                st.link_button(
-                    "로그인하기", 
-                    auth_url,
-                    type="primary",
-                    use_container_width=True,
-                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
-                )
+                st.info("🔐 Microsoft 계정으로 로그인이 필요합니다")
+                st.markdown(f"""
+                    <a href="{auth_url}" target="_blank" style="display: block; text-align: center; text-decoration: none;">
+                        <button style="width: 100%; padding: 0.5rem 1rem; background-color: #0078D4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">
+                            Microsoft 로그인
+                        </button>
+                    </a>
+                """, unsafe_allow_html=True)
             st.stop()
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
