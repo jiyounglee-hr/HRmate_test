@@ -442,7 +442,7 @@ def login():
                         return False
                 else:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
-                    return False
+                    return False 
             else:
                 st.error("토큰 획득에 실패했습니다.")
                 return False
