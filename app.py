@@ -697,56 +697,26 @@ def main():
         
         col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
         with col2:
-            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
-                # Microsoft 로그인 URL 생성
-                auth_url = msal_app.get_authorization_request_url(
-                    scopes=["User.Read"],
-                    redirect_uri=REDIRECT_URI,
-                    state=st.session_state.get("_session_id", "")
-                )
-                
-                # User-Agent를 통해 팀즈 접속 여부 확인
-                st.markdown(f"""
-                    <script>
-                        var userAgent = navigator.userAgent.toLowerCase();
-                        var isTeams = userAgent.includes('teams') || 
-                                     userAgent.includes('skype') || 
-                                     userAgent.includes('microsoft teams') ||
-                                     window.location.href.includes('teams.microsoft.com');
-                        
-                        if (isTeams) {{
-                            window.open('{auth_url}', '_blank');
-                        }} else {{
-                            window.location.href = '{auth_url}';
-                        }}
-                    </script>
-                """, unsafe_allow_html=True)
-                st.stop()
+            # Microsoft 로그인 URL 생성
+            auth_url = msal_app.get_authorization_request_url(
+                scopes=["User.Read"],
+                redirect_uri=REDIRECT_URI,
+                state=st.session_state.get("_session_id", "")
+            )
+            
+            # st.link_button을 사용하여 직접 링크로 이동
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            
+            # 디버깅용 정보 표시
+            with st.expander("🔧 디버그 정보", expanded=False):
+                st.write("로그인 URL:", auth_url)
+                st.write("REDIRECT_URI:", REDIRECT_URI)
         
-        # 시스템 소개
-        st.markdown("---")
-        st.markdown("### 📋 HRmate 기능")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-            **📊 HR Data**
-            - 인원현황 조회
-            - 연도별 인원 통계
-            - 채용현황 관리
-            - 임직원 명부
-            - 연락처/생일 검색
-            """)
-        
-        with col2:
-            st.markdown("""
-            **🚀 HR Support**
-            - 채용 전형관리
-            - 채용 처우협상
-            - 기관제출용 인원현황
-            - 초과근무 조회
-            - 인사발령 내역
-            """)
         
         st.stop()
     
