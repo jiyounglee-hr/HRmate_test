@@ -2479,10 +2479,10 @@ def main():
                         
                         # 권한 확인
                         if not check_authorization(user_email):
-                            st.error("HR 권한이 없습니다. 접근이 제한됩니다.")
+                            st.error("🐯권한이 없습니다. 접근이 제한됩니다.")
                             st.stop()
                         else:
-                            st.markdown("<br>🐯& HR 권한이 확인되었습니다.", unsafe_allow_html=True)
+                            st.markdown("<br>🐯권한이 확인되었습니다.", unsafe_allow_html=True)
                             
                 # 추가 필터링
                 filtered_df = status_filtered_df
