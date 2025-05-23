@@ -712,23 +712,31 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            # 자동으로 새 창에서 로그인 페이지 열기
+            # 로그인 버튼 표시 (숨겨진 상태)
             st.markdown(f"""
+                <div id="login-container" style="display: none;">
+                    <a id="login-link" href="{auth_url}" target="_blank">로그인</a>
+                </div>
                 <script>
-                    window.open('{auth_url}', '_blank');
+                    // 페이지 로드 후 자동으로 로그인 링크 클릭
+                    window.addEventListener('load', function() {{
+                        setTimeout(function() {{
+                            document.getElementById('login-link').click();
+                        }}, 100);
+                    }});
                 </script>
             """, unsafe_allow_html=True)
             
-            # 로그인 버튼 표시
+            # 백업 로그인 버튼
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                st.warning("로그인 창이 열리지 않으면 아래 버튼을 클릭해주세요.")
+                st.warning("자동 로그인이 실패한 경우 아래 버튼을 클릭해주세요.")
                 st.link_button(
                     "Microsoft 계정으로 로그인",
                     auth_url,
                     type="primary",
                     use_container_width=True
-                ) 
+                )
             st.stop()
         else:
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
@@ -737,7 +745,7 @@ def main():
                 if has_error:
                     st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
                 else:
-                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.")
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
             
                 # st.link_button을 사용하여 직접 링크로 이동
                 st.link_button(
