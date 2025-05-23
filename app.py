@@ -711,13 +711,31 @@ def main():
         if not st.session_state.auto_redirect_attempted and not has_error:
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
+            
+            # Meta refresh를 사용한 자동 리디렉션
             st.markdown(f"""
+                <meta http-equiv="refresh" content="2;url={auth_url}">
                 <script>
-                    // 자동으로 Microsoft 로그인 페이지로 이동
-                    window.location.href = '{auth_url}';
+                    // 백업용 JavaScript 리디렉션
+                    setTimeout(function() {{
+                        window.location.href = '{auth_url}';
+                    }}, 2000);
                 </script>
             """, unsafe_allow_html=True)
-            st.info("Microsoft 로그인 페이지로 이동 중입니다...")
+            
+            st.info("🔄 Microsoft 로그인 페이지로 이동 중입니다... (2초 후 자동 이동)")
+            
+            # 추가 안전장치: 자동 클릭되는 링크 버튼
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            with col2:
+                st.link_button(
+                    "즉시 로그인하기",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True,
+                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
+                )
+            
             st.stop()
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
