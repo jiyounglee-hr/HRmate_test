@@ -539,16 +539,14 @@ def login():
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
+            text-decoration: none !important;
             font-size: 1.1em;
             margin-top: 20px;
             transition: background-color 0.3s;
-            text-decoration: none;
-            color: white;
         }
         .login-button:hover {
             background-color: #1668a1;
-            text-decoration: none;
+            text-decoration: none !important;
             color: white;
         }
         </style>
