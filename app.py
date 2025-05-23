@@ -444,18 +444,33 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
     
     # 로그인 페이지 표시
+    """로고와 시스템 이름을 표시하는 함수"""
+    st.markdown("""
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+            </div>
+            <div class="title-container">
+                <h1>HRmate</h1>
+                <p>인원 현황 및 자동화 지원 시스템</p>
+            </div>
+        </div>
+        <div class="divider"><hr></div>
+    """, unsafe_allow_html=True)
+
     st.title("로그인")
     st.write("Microsoft 계정으로 로그인해주세요.")
-    
-    # Microsoft 로그인 URL 생성
+
+        # Microsoft 로그인 URL 생성
     login_url = msal_app.get_authorization_request_url(
         scopes=["User.Read"],
         redirect_uri=REDIRECT_URI,
         state="login_state"
     )
-    
-    # Streamlit link_button을 사용하여 로그인 버튼 표시
-    st.link_button("Microsoft 계정으로 로그인", login_url, type="primary", use_container_width=True)
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        # Streamlit link_button을 사용하여 로그인 버튼 표시
+        st.link_button("Microsoft 계정으로 로그인", login_url, type="primary", use_container_width=True)
     
     return False
 
