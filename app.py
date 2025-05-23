@@ -391,26 +391,30 @@ st.markdown("""
         margin: 0.5rem 0 !important;
     }
     .stButton > button {
-        background-color: #1E3A8A;
-        opacity: 0.85;
-        color: white;
+        background-color: white !important;
+        color: #1b1b1e !important;
         border: none;
         border-radius: 4px;
         padding: 0.5rem 1rem;
         margin: 0.2rem 0;
+        width: 100%;
+        text-align: left;
     }
     .stButton > button:hover {
-        background-color: #1E40AF;
-        opacity: 1;
+        background-color: #f8f9fa !important;
+        color: #1b1b1e !important;
     }
     div[data-testid="stSidebarNav"] {
-        background-color: #F8F9FA;
+        background-color: white;
     }
     div[data-testid="stSidebarNav"] > ul {
         padding-top: 2rem;
     }
     div[data-testid="stSidebarContent"] {
-        background-color: #F8F9FA;
+        background-color: white;
+    }
+    .st-emotion-cache-16txtl3 {
+        padding: 1rem;
     }
     </style>
     
