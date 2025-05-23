@@ -549,7 +549,14 @@ def login():
         }
         </style>
     """, unsafe_allow_html=True)
-    
+
+    # Microsoft 로그인 URL 생성
+    auth_url = msal_app.get_authorization_request_url(
+        scopes=["User.Read"],
+        redirect_uri=REDIRECT_URI,
+        state=generate_state()
+    )
+
     # 헤더 표시
     st.markdown("""
         <div class="header-container">
@@ -559,20 +566,10 @@ def login():
             <div class="title-container">
                 <h1>HRmate</h1>
                 <p>인원 현황 및 자동화 지원 시스템</p>
+                <a href="{auth_url}" class="login-button">Microsoft로 로그인</a>
             </div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # Microsoft 로그인 URL 생성
-    auth_url = msal_app.get_authorization_request_url(
-        scopes=["User.Read"],
-        redirect_uri=REDIRECT_URI,
-        state=generate_state()
-    )
-    # 로그인 컨테이너
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown(f'<a href="{auth_url}" class="login-button">Microsoft로 로그인</a>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    """, unsafe_allow_html=True) 
     
     return False
 
