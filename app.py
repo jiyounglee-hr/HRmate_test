@@ -709,23 +709,17 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
+            
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
-            # 일반 리디렉션 시도 후 새 창 옵션 제공
+
             st.markdown(f"""
                 <meta http-equiv="refresh" content="2;url={auth_url}">
-                <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
-                    <p style="margin: 0;">🔄 자동 로그인 중입니다...</p>
-                    <div id="new-window-option" style="display: none; margin-top: 1rem;">
-                        <p style="margin: 0;">⚠️ 자동 로그인이 되지 않는다면, 새 창에서 시도해보세요:</p>
-                        <a href="{auth_url}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #ff4b4b;">새 창에서 로그인하기</a>
-                    </div>
-                </div>
                 <script>
                     setTimeout(function() {{
-                        document.getElementById('new-window-option').style.display = 'block';
-                    }}, 1000);
+                        window.location.href = '{auth_url}';
+                    }}, 2000);
                 </script>
             """, unsafe_allow_html=True)
             
