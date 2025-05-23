@@ -42,6 +42,10 @@ TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "https://hrmatetest.streamlit.app/")
 
+def generate_state():
+    """Generate a random state for OAuth2 flow"""
+    return secrets.token_urlsafe(32)
+
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
     CLIENT_ID,
