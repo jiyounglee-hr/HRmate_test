@@ -658,12 +658,11 @@ with st.sidebar.expander("💡 전사지원"):
 # 로그인된 사용자 정보 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
     st.sidebar.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     user_name = st.session_state.user_info.get('displayName', '사용자')
-    user_email = st.session_state.user_info.get('mail', '')
     
-    st.sidebar.markdown(f"**👤 {user_name}**")
-    st.sidebar.markdown(f"📧 {user_email}")
-    
+    st.sidebar.markdown(f"로그인 정보 : **👤 {user_name}**")
+
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
         st.session_state.user_info = None
         # 자동 리디렉션 플래그 초기화
