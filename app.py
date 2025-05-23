@@ -347,7 +347,6 @@ st.markdown("""
     .logo-container {
         position: absolute;
         top: 0;
-        right: 200px;
         width: 130px;
     }
     .title-container {
@@ -387,7 +386,6 @@ st.markdown("""
     }
     [data-testid="stSidebar"] hr {
         margin: 0.5rem 0 !important;
-        right: 200px;
     }
     </style>
 """, unsafe_allow_html=True)
