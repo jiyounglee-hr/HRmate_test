@@ -483,7 +483,6 @@ def login():
         
         # 권한 확인
         if check_authorization(user_email):
-            st.success(f"환영합니다, {st.session_state.user_info.get('displayName', '사용자')}님!")
             return True
         else:
             st.error("권한이 없습니다. 관리자에게 문의하세요.")
