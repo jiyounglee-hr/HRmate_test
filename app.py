@@ -444,7 +444,6 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
     
     # 로그인 페이지 표시
-    """로고와 시스템 이름을 표시하는 함수"""
     st.markdown("""
         <div class="header-container">
             <div class="logo-container">
@@ -458,10 +457,7 @@ def login():
         <div class="divider"><hr></div>
     """, unsafe_allow_html=True)
 
-    st.title("로그인")
-    st.write("Microsoft 계정으로 로그인해주세요.")
-
-        # Microsoft 로그인 URL 생성
+     # Microsoft 로그인 URL 생성
     login_url = msal_app.get_authorization_request_url(
         scopes=["User.Read"],
         redirect_uri=REDIRECT_URI,
