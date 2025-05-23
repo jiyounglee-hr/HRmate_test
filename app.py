@@ -744,7 +744,7 @@ def main():
                         type="primary",
                         use_container_width=True
                     )
-            else:
+            else: 
                 # 일반 브라우저인 경우 자동 리디렉션
                 st.markdown(f"""
                     <meta http-equiv="refresh" content="2;url={auth_url}">
