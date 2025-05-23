@@ -414,7 +414,7 @@ def login():
     query_params = st.query_params
     code = query_params.get("code", None)
     
-    if code:
+    if code and st.session_state.user_info is None:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
@@ -442,10 +442,13 @@ def login():
                         return False
                 else:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
+                    return False
             else:
                 st.error("토큰 획득에 실패했습니다.")
+                return False
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
+            return False
     
     if st.session_state.user_info is None:
         # 로그인 페이지 UI
