@@ -687,7 +687,7 @@ def main():
                 </div>
                 <div class="title-container">
                     <h1>HRmate</h1>
-                    <p>🔐 Microsoft 계정으로 로그인 합니다.</p>
+                    <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
                 </div>
             </div>
             <div class="divider"><hr></div>
@@ -712,9 +712,8 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            col1, col2, col3 = st.columns([0.1, 0.4, 0.5])
             with col2:
-                st.warning("자동 로그인이 실패한 경우 아래 버튼을 클릭해주세요.")
                 st.link_button(
                     "Microsoft 계정으로 로그인",
                     auth_url,
