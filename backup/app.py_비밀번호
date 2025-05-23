@@ -29,24 +29,6 @@ import pytz
 import gspread
 import tempfile
 from PyPDF2 import PdfMerger
-import msal
-from dotenv import load_dotenv
-
-# 환경 변수 로드
-load_dotenv()
-
-# Microsoft Azure AD 설정
-CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
-TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
-CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "http://localhost:8501")
-
-# MSAL 앱 초기화
-msal_app = msal.ConfidentialClientApplication(
-    CLIENT_ID,
-    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
-    client_credential=CLIENT_SECRET
-)
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -404,68 +386,49 @@ def show_header():
         <div class="divider"><hr></div>
     """, unsafe_allow_html=True)
 
-# Microsoft 로그인
-def login():
-    if 'user_info' in st.session_state:
-        return True
-        
-    # URL 파라미터에서 인증 코드 확인
-    query_params = st.query_params
-    code = query_params.get("code", None)
-    
-    if code:
-        try:
-            # 토큰 획득
-            result = msal_app.acquire_token_by_authorization_code(
-                code,
-                scopes=["User.Read"],
-                redirect_uri="https://hrmatetest.streamlit.app/"  # 실제 배포된 URL로 변경
-            )
-            
-            if "access_token" in result:
-                # Microsoft Graph API를 사용하여 사용자 정보 가져오기
-                graph_data = requests.get(
-                    "https://graph.microsoft.com/v1.0/me",
-                    headers={'Authorization': 'Bearer ' + result['access_token']},
-                ).json()
-                
-                if 'mail' in graph_data:
-                    st.session_state.user_info = {
-                        'email': graph_data['mail'],
-                        'name': graph_data.get('displayName', ''),
-                        'department': graph_data.get('department', '')
-                    }
-                    return True
-                else:
-                    st.error("사용자 정보를 가져오는데 실패했습니다.")
-            else:
-                st.error("토큰 획득에 실패했습니다.")
-        except Exception as e:
-            st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
-    
-    # 로그인 페이지 표시
-    st.title("로그인")
-    st.write("Microsoft 계정으로 로그인해주세요.")
-    
-    # Microsoft 로그인 버튼
-    login_url = msal_app.get_authorization_request_url(
-        scopes=["User.Read"],
-        redirect_uri="https://hrmatetest.streamlit.app/",  # 실제 배포된 URL로 변경
-        state="login_state"
-    )
-    
-    # JavaScript를 사용하여 리다이렉트
-    st.markdown(f"""
-        <script>
-            window.location.href = "{login_url}";
-        </script>
-    """, unsafe_allow_html=True)
-    
-    return False
+# 비밀번호 인증
+def check_password():
+    """Returns `True` if the user had the correct password."""
 
-# 로그인 확인
-if not login():
-    st.stop()  # 로그인되지 않은 경우 실행 중지
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state.get("password") == "0314!":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store password.
+        else:
+            st.session_state["password_correct"] = False
+
+    # First run or input not cleared.
+    if "password_correct" not in st.session_state:
+        show_header()
+        # 비밀번호 입력 필드를 중앙에 배치
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.markdown('<div class="password-input">', unsafe_allow_html=True)
+            st.text_input(
+                "비밀번호를 입력하세요", type="password", on_change=password_entered, key="password"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+        return False
+    elif not st.session_state["password_correct"]:
+        show_header()
+        # Password not correct, show input + error.
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.markdown('<div class="password-input">', unsafe_allow_html=True)
+            st.text_input(
+                "비밀번호를 입력하세요", type="password", on_change=password_entered, key="password"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.error("😕 비밀번호가 올바르지 않습니다")
+        return False
+    else:
+        # Password correct.
+        return True
+
+# 비밀번호 확인
+if not check_password():
+    st.stop()  # Do not continue if check_password() returned False.
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -650,12 +613,7 @@ if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
-def main():
-    user_info = login()
-    
-    if user_info is None:
-        st.stop()
-    
+try:
     # 데이터 로드
     df = load_data()
     
@@ -3286,17 +3244,5 @@ def main():
             else: 
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
  
-            # 지원자 통계
-            st.markdown("### 📊 지원자 통계")
-            try:
-                applicant_stats_df = load_applicant_stats()
-                if applicant_stats_df is not None and not applicant_stats_df.empty:
-                    # 지원자 통계 데이터 표시
-                    st.dataframe(applicant_stats_df, use_container_width=True)
-                else:
-                    st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
-            except Exception as e:
-                st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-
-if __name__ == "__main__":
-    main()
+except Exception as e: 
+    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")    
