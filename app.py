@@ -31,7 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
- 
+
 # 환경 변수 로드
 load_dotenv()
 
@@ -709,30 +709,25 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-            # User-Agent를 통한 Edge 브라우저 감지
-            user_agent = st.get_user_agent()
-            is_edge = "Edg/" in str(user_agent)
-            
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
-            if is_edge:
-                st.markdown(f"""
-                    <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
-                        <p style="margin: 0;">🔓 Edge 브라우저는 보안 정책상 새 창에서 로그인이 필요합니다.</p>
-                        <a href="{auth_url}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #ff4b4b;">여기를 클릭하여 로그인하세요</a>
+            # 일반 리디렉션 시도 후 새 창 옵션 제공
+            st.markdown(f"""
+                <meta http-equiv="refresh" content="2;url={auth_url}">
+                <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
+                    <p style="margin: 0;">🔄 자동 로그인 중입니다...</p>
+                    <div id="new-window-option" style="display: none; margin-top: 1rem;">
+                        <p style="margin: 0;">⚠️ 자동 로그인이 되지 않는다면, 새 창에서 시도해보세요:</p>
+                        <a href="{auth_url}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #ff4b4b;">새 창에서 로그인하기</a>
                     </div>
-                """, unsafe_allow_html=True)
-            else:
-                # 일반 브라우저용 리디렉션
-                st.markdown(f"""
-                    <meta http-equiv="refresh" content="2;url={auth_url}">
-                    <script>
-                        setTimeout(function() {{
-                            window.location.href = '{auth_url}';
-                        }}, 2000);
-                    </script>
-                """, unsafe_allow_html=True)
+                </div>
+                <script>
+                    setTimeout(function() {{
+                        document.getElementById('new-window-option').style.display = 'block';
+                    }}, 2000);
+                </script>
+            """, unsafe_allow_html=True)
             
             # 추가 안전장치: 자동 클릭되는 링크 버튼
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
