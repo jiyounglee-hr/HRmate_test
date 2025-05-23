@@ -558,7 +558,7 @@ def login():
         redirect_uri=REDIRECT_URI,
         state=generate_state()
     )
-
+ 
     # 헤더 표시
     st.markdown("""
         <div class="header-container">
