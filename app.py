@@ -490,31 +490,58 @@ def login():
     # 로그인 UI 표시
     st.markdown("""
         <style>
+        .header-container {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+        }
+        .logo-container {
+            margin-right: 20px;
+        }
+        .title-container {
+            flex-grow: 1;
+        }
+        .title-container h1 {
+            margin: 0;
+            color: #1f77b4;
+            font-size: 2.5em;
+        }
+        .title-container p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 1.1em;
+        }
+        .divider hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
+        }
         .login-container {
             max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 40px auto;
+            padding: 30px;
             border-radius: 10px;
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
         .login-title {
-            text-align: center;
             color: #1f77b4;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .login-button {
-            display: block;
-            width: 100%;
-            padding: 10px;
+            display: inline-block;
+            padding: 12px 24px;
             background-color: #1f77b4;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-align: center;
             text-decoration: none;
+            font-size: 1.1em;
             margin-top: 20px;
+            transition: background-color 0.3s;
         }
         .login-button:hover {
             background-color: #1668a1;
@@ -522,10 +549,23 @@ def login():
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown('<h2 class="login-title">로그인인</h2>', unsafe_allow_html=True)
+    # 헤더 표시
+    st.markdown("""
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+            </div>
+            <div class="title-container">
+                <h1>HRmate</h1>
+                <p>인원 현황 및 자동화 지원 시스템</p>
+            </div>
+        </div>
+        <div class="divider"><hr></div>
+    """, unsafe_allow_html=True)
+    
+    # 로그인 컨테이너
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown('<h2 class="login-title">HRmate</h2>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align: center;">Microsoft 계정으로 로그인하세요.</p>', unsafe_allow_html=True)
+    st.markdown('<h2 class="login-title">Microsoft 계정으로 로그인</h2>', unsafe_allow_html=True)
     
     # Microsoft 로그인 URL 생성
     auth_url = msal_app.get_authorization_request_url(
