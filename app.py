@@ -419,7 +419,7 @@ def login():
                 scopes=["User.Read"],
                 redirect_uri=REDIRECT_URI
             )
-            
+             
             if "access_token" in result:
                 # Microsoft Graph API를 사용하여 사용자 정보 가져오기
                 graph_data = requests.get(
@@ -431,6 +431,8 @@ def login():
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
                         st.session_state.user_info = graph_data
+                        # 자동 리디렉션 플래그 초기화
+                        st.session_state.auto_redirect_attempted = False
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
                         # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
                         st.query_params.clear()
@@ -663,6 +665,8 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
         st.session_state.user_info = None
+        # 자동 리디렉션 플래그 초기화
+        st.session_state.auto_redirect_attempted = False
         st.rerun()
 
 # 기본 메뉴 설정
@@ -675,7 +679,7 @@ def main():
     is_logged_in = login()
     
     if not is_logged_in:
-        # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
         st.markdown("""
             <div class="header-container">
                 <div class="logo-container">
@@ -683,33 +687,61 @@ def main():
                 </div>
                 <div class="title-container">
                     <h1>HRmate</h1>
-                    <p>🔐 HRmate 시스템을 사용하려면 Microsoft 계정으로 로그인해주세요.</p>
+                    <p>🔐 Microsoft 계정으로 로그인 중...</p>
                 </div>
             </div>
             <div class="divider"><hr></div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-        with col2:
-            # Microsoft 로그인 URL 생성
-            auth_url = msal_app.get_authorization_request_url(
-                scopes=["User.Read"],
-                redirect_uri=REDIRECT_URI,
-                state=st.session_state.get("_session_id", "")
-            )
+        # Microsoft 로그인 URL 생성
+        auth_url = msal_app.get_authorization_request_url(
+            scopes=["User.Read"],
+            redirect_uri=REDIRECT_URI,
+            state=st.session_state.get("_session_id", "")
+        )
+        
+        # 자동 리디렉션 시도 여부 확인
+        if 'auto_redirect_attempted' not in st.session_state:
+            st.session_state.auto_redirect_attempted = False
+        
+        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        query_params = st.query_params
+        has_error = query_params.get("error", None) is not None
+        
+        if not st.session_state.auto_redirect_attempted and not has_error:
+            # 자동 리디렉션 시도
+            st.session_state.auto_redirect_attempted = True
+            st.markdown(f"""
+                <script>
+                    // 자동으로 Microsoft 로그인 페이지로 이동
+                    window.location.href = '{auth_url}';
+                </script>
+            """, unsafe_allow_html=True)
+            st.info("Microsoft 로그인 페이지로 이동 중입니다...")
+            st.stop()
+        else:
+            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+            if has_error:
+                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+            else:
+                st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
             
-            # st.link_button을 사용하여 직접 링크로 이동
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
-            # 디버깅용 정보 표시
-            with st.expander("🔧 디버그 정보", expanded=False):
-                st.write("로그인 URL:", auth_url)
-                st.write("REDIRECT_URI:", REDIRECT_URI)
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            with col2:
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
+                # 디버깅용 정보 표시
+                with st.expander("🔧 디버그 정보", expanded=False):
+                    st.write("로그인 URL:", auth_url)
+                    st.write("REDIRECT_URI:", REDIRECT_URI)
+                    st.write("자동 리디렉션 시도됨:", st.session_state.auto_redirect_attempted)
+                    st.write("에러 발생:", has_error)
         
         st.stop()
     
