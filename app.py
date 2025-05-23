@@ -398,11 +398,20 @@ def login():
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
     
-    # URL 파라미터에서 인증 코드 확인
+    # 1. 먼저 세션에 저장된 사용자 정보 확인
+    if st.session_state.user_info is not None:
+        user_email = st.session_state.user_info.get('mail', '')
+        if user_email and check_authorization(user_email):
+            return True  # 이미 로그인되어 있고 권한도 있음
+        else:
+            # 권한이 없거나 이메일이 없는 경우 세션 초기화
+            st.session_state.user_info = None
+    
+    # 2. URL 파라미터에서 인증 코드 확인 (새로운 로그인 시도)
     query_params = st.query_params
     code = query_params.get("code", None)
     
-    if code and st.session_state.user_info is None:
+    if code:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
@@ -419,9 +428,9 @@ def login():
                 ).json()
                 
                 if 'mail' in graph_data:
-                    st.session_state.user_info = graph_data
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
+                        st.session_state.user_info = graph_data
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
                         # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
                         st.query_params.clear()
@@ -441,16 +450,7 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
     
-    # 로그인 상태 확인
-    if st.session_state.user_info is not None:
-        user_email = st.session_state.user_info.get('mail', '')
-        if check_authorization(user_email):
-            return True
-        else:
-            st.error("권한이 없습니다. 관리자에게 문의하세요.")
-            st.session_state.user_info = None
-            return False
-    
+    # 3. 로그인되지 않은 상태
     return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -673,9 +673,9 @@ menu = st.session_state.menu
 def main():
     # 로그인 처리
     is_logged_in = login()
+    
     if not is_logged_in:
         # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
-
         st.markdown("""
             <div class="header-container">
                 <div class="logo-container">
@@ -710,7 +710,6 @@ def main():
             with st.expander("🔧 디버그 정보", expanded=False):
                 st.write("로그인 URL:", auth_url)
                 st.write("REDIRECT_URI:", REDIRECT_URI)
-        
         
         st.stop()
     
