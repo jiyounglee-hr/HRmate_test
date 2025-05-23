@@ -33,7 +33,7 @@ import msal
 from dotenv import load_dotenv
 import streamlit.web.server.websocket_headers as websocket_headers
 import streamlit.components.v1 as components
-from streamlit_js_eval import get_user_agent
+
 
 # 환경 변수 로드
 load_dotenv() 
@@ -45,80 +45,11 @@ CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
 REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
-# User-Agent 체크를 위한 함수
-def get_browser_info():
-    """브라우저 정보를 수집하는 함수"""
-    try:
-        user_agent = get_user_agent()
-        if not user_agent:
-            user_agent = "알 수 없음"
-        
-        # 디버그 정보 저장
-        if 'browser_debug' not in st.session_state:
-            st.session_state.browser_debug = {}
-        
-        st.session_state.browser_debug.update({
-            'user_agent': user_agent.lower() if user_agent != "알 수 없음" else user_agent,
-            'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        })
-        
-        return user_agent.lower() if user_agent != "알 수 없음" else user_agent, {}
-        
-    except Exception as e:
-        st.error(f"브라우저 정보 수집 중 오류 발생: {str(e)}")
-        return "알 수 없음", {}
-
-def check_browser():
-    """브라우저 환경을 체크하는 함수"""
-    user_agent, _ = get_browser_info()
-    
-    if user_agent == "알 수 없음":
-        return False
-    
-    # 브라우저 패턴 체크
-    is_edge = any(pattern in user_agent for pattern in ["edg/", "edge/", "edgios/", "edge-ios/"])
-    is_teams = any(pattern in user_agent for pattern in ["teams/", "team/", "microsoft teams", "electron"])
-    
-    return is_edge or is_teams
-
-def show_browser_info():
-    """브라우저 정보를 화면에 표시"""
-    browser_debug = st.session_state.get('browser_debug', {})
-    user_agent = browser_debug.get('user_agent', '알 수 없음')
-    
-    with st.expander("🔍 브라우저 정보", expanded=True):
-        st.write("📱 현재 User-Agent:", user_agent)
-        
-        if user_agent != "알 수 없음":
-            # 브라우저 판단 결과
-            st.write("\n### 브라우저 판단")
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.write("✅ Edge 브라우저" if "edg" in user_agent else "❌ Edge 브라우저")
-                st.write("✅ Teams 앱" if "teams" in user_agent else "❌ Teams 앱")
-                st.write("✅ 모바일" if any(m in user_agent for m in ['mobile', 'android', 'iphone']) else "❌ 모바일")
-            
-            with col2:
-                st.write("✅ Chrome" if "chrome" in user_agent and "edg" not in user_agent else "❌ Chrome")
-                st.write("✅ Firefox" if "firefox" in user_agent else "❌ Firefox")
-                st.write("✅ Safari" if "safari" in user_agent and "chrome" not in user_agent else "❌ Safari")
-            
-            # 브라우저 분기 처리 안내
-            if "edg" in user_agent or "teams" in user_agent:
-                st.warning("🎯 엣지/팀즈 브라우저 감지! 새창을 띄우는 로직이 적용됩니다.")
-            else:
-                st.success("✅ 새창 없이도 인증이 될 수 있는 브라우저입니다.")
-        else:
-            st.warning("⚠️ 브라우저 정보를 수집할 수 없습니다.")
-        
-        st.write("\n⏰ 마지막 체크 시간:", browser_debug.get('check_time', '알 수 없음'))
-
 # MSAL 설정
 msal_app = msal.ConfidentialClientApplication(
-    CLIENT_ID,
-    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
-    client_credential=CLIENT_SECRET
+    client_id=CLIENT_ID,
+    client_credential=CLIENT_SECRET,
+    authority=f"https://login.microsoftonline.com/{TENANT_ID}"
 )
 
 # 날짜 정규화 함수
@@ -773,9 +704,6 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    # 브라우저 정보 표시 및 체크
-    show_browser_info()
-    
     # 메인 앱 UI
     st.title("HR Mate")
     
@@ -786,78 +714,13 @@ def main():
         return
     
     # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-    
-        # 브라우저 정보 디버그
-        with st.expander("🔍 브라우저 환경 정보", expanded=True):
-            st.write("### 브라우저 정보")
-            
-            # User-Agent 정보 수집
-            current_user_agent, headers = get_browser_info()
-            
-            # 기본 정보 표시
-            st.write("📱 현재 User-Agent:", current_user_agent or "알 수 없음")
-            st.write("💾 저장된 User-Agent:", st.session_state.get("user_agent", "없음"))
-            
-            # 브라우저 상세 판단
-            user_agent = (current_user_agent or "").lower()
-            browser_info = {
-                "엣지 브라우저 (edg)": "edg/" in user_agent,
-                "엣지 브라우저 (edge)": "edge/" in user_agent,
-                "팀즈 앱": "teams/" in user_agent,
-                "일렉트론": "electron" in user_agent,
-                "모바일": any(m in user_agent for m in ["mobile", "android", "iphone"]),
-                "크롬": "chrome" in user_agent and not "edg" in user_agent,
-                "파이어폭스": "firefox" in user_agent,
-                "사파리": "safari" in user_agent and not "chrome" in user_agent
-            }
-            
-            st.write("### 상세 브라우저 판단")
-            for browser, detected in browser_info.items():
-                st.write(f"{'✅' if detected else '❌'} {browser}")
-            
-            st.write("### 최종 판단")
-            is_restricted = check_browser()
-            st.write(f"🔍 결과: {'✅ 제한된 브라우저' if is_restricted else '✅ 일반 브라우저'}")
-            
-            # 헤더 정보
-            st.write("### 전체 헤더 정보")
-            try:
-                all_headers = websocket_headers.get_headers()
-                st.json(dict(all_headers))
-            except:
-                st.write("❌ 헤더 정보를 가져올 수 없습니다.")
-            
-            # 세션 상태
-            st.write("### 세션 상태")
-            st.write("🔄 자동 리디렉션 시도:", "✅ 예" if st.session_state.get("auto_redirect_attempted", False) else "❌ 아니오")
-            st.write("🔑 세션 ID:", st.session_state.get("_session_id", "없음"))
-            st.write("👤 로그인 상태:", "❌ 로그아웃")
-            
-            # URL 정보
-            st.write("### URL 정보")
-            params = st.experimental_get_query_params()
-            if params:
-                st.write("🔗 현재 URL 파라미터:")
-                for key, value in params.items():
-                    if key != "user-agent":  # user-agent는 이미 위에서 표시
-                        st.write(f"- {key}: {value}")
-            else:
-                st.write("🔗 URL 파라미터 없음")
-            
-            st.write("🎯 REDIRECT_URI:", REDIRECT_URI)
-            
-            # 세션 전체 정보 (디버깅용)
-            st.write("### 전체 세션 정보")
-            session_info = {key: value for key, value in st.session_state.items() 
-                          if not key.startswith("_") and key not in ["user_info"]}
-            st.json(session_info)
         
         st.markdown("""
             <div class="header-container">
                 <div class="logo-container">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
                 </div>
-                <div class="title-container">
+                <div class="title-container"> 
                     <h1>HRmate</h1>
                     <p>🔐 Microsoft 계정으로 로그인 중...</p>
                 </div>
