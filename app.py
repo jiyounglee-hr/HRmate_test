@@ -101,7 +101,7 @@ def calculate_experience(experience_text):
     total_months = 0
     experience_periods = []
     
-    # 각 줄을 분리하여 처리
+    # 각 줄을 분리하여 처리 
     lines = experience_text.split('\n')
     current_company = None
     
@@ -390,32 +390,28 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-def show_header():
-    """로고와 시스템 이름을 표시하는 함수"""
-    st.markdown("""
-        <div class="header-container">
-            <div class="logo-container">
-                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-            </div>
-            <div class="title-container">
-                <h1>HRmate</h1>
-                <p>인원 현황 및 자동화 지원 시스템</p>
-            </div>
-        </div>
-        <div class="divider"><hr></div>
-    """, unsafe_allow_html=True)
+
 
 # Microsoft 로그인
 def login():
-    """로그인 처리 함수"""
+    """로그인 처리 함수 - 인증 처리만 담당"""
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
     
-    # URL 파라미터에서 인증 코드 확인
+    # 1. 먼저 세션에 저장된 사용자 정보 확인
+    if st.session_state.user_info is not None:
+        user_email = st.session_state.user_info.get('mail', '')
+        if user_email and check_authorization(user_email):
+            return True  # 이미 로그인되어 있고 권한도 있음
+        else:
+            # 권한이 없거나 이메일이 없는 경우 세션 초기화
+            st.session_state.user_info = None
+    
+    # 2. URL 파라미터에서 인증 코드 확인 (새로운 로그인 시도)
     query_params = st.query_params
     code = query_params.get("code", None)
     
-    if code and st.session_state.user_info is None:
+    if code:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
@@ -423,7 +419,7 @@ def login():
                 scopes=["User.Read"],
                 redirect_uri=REDIRECT_URI
             )
-            
+             
             if "access_token" in result:
                 # Microsoft Graph API를 사용하여 사용자 정보 가져오기
                 graph_data = requests.get(
@@ -432,9 +428,11 @@ def login():
                 ).json()
                 
                 if 'mail' in graph_data:
-                    st.session_state.user_info = graph_data
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
+                        st.session_state.user_info = graph_data
+                        # 자동 리디렉션 플래그 초기화
+                        st.session_state.auto_redirect_attempted = False
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
                         # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
                         st.query_params.clear()
@@ -454,81 +452,8 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
     
-    if st.session_state.user_info is None:
-        # 로그인 페이지 UI
-        st.markdown("""
-            <div class="header-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-                </div>
-                <div class="title-container">
-                    <h1>HRmate</h1>
-                    <p>인원 현황 및 자동화 지원 시스템</p>
-                </div>
-            </div>
-            <div class="divider"><hr></div>
-        """, unsafe_allow_html=True)
-        
-        # 로그인 버튼 생성
-        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
-        with col2:
-            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
-                # Microsoft 로그인 URL 생성
-                auth_url = msal_app.get_authorization_request_url(
-                    scopes=["User.Read"],
-                    redirect_uri=REDIRECT_URI,
-                    state=st.session_state.get("_session_id", "")
-                )
-                
-                # User-Agent를 통해 팀즈 접속 여부 확인
-                # 팀즈에서는 새 창으로, 일반 브라우저에서는 현재 창에서 처리
-                st.markdown(f"""
-                    <script>
-                        // User-Agent 확인
-                        var userAgent = navigator.userAgent.toLowerCase();
-                        var isTeams = userAgent.includes('teams') || 
-                                     userAgent.includes('skype') || 
-                                     userAgent.includes('microsoft teams') ||
-                                     window.location.href.includes('teams.microsoft.com');
-                        
-                        if (isTeams) {{
-                            // 팀즈에서 접속한 경우 새 창으로 열기
-                            window.open('{auth_url}', '_blank');
-                        }} else {{
-                            // 일반 브라우저에서 접속한 경우 현재 창에서 이동
-                            window.location.href = '{auth_url}';
-                        }}
-                    </script>
-                """, unsafe_allow_html=True)
-                st.stop()
-        
-        # 디버깅용 - 접속 환경 정보 표시
-        with st.expander("🔧 접속 환경 정보 (개발용)", expanded=False):
-            st.markdown("""
-                <script>
-                    var userAgent = navigator.userAgent;
-                    var isTeams = userAgent.toLowerCase().includes('teams') || 
-                                 userAgent.toLowerCase().includes('skype') || 
-                                 userAgent.toLowerCase().includes('microsoft teams') ||
-                                 window.location.href.includes('teams.microsoft.com');
-                    
-                    document.write('<p><strong>User-Agent:</strong> ' + userAgent + '</p>');
-                    document.write('<p><strong>팀즈 접속 여부:</strong> ' + (isTeams ? '예' : '아니오') + '</p>');
-                    document.write('<p><strong>현재 URL:</strong> ' + window.location.href + '</p>');
-                </script>
-            """, unsafe_allow_html=True)
-            st.write("REDIRECT_URI:", REDIRECT_URI)
-    else:
-        # 로그인된 사용자의 이메일 확인
-        user_email = st.session_state.user_info.get('mail', '')
-        
-        # 권한 확인
-        if check_authorization(user_email):
-            return True
-        else:
-            st.error("권한이 없습니다. 관리자에게 문의하세요.")
-            st.session_state.user_info = None
-            return False
+    # 3. 로그인되지 않은 상태
+    return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_authorized_emails():
@@ -547,9 +472,9 @@ def check_authorization(email):
     authorized_emails = load_authorized_emails()
     return email.lower() in [e.lower() for e in authorized_emails]
 
-# 로그인 확인
-if not login():
-    st.stop()  # 로그인되지 않은 경우 실행 중지
+# 로그인 확인 - 제거
+# if not login():
+#     st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -729,6 +654,21 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True)
 with st.sidebar.expander("💡 전사지원"):
     st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
+# 로그인된 사용자 정보 표시
+if 'user_info' in st.session_state and st.session_state.user_info is not None:
+    st.sidebar.markdown("---")
+    user_name = st.session_state.user_info.get('displayName', '사용자')
+    user_email = st.session_state.user_info.get('mail', '')
+    
+    st.sidebar.markdown(f"**👤 {user_name}**")
+    st.sidebar.markdown(f"📧 {user_email}")
+    
+    if st.sidebar.button("🚪 로그아웃", use_container_width=True):
+        st.session_state.user_info = None
+        # 자동 리디렉션 플래그 초기화
+        st.session_state.auto_redirect_attempted = False
+        st.rerun()
+
 # 기본 메뉴 설정
 if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
@@ -736,9 +676,93 @@ menu = st.session_state.menu
 
 def main():
     # 로그인 처리
-    if not login():
+    is_logged_in = login()
+    
+    if not is_logged_in:
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        st.markdown("""
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                    <p>🔐 Microsoft 계정으로 로그인 중...</p>
+                </div>
+            </div>
+            <div class="divider"><hr></div>
+        """, unsafe_allow_html=True)
+        
+        # Microsoft 로그인 URL 생성
+        auth_url = msal_app.get_authorization_request_url(
+            scopes=["User.Read"],
+            redirect_uri=REDIRECT_URI,
+            state=st.session_state.get("_session_id", "")
+        )
+        
+        # 자동 리디렉션 시도 여부 확인
+        if 'auto_redirect_attempted' not in st.session_state:
+            st.session_state.auto_redirect_attempted = False
+        
+        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        query_params = st.query_params
+        has_error = query_params.get("error", None) is not None
+        
+        if not st.session_state.auto_redirect_attempted and not has_error:
+            # 자동 리디렉션 시도
+            st.session_state.auto_redirect_attempted = True
+            
+            # Meta refresh를 사용한 자동 리디렉션
+            st.markdown(f"""
+                <meta http-equiv="refresh" content="2;url={auth_url}">
+                <script>
+                    // 백업용 JavaScript 리디렉션
+                    setTimeout(function() {{
+                        window.location.href = '{auth_url}';
+                    }}, 2000);
+                </script>
+            """, unsafe_allow_html=True)
+            
+            # 추가 안전장치: 자동 클릭되는 링크 버튼
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            with col2: 
+                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
+                st.link_button(
+                    "로그인하기",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True,
+                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
+                )
+            
+            st.stop()
+        else:
+            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+            if has_error:
+                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+            else:
+                st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
+            
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            with col2:
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
+                # 디버깅용 정보 표시
+                with st.expander("🔧 디버그 정보", expanded=False):
+                    st.write("로그인 URL:", auth_url)
+                    st.write("REDIRECT_URI:", REDIRECT_URI)
+                    st.write("자동 리디렉션 시도됨:", st.session_state.auto_redirect_attempted)
+                    st.write("에러 발생:", has_error)
+        
         st.stop()
     
+    # 로그인된 경우 - 기존 메인 로직 실행
     # 데이터 로드
     df = load_data()
     
