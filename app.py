@@ -410,7 +410,8 @@ def login():
         st.session_state.user_info = None
     
     # URL 파라미터에서 인증 코드 확인
-    auth_code = st.query_params.get("code")
+    query_params = st.query_params
+    auth_code = query_params.get("code")
     
     if auth_code:
         try:
@@ -459,12 +460,18 @@ def login():
                 "response_type": "code",
                 "redirect_uri": REDIRECT_URI,
                 "scope": "openid profile email",
-                "response_mode": "query"
+                "response_mode": "query",
+                "state": "login"  # 상태 파라미터 추가
             }
             auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
             
-            # 로그인 페이지로 리다이렉트
-            st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+            # JavaScript를 사용하여 리다이렉트
+            js = f"""
+            <script>
+                window.location.href = "{auth_url}";
+            </script>
+            """
+            st.markdown(js, unsafe_allow_html=True)
             st.stop()
     
     return st.session_state.user_info
