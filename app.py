@@ -713,11 +713,9 @@ def main():
             
              # 새 창으로 로그인 URL 열기 (엣지 대응)
             st.markdown(f"""
-                <meta http-equiv="refresh" content="2;url={auth_url}">
-                <a href="{auth_url}" target="_blank" id="auto_login_link" style="display:none;">자동로그인</a>
-                <script>
-                    document.getElementById('auto_login_link').click();
-                </script>
+                <a href="{auth_url}" target="_blank" style="display:block; background:#ff4b4b; color:white; padding:1rem; border-radius:8px; text-align:center; font-size:1.2rem; margin:2rem 0;">
+                    👉 새 창으로 Microsoft 로그인하기
+                </a>
             """, unsafe_allow_html=True)
 
             # Meta refresh를 사용한 자동 리디렉션
