@@ -546,6 +546,8 @@ def login():
         }
         .login-button:hover {
             background-color: #1668a1;
+            text-decoration: none;
+            color: white;
         }
         </style>
     """, unsafe_allow_html=True)
