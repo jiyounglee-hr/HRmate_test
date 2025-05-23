@@ -711,6 +711,13 @@ def main():
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
+             # 새 창으로 로그인 URL 열기 (엣지 대응)
+            st.markdown(f"""
+                <script>
+                    window.open('{auth_url}', '_blank');
+                </script>
+            """, unsafe_allow_html=True)
+            
             # Meta refresh를 사용한 자동 리디렉션
             st.markdown(f"""
                 <meta http-equiv="refresh" content="2;url={auth_url}">
