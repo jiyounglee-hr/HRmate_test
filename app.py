@@ -39,7 +39,8 @@ load_dotenv()
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-REDIRECT_URI = st.secrets.get("AZURE_AD_REDIRECT_URI", "https://hrmatetest.streamlit.app/")
+# 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
+REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -301,7 +302,7 @@ st.set_page_config(
     page_title="HRmate",
     page_icon="👥",
     layout="wide"
-) 
+)
 
 # CSS 스타일 추가
 st.markdown("""
@@ -435,6 +436,9 @@ def login():
                     # 권한 확인
                     if check_authorization(graph_data['mail']):
                         st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
+                        # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
+                        st.query_params.clear()
+                        st.rerun()
                         return True
                     else:
                         st.error("권한이 없습니다. 인사팀에 문의하세요.")
@@ -475,8 +479,45 @@ def login():
                     redirect_uri=REDIRECT_URI,
                     state=st.session_state.get("_session_id", "")
                 )
-                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                
+                # User-Agent를 통해 팀즈 접속 여부 확인
+                # 팀즈에서는 새 창으로, 일반 브라우저에서는 현재 창에서 처리
+                st.markdown(f"""
+                    <script>
+                        // User-Agent 확인
+                        var userAgent = navigator.userAgent.toLowerCase();
+                        var isTeams = userAgent.includes('teams') || 
+                                     userAgent.includes('skype') || 
+                                     userAgent.includes('microsoft teams') ||
+                                     window.location.href.includes('teams.microsoft.com');
+                        
+                        if (isTeams) {{
+                            // 팀즈에서 접속한 경우 새 창으로 열기
+                            window.open('{auth_url}', '_blank');
+                        }} else {{
+                            // 일반 브라우저에서 접속한 경우 현재 창에서 이동
+                            window.location.href = '{auth_url}';
+                        }}
+                    </script>
+                """, unsafe_allow_html=True)
                 st.stop()
+        
+        # 디버깅용 - 접속 환경 정보 표시
+        with st.expander("🔧 접속 환경 정보 (개발용)", expanded=False):
+            st.markdown("""
+                <script>
+                    var userAgent = navigator.userAgent;
+                    var isTeams = userAgent.toLowerCase().includes('teams') || 
+                                 userAgent.toLowerCase().includes('skype') || 
+                                 userAgent.toLowerCase().includes('microsoft teams') ||
+                                 window.location.href.includes('teams.microsoft.com');
+                    
+                    document.write('<p><strong>User-Agent:</strong> ' + userAgent + '</p>');
+                    document.write('<p><strong>팀즈 접속 여부:</strong> ' + (isTeams ? '예' : '아니오') + '</p>');
+                    document.write('<p><strong>현재 URL:</strong> ' + window.location.href + '</p>');
+                </script>
+            """, unsafe_allow_html=True)
+            st.write("REDIRECT_URI:", REDIRECT_URI)
     else:
         # 로그인된 사용자의 이메일 확인
         user_email = st.session_state.user_info.get('mail', '')
@@ -694,9 +735,8 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    user_info = login()
-    
-    if user_info is None:
+    # 로그인 처리
+    if not login():
         st.stop()
     
     # 데이터 로드
