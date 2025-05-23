@@ -535,7 +535,7 @@ def login():
             display: inline-block;
             padding: 12px 24px;
             background-color: #ff3333;
-            color: white;
+            color: white !important;
             border: none;
             border-radius: 5px;
             cursor: pointer;
