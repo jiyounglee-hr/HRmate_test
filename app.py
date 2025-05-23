@@ -31,6 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
+import streamlit.web.server.websocket_headers as websocket_headers
 
 # 환경 변수 로드
 load_dotenv()
@@ -46,16 +47,25 @@ REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 def check_browser():
     """브라우저 환경을 체크하는 함수"""
     if 'user_agent' not in st.session_state:
-        # Request headers에서 User-Agent 가져오기 시도
+        # Streamlit의 request 객체에서 User-Agent 가져오기
         try:
-            user_agent = st.experimental_get_query_params().get("user-agent", [""])[0]
+            headers = websocket_headers.get_headers()
+            user_agent = headers.get('User-Agent', '')
         except:
-            user_agent = ""
+            try:
+                # 백업: query parameter에서 시도
+                params = st.experimental_get_query_params()
+                user_agent = params.get("user-agent", [""])[0]
+            except:
+                user_agent = ""
+        
         st.session_state.user_agent = user_agent.lower()
     
     user_agent = st.session_state.user_agent
-    is_edge = "edg" in user_agent
-    is_teams = any(ua in user_agent for ua in ["teams", "microsoft teams"])
+    # 엣지 브라우저 체크 (다양한 User-Agent 패턴 포함)
+    is_edge = any(ua in user_agent for ua in ["edg/", "edge/", "edgios/", "edge-ios/"])
+    # 팀즈 브라우저 체크 (다양한 User-Agent 패턴 포함)
+    is_teams = any(ua in user_agent for ua in ["teams/", "team/", "microsoft teams", "electron"])
     
     return is_edge or is_teams
 
@@ -699,30 +709,45 @@ def main():
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
         
         # 브라우저 정보 디버그
-        with st.expander("🔍 브라우저 환경 정보", expanded=False):
+        with st.expander("🔍 브라우저 환경 정보", expanded=True):
             st.write("### 브라우저 정보")
             
-            # User-Agent 정보
-            user_agent = "알 수 없음"
+            # User-Agent 정보 수집
             try:
-                params = st.experimental_get_query_params()
-                if "user-agent" in params:
-                    user_agent = params["user-agent"][0]
+                headers = websocket_headers.get_headers()
+                current_user_agent = headers.get('User-Agent', '알 수 없음')
             except:
-                pass
+                current_user_agent = "알 수 없음 (헤더 접근 실패)"
             
             # 기본 정보 표시
-            st.write("📱 User-Agent:", user_agent)
+            st.write("📱 현재 User-Agent:", current_user_agent)
             st.write("💾 저장된 User-Agent:", st.session_state.get("user_agent", "없음"))
             
-            # 브라우저 판단 결과
-            is_edge_browser = "edg" in user_agent.lower()
-            is_teams_browser = any(ua in user_agent.lower() for ua in ["teams", "microsoft teams"])
+            # 브라우저 상세 판단
+            user_agent = current_user_agent.lower()
+            browser_info = {
+                "엣지 브라우저 (edg)": "edg/" in user_agent,
+                "엣지 브라우저 (edge)": "edge/" in user_agent,
+                "팀즈 앱": "teams/" in user_agent,
+                "일렉트론": "electron" in user_agent,
+                "모바일": any(m in user_agent for m in ["mobile", "android", "iphone"]),
+            }
             
-            st.write("### 브라우저 판단")
-            st.write("🌐 엣지 브라우저:", "✅ 예" if is_edge_browser else "❌ 아니오")
-            st.write("👥 팀즈 브라우저:", "✅ 예" if is_teams_browser else "❌ 아니오")
-            st.write("🔍 최종 판단:", "✅ 제한된 브라우저" if check_browser() else "✅ 일반 브라우저")
+            st.write("### 상세 브라우저 판단")
+            for browser, detected in browser_info.items():
+                st.write(f"{'✅' if detected else '❌'} {browser}")
+            
+            st.write("### 최종 판단")
+            is_restricted = check_browser()
+            st.write(f"🔍 결과: {'✅ 제한된 브라우저' if is_restricted else '✅ 일반 브라우저'}")
+            
+            # 헤더 정보
+            st.write("### 전체 헤더 정보")
+            try:
+                all_headers = websocket_headers.get_headers()
+                st.json(dict(all_headers))
+            except:
+                st.write("❌ 헤더 정보를 가져올 수 없습니다.")
             
             # 세션 상태
             st.write("### 세션 상태")
@@ -732,10 +757,15 @@ def main():
             
             # URL 정보
             st.write("### URL 정보")
-            st.write("🔗 현재 URL 파라미터:")
-            for key, value in st.experimental_get_query_params().items():
-                if key != "user-agent":  # user-agent는 이미 위에서 표시
-                    st.write(f"- {key}: {value}")
+            params = st.experimental_get_query_params()
+            if params:
+                st.write("🔗 현재 URL 파라미터:")
+                for key, value in params.items():
+                    if key != "user-agent":  # user-agent는 이미 위에서 표시
+                        st.write(f"- {key}: {value}")
+            else:
+                st.write("🔗 URL 파라미터 없음")
+            
             st.write("🎯 REDIRECT_URI:", REDIRECT_URI)
             
             # 세션 전체 정보 (디버깅용)
