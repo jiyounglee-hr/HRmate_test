@@ -404,49 +404,41 @@ def show_header():
         <div class="divider"><hr></div>
     """, unsafe_allow_html=True)
 
-# 비밀번호 인증
-def check_password():
-    """Returns `True` if the user had the correct password."""
-
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if st.session_state.get("password") == "0314!":
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store password.
-        else:
-            st.session_state["password_correct"] = False
-
-    # First run or input not cleared.
-    if "password_correct" not in st.session_state:
+# Microsoft 로그인
+def login():
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+    
+    if st.session_state.user_info is None:
         show_header()
-        # 비밀번호 입력 필드를 중앙에 배치
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            st.markdown('<div class="password-input">', unsafe_allow_html=True)
-            st.text_input(
-                "비밀번호를 입력하세요", type="password", on_change=password_entered, key="password"
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
-        return False
-    elif not st.session_state["password_correct"]:
-        show_header()
-        # Password not correct, show input + error.
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            st.markdown('<div class="password-input">', unsafe_allow_html=True)
-            st.text_input(
-                "비밀번호를 입력하세요", type="password", on_change=password_entered, key="password"
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.error("😕 비밀번호가 올바르지 않습니다")
-        return False
-    else:
-        # Password correct.
-        return True
+        st.markdown("""
+        <div style='text-align: center; margin-top: 50px;'>
+            <h2>Neurophet HRMate</h2>
+            <p>Microsoft 계정으로 로그인하여 시작하세요.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("Microsoft 계정으로 로그인", use_container_width=True):
+            # Microsoft 로그인 URL 생성
+            auth_url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize"
+            params = {
+                "client_id": CLIENT_ID,
+                "response_type": "code",
+                "redirect_uri": REDIRECT_URI,
+                "scope": "openid profile email",
+                "response_mode": "query"
+            }
+            auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
+            
+            # 로그인 페이지로 리다이렉트
+            st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+            st.stop()
+    
+    return st.session_state.user_info
 
-# 비밀번호 확인
-if not check_password():
-    st.stop()  # Do not continue if check_password() returned False.
+# 로그인 확인
+if not login():
+    st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -631,37 +623,6 @@ if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
-def login():
-    if 'user_info' not in st.session_state:
-        st.session_state.user_info = None
-    
-    if st.session_state.user_info is None:
-        st.markdown("""
-        <div style='text-align: center; margin-top: 50px;'>
-            <h2>Neurophet HRMate</h2>
-            <p>Microsoft 계정으로 로그인하여 시작하세요.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Microsoft 계정으로 로그인", use_container_width=True):
-            # Microsoft 로그인 URL 생성
-            auth_url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/authorize"
-            params = {
-                "client_id": CLIENT_ID,
-                "response_type": "code",
-                "redirect_uri": REDIRECT_URI,
-                "scope": "openid profile email",
-                "response_mode": "query"
-            }
-            auth_url = f"{auth_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
-            
-            # 로그인 페이지로 리다이렉트
-            st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
-            st.stop()
-    
-    return st.session_state.user_info
-
-# 메인 앱 시작
 def main():
     user_info = login()
     
