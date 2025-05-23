@@ -711,14 +711,60 @@ def main():
     is_logged_in = login()
     
     if not is_logged_in:
-        return
-    
-    # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        
+        # 로그인되지 않은 경우 - 로그인 화면 표시
         st.markdown("""
+            <style>
+            .header-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                text-align: center;
+            }
+            .logo-container img {
+                width: 130px;
+                margin-bottom: 1rem;
+            }
+            .title-container {
+                margin-top: 1rem;
+            }
+            .title-container h1 {
+                color: #1E3A8A;
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            .title-container p {
+                color: #4B5563;
+                font-size: 1.1rem;
+                font-weight: 500;
+            }
+            .divider {
+                margin: 2rem 0;
+            }
+            .divider hr {
+                border: none;
+                height: 1px;
+                background-color: #E5E7EB;
+            }
+            .stButton button {
+                background-color: #1E3A8A;
+                color: white;
+                font-weight: 500;
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.375rem;
+                border: none;
+                width: 100%;
+                margin-top: 1rem;
+            }
+            .stButton button:hover {
+                background-color: #1E40AF;
+            }
+            </style>
             <div class="header-container">
                 <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2">
                 </div>
                 <div class="title-container"> 
                     <h1>HRmate</h1>
@@ -739,7 +785,7 @@ def main():
         if 'auto_redirect_attempted' not in st.session_state:
             st.session_state.auto_redirect_attempted = False
         
-        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        # 로그인 실패 여부 확인
         query_params = st.query_params
         has_error = query_params.get("error", None) is not None
         
@@ -747,57 +793,33 @@ def main():
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
-            # 브라우저 체크
-            is_restricted_browser = check_browser()
+            # 자동 리디렉션
+            st.markdown(f"""
+                <meta http-equiv="refresh" content="2;url={auth_url}">
+                <script>
+                    setTimeout(function() {{
+                        window.location.href = '{auth_url}';
+                    }}, 2000);
+                </script>
+            """, unsafe_allow_html=True)
             
-            if is_restricted_browser:
-                # 엣지/팀즈 브라우저인 경우
-                col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-                with col2:
-                    st.warning("⚠️ 엣지/팀즈 브라우저에서는 자동 로그인이 제한됩니다.")
-                    st.info("아래 버튼을 클릭하여 새 창에서 로그인해주세요.")
-                    st.link_button(
-                        "새 창에서 Microsoft 로그인",
-                        auth_url,
-                        type="primary",
-                        use_container_width=True
-                    )
-            else: 
-                # 일반 브라우저인 경우 자동 리디렉션
-                st.markdown(f"""
-                    <meta http-equiv="refresh" content="2;url={auth_url}">
-                    <script>
-                        setTimeout(function() {{
-                            window.location.href = '{auth_url}';
-                        }}, 2000);
-                    </script>
-                """, unsafe_allow_html=True)
-                
-                col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
-                with col2:
-                    st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
-                    st.link_button(
-                        "로그인하기",
-                        auth_url,
-                        type="primary",
-                        use_container_width=True,
-                        help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
-                    )
-            
-            st.stop()
+            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            with col2:
+                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
+                st.link_button(
+                    "로그인하기",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True,
+                    help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
+                )
         else:
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
                     st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
                 else:
                     st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
-                
-                # 브라우저 체크
-                is_restricted_browser = check_browser()
-                if is_restricted_browser:
-                    st.info("크롬 등 다른 브라우저에서 접속하시면 더 원활하게 이용하실 수 있습니다.")
                 
                 st.link_button(
                     "Microsoft 계정으로 로그인",
@@ -805,15 +827,8 @@ def main():
                     type="primary",
                     use_container_width=True
                 )
-                
-                # 디버깅용 정보 표시
-                with st.expander("🔧 디버그 정보", expanded=False):
-                    st.write("로그인 URL:", auth_url)
-                    st.write("REDIRECT_URI:", REDIRECT_URI)
-                    st.write("자동 리디렉션 시도됨:", st.session_state.auto_redirect_attempted)
-                    st.write("에러 발생:", has_error)
         
-        st.stop() 
+        st.stop()
     
     # 로그인된 경우 - 기존 메인 로직 실행
     # 데이터 로드
