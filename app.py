@@ -406,14 +406,19 @@ def show_header():
 
 # Microsoft 로그인
 def login():
-    # session_state 초기화
+    # 세션 상태 초기화
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
-        
-    # URL 파라미터에서 code 확인
-    code = st.query_params.get("code", None)
     
-    if code and st.session_state.user_info is None:
+    # 이미 로그인된 경우
+    if st.session_state.user_info:
+        return True
+    
+    # URL 파라미터에서 code 확인
+    query_params = st.experimental_get_query_params()
+    code = query_params.get("code", [None])[0]
+    
+    if code:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
@@ -423,70 +428,78 @@ def login():
             )
             
             if "access_token" in result:
-                # Microsoft Graph API를 사용하여 사용자 정보 가져오기
-                graph_data = requests.get(
-                    "https://graph.microsoft.com/v1.0/me",
-                    headers={'Authorization': 'Bearer ' + result['access_token']},
-                ).json()
-                
-                if 'mail' in graph_data:
-                    st.session_state.user_info = graph_data
+                # 사용자 정보 조회
+                user_info = get_user_info(result["access_token"])
+                if user_info:
                     # 권한 확인
-                    if check_authorization(graph_data['mail']):
-                        st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
+                    if check_authorization(user_info.get('mail')):
+                        st.session_state.user_info = user_info
                         return True
                     else:
-                        st.error("권한이 없습니다. 인사팀에 문의하세요.")
-                        st.session_state.user_info = None
+                        st.error("접근 권한이 없습니다. 관리자에게 문의하세요.")
                         return False
                 else:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
-                    return False 
+                    return False
             else:
                 st.error("토큰 획득에 실패했습니다.")
                 return False
+                
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
     
-    if st.session_state.user_info is None:
-        # 로그인 페이지 UI
-        st.markdown("""
-            <div class="header-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-                </div>
-                <div class="title-container">
-                    <h1>HRmate</h1>
-                    <p>인원 현황 및 자동화 지원 시스템</p>
-                </div>
-            </div>
-            <div class="divider"><hr></div>
-        """, unsafe_allow_html=True)
-        
-        # 로그인 버튼 생성
-        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
-        with col2:
-            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
-                # Microsoft 로그인 URL 생성
-                auth_url = msal_app.get_authorization_request_url(
-                    scopes=["User.Read"],
-                    redirect_uri=REDIRECT_URI,
-                    state=st.session_state.get("_session_id", "")
-                )
-                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
-                st.stop()
-    else:
-        # 로그인된 사용자의 이메일 확인
-        user_email = st.session_state.user_info.get('mail', '')
-        
-        # 권한 확인
-        if check_authorization(user_email):
-            return True
-        else:
-            st.error("권한이 없습니다. 관리자에게 문의하세요.")
-            st.session_state.user_info = None
-            return False
+    # 로그인 UI 표시
+    st.title("로그인")
+    st.markdown("""
+        <style>
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .login-title {
+            text-align: center;
+            color: #1f77b4;
+            margin-bottom: 30px;
+        }
+        .login-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #1f77b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .login-button:hover {
+            background-color: #1668a1;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+    st.markdown('<h2 class="login-title">HRmate</h2>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center;">Microsoft 계정으로 로그인하세요.</p>', unsafe_allow_html=True)
+    
+    # Microsoft 로그인 URL 생성
+    auth_url = msal_app.get_authorization_request_url(
+        scopes=["User.Read"],
+        redirect_uri=REDIRECT_URI,
+        state=generate_state()
+    )
+    
+    st.markdown(f'<a href="{auth_url}" class="login-button">Microsoft로 로그인</a>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_authorized_emails():
@@ -693,10 +706,6 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    # session_state 초기화
-    if 'user_info' not in st.session_state:
-        st.session_state.user_info = None
-        
     user_info = login()
     
     if user_info is None:
