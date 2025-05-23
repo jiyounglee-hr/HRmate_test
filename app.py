@@ -505,7 +505,7 @@ def login():
         # 디버깅용 - 접속 환경 정보 표시
         with st.expander("🔧 접속 환경 정보 (개발용)", expanded=False):
             st.markdown("""
-                <script>
+                <script> 
                     var userAgent = navigator.userAgent;
                     var isTeams = userAgent.toLowerCase().includes('teams') || 
                                  userAgent.toLowerCase().includes('skype') || 
