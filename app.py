@@ -698,7 +698,51 @@ def main():
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
         
-
+        # 브라우저 정보 디버그
+        with st.expander("🔍 브라우저 환경 정보", expanded=False):
+            st.write("### 브라우저 정보")
+            
+            # User-Agent 정보
+            user_agent = "알 수 없음"
+            try:
+                params = st.experimental_get_query_params()
+                if "user-agent" in params:
+                    user_agent = params["user-agent"][0]
+            except:
+                pass
+            
+            # 기본 정보 표시
+            st.write("📱 User-Agent:", user_agent)
+            st.write("💾 저장된 User-Agent:", st.session_state.get("user_agent", "없음"))
+            
+            # 브라우저 판단 결과
+            is_edge_browser = "edg" in user_agent.lower()
+            is_teams_browser = any(ua in user_agent.lower() for ua in ["teams", "microsoft teams"])
+            
+            st.write("### 브라우저 판단")
+            st.write("🌐 엣지 브라우저:", "✅ 예" if is_edge_browser else "❌ 아니오")
+            st.write("👥 팀즈 브라우저:", "✅ 예" if is_teams_browser else "❌ 아니오")
+            st.write("🔍 최종 판단:", "✅ 제한된 브라우저" if check_browser() else "✅ 일반 브라우저")
+            
+            # 세션 상태
+            st.write("### 세션 상태")
+            st.write("🔄 자동 리디렉션 시도:", "✅ 예" if st.session_state.get("auto_redirect_attempted", False) else "❌ 아니오")
+            st.write("🔑 세션 ID:", st.session_state.get("_session_id", "없음"))
+            st.write("👤 로그인 상태:", "❌ 로그아웃")
+            
+            # URL 정보
+            st.write("### URL 정보")
+            st.write("🔗 현재 URL 파라미터:")
+            for key, value in st.experimental_get_query_params().items():
+                if key != "user-agent":  # user-agent는 이미 위에서 표시
+                    st.write(f"- {key}: {value}")
+            st.write("🎯 REDIRECT_URI:", REDIRECT_URI)
+            
+            # 세션 전체 정보 (디버깅용)
+            st.write("### 전체 세션 정보")
+            session_info = {key: value for key, value in st.session_state.items() 
+                          if not key.startswith("_") and key not in ["user_info"]}
+            st.json(session_info)
         
         st.markdown("""
             <div class="header-container">
