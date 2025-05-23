@@ -342,11 +342,11 @@ st.markdown("""
         margin: 0 auto;
         padding: 1rem;
         text-align: center;
-        right: 200px;
     }
     .logo-container {
         position: absolute;
         top: 0;
+        right: 0;
         width: 130px;
     }
     .title-container {
