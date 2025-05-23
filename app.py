@@ -680,8 +680,7 @@ def main():
     if not is_logged_in:
         # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
 
-        def show_header():
-            st.markdown("""
+        st.markdown("""
             <div class="header-container">
                 <div class="logo-container">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
@@ -692,7 +691,7 @@ def main():
                 </div>
             </div>
             <div class="divider"><hr></div>
-            """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
         with col2:
