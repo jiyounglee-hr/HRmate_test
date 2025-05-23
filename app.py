@@ -676,7 +676,9 @@ menu = st.session_state.menu
 
 def main():
     # 로그인 처리
+    st.write("여기1")
     is_logged_in = login()
+    st.write("여기2")
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
@@ -734,9 +736,7 @@ def main():
                     use_container_width=True,
                     help="자동 이동이 되지 않으면 이 버튼을 클릭하세요"
                 )
-                st.write("여기1")
             st.stop()
-            st.write("여기2")
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
             if has_error:
