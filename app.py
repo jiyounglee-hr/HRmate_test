@@ -709,16 +709,26 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-            
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
-
+            # Chrome 브라우저 권장 메시지와 함께 리디렉션 시도
             st.markdown(f"""
                 <meta http-equiv="refresh" content="2;url={auth_url}">
+                <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
+                    <p style="margin: 0; color: #1a73e8;">💡 원활한 사용을 위해 Chrome 브라우저 사용을 권장합니다.</p>
+                    <p style="margin: 0; margin-top: 0.5rem;">🔄 자동 로그인 중입니다...</p>
+                    <div id="new-window-option" style="display: none; margin-top: 1rem;">
+                        <p style="margin: 0;">⚠️ 자동 로그인이 되지 않는다면:</p>
+                        <ol style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;"><a href="https://www.google.com/chrome/" target="_blank" style="color: #1a73e8;">Chrome 브라우저 설치하기</a></li>
+                            <li><a href="{auth_url}" target="_blank" style="color: #ff4b4b;">새 창에서 로그인하기</a></li>
+                        </ol>
+                    </div>
+                </div>
                 <script>
                     setTimeout(function() {{
-                        window.location.href = '{auth_url}';
+                        document.getElementById('new-window-option').style.display = 'block';
                     }}, 2000);
                 </script>
             """, unsafe_allow_html=True)
@@ -726,9 +736,8 @@ def main():
             # 추가 안전장치: 자동 클릭되는 링크 버튼
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                st.info("🔄 Microsoft 로그인 중입니다... (2초 후 자동 이동)")
                 st.link_button(
-                    "로그인하기", 
+                    "로그인하기",
                     auth_url,
                     type="primary",
                     use_container_width=True,
