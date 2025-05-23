@@ -44,29 +44,62 @@ CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
 # User-Agent 체크를 위한 함수
+def get_browser_info():
+    """브라우저 정보를 다양한 방법으로 수집하는 함수"""
+    user_agent = None
+    headers = {}
+    
+    # 방법 1: 직접 request 객체 접근
+    try:
+        import streamlit.web.server.websocket_headers as websocket_headers
+        headers = websocket_headers.get_headers()
+        user_agent = headers.get('User-Agent', '')
+    except:
+        pass
+    
+    # 방법 2: 스크립트를 통한 수집
+    if not user_agent:
+        st.markdown("""
+            <script>
+                window.parent.postMessage({
+                    type: "streamlit:user-agent",
+                    userAgent: navigator.userAgent
+                }, "*");
+            </script>
+        """, unsafe_allow_html=True)
+    
+    # 방법 3: 세션 상태 확인
+    if not user_agent and 'browser_info' in st.session_state:
+        user_agent = st.session_state.browser_info.get('userAgent', '')
+    
+    return user_agent, headers
+
 def check_browser():
     """브라우저 환경을 체크하는 함수"""
     if 'user_agent' not in st.session_state:
-        # Streamlit의 request 객체에서 User-Agent 가져오기
-        try:
-            headers = websocket_headers.get_headers()
-            user_agent = headers.get('User-Agent', '')
-        except:
-            try:
-                # 백업: query parameter에서 시도
-                params = st.experimental_get_query_params()
-                user_agent = params.get("user-agent", [""])[0]
-            except:
-                user_agent = ""
-        
-        st.session_state.user_agent = user_agent.lower()
+        user_agent, _ = get_browser_info()
+        st.session_state.user_agent = user_agent.lower() if user_agent else ""
     
     user_agent = st.session_state.user_agent
-    # 엣지 브라우저 체크 (다양한 User-Agent 패턴 포함)
-    is_edge = any(ua in user_agent for ua in ["edg/", "edge/", "edgios/", "edge-ios/"])
-    # 팀즈 브라우저 체크 (다양한 User-Agent 패턴 포함)
-    is_teams = any(ua in user_agent for ua in ["teams/", "team/", "microsoft teams", "electron"])
     
+    # 브라우저 패턴 체크
+    edge_patterns = ["edg/", "edge/", "edgios/", "edge-ios/"]
+    teams_patterns = ["teams/", "team/", "microsoft teams", "electron"]
+    
+    is_edge = any(pattern in user_agent for pattern in edge_patterns)
+    is_teams = any(pattern in user_agent for pattern in teams_patterns)
+    
+    # 디버그 정보 저장
+    if 'browser_debug' not in st.session_state:
+        st.session_state.browser_debug = {}
+    
+    st.session_state.browser_debug.update({
+        'user_agent': user_agent,
+        'is_edge': is_edge,
+        'is_teams': is_teams,
+        'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+     
     return is_edge or is_teams
 
 # MSAL 설정
@@ -415,6 +448,19 @@ st.markdown("""
         margin: 0.5rem 0 !important;
     }
     </style>
+    
+    <script>
+        // User-Agent 정보 수집을 위한 이벤트 리스너
+        window.addEventListener('load', function() {
+            window.parent.postMessage({
+                type: "streamlit:user-agent",
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                vendor: navigator.vendor,
+                language: navigator.language
+            }, "*");
+        });
+    </script>
 """, unsafe_allow_html=True)
 
 
@@ -640,6 +686,19 @@ st.markdown("""
         display: block !important;
     }
     </style>
+    
+    <script>
+        // User-Agent 정보 수집을 위한 이벤트 리스너
+        window.addEventListener('load', function() {
+            window.parent.postMessage({
+                type: "streamlit:user-agent",
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                vendor: navigator.vendor,
+                language: navigator.language
+            }, "*");
+        });
+    </script>
 """, unsafe_allow_html=True)
 
 # 제목
@@ -713,24 +772,23 @@ def main():
             st.write("### 브라우저 정보")
             
             # User-Agent 정보 수집
-            try:
-                headers = websocket_headers.get_headers()
-                current_user_agent = headers.get('User-Agent', '알 수 없음')
-            except:
-                current_user_agent = "알 수 없음 (헤더 접근 실패)"
+            current_user_agent, headers = get_browser_info()
             
             # 기본 정보 표시
-            st.write("📱 현재 User-Agent:", current_user_agent)
+            st.write("📱 현재 User-Agent:", current_user_agent or "알 수 없음")
             st.write("💾 저장된 User-Agent:", st.session_state.get("user_agent", "없음"))
             
             # 브라우저 상세 판단
-            user_agent = current_user_agent.lower()
+            user_agent = (current_user_agent or "").lower()
             browser_info = {
                 "엣지 브라우저 (edg)": "edg/" in user_agent,
                 "엣지 브라우저 (edge)": "edge/" in user_agent,
                 "팀즈 앱": "teams/" in user_agent,
                 "일렉트론": "electron" in user_agent,
                 "모바일": any(m in user_agent for m in ["mobile", "android", "iphone"]),
+                "크롬": "chrome" in user_agent and not "edg" in user_agent,
+                "파이어폭스": "firefox" in user_agent,
+                "사파리": "safari" in user_agent and not "chrome" in user_agent
             }
             
             st.write("### 상세 브라우저 판단")
