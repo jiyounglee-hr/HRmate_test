@@ -351,6 +351,7 @@ st.markdown("""
     }
     .title-container {
         padding-top: 1rem;
+        right: 300px;
     }
     .title-container h1 {
         margin: 0;
@@ -722,7 +723,7 @@ def main():
                 )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+            col1, col2, col3 = st.columns([0.1, 0.4, 0.5])
             with col2:
                 # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
