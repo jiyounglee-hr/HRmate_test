@@ -406,46 +406,36 @@ def show_header():
 
 # Microsoft 로그인
 def login():
-    """로그인 처리 함수"""
-    if 'user_info' not in st.session_state:
-        st.session_state.user_info = None
+    # URL 파라미터에서 code 확인
+    query_params = st.experimental_get_query_params()
+    code = query_params.get("code", [None])[0]
     
-    # URL 파라미터에서 인증 코드 확인
-    query_params = st.query_params
-    code = query_params.get("code", None)
-    
-    if code and st.session_state.user_info is None:
+    if code and not st.session_state.user_info:
         try:
             # 토큰 획득
             result = msal_app.acquire_token_by_authorization_code(
-                code,
+                code=code,
                 scopes=["User.Read"],
                 redirect_uri=REDIRECT_URI
             )
             
             if "access_token" in result:
-                # Microsoft Graph API를 사용하여 사용자 정보 가져오기
+                # 사용자 정보 가져오기
                 graph_data = requests.get(
                     "https://graph.microsoft.com/v1.0/me",
                     headers={'Authorization': 'Bearer ' + result['access_token']},
                 ).json()
                 
-                if 'mail' in graph_data:
-                    st.session_state.user_info = graph_data
-                    # 권한 확인
-                    if check_authorization(graph_data['mail']):
-                        st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
-                        return True
-                    else:
-                        st.error("권한이 없습니다. 인사팀에 문의하세요.")
-                        st.session_state.user_info = None
-                        return False
-                else:
-                    st.error("사용자 정보를 가져오는데 실패했습니다.")
-                    return False
-            else:
-                st.error("토큰 획득에 실패했습니다.")
-                return False
+                # 사용자 정보 저장
+                st.session_state.user_info = graph_data
+                
+                # URL에서 code 파라미터 제거
+                st.experimental_set_query_params()
+                
+                # 페이지 새로고침
+                st.experimental_rerun()
+                return True
+                
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
