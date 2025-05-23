@@ -101,7 +101,7 @@ def calculate_experience(experience_text):
     total_months = 0
     experience_periods = []
     
-    # 각 줄을 분리하여 처리
+    # 각 줄을 분리하여 처리 
     lines = experience_text.split('\n')
     current_company = None
     
@@ -407,7 +407,7 @@ def show_header():
 
 # Microsoft 로그인
 def login():
-    """로그인 처리 함수"""
+    """로그인 처리 함수 - 인증 처리만 담당"""
     if 'user_info' not in st.session_state:
         st.session_state.user_info = None
     
@@ -454,44 +454,17 @@ def login():
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             return False
     
-    if st.session_state.user_info is None:
-        # 로그인 페이지 UI
-        st.markdown("""
-            <div class="header-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-                </div>
-                <div class="title-container">
-                    <h1>HRmate</h1>
-                    <p>인원 현황 및 자동화 지원 시스템</p>
-                </div>
-            </div>
-            <div class="divider"><hr></div>
-        """, unsafe_allow_html=True)
-        
-        # 로그인 버튼 생성
-        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
-        with col2:
-            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
-                # Microsoft 로그인 URL 생성
-                auth_url = msal_app.get_authorization_request_url(
-                    scopes=["User.Read"],
-                    redirect_uri=REDIRECT_URI,
-                    state=st.session_state.get("_session_id", "")
-                )
-                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
-                st.stop()
-    else:
-        # 로그인된 사용자의 이메일 확인
+    # 로그인 상태 확인
+    if st.session_state.user_info is not None:
         user_email = st.session_state.user_info.get('mail', '')
-        
-        # 권한 확인
         if check_authorization(user_email):
             return True
         else:
             st.error("권한이 없습니다. 관리자에게 문의하세요.")
             st.session_state.user_info = None
             return False
+    
+    return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_authorized_emails():
@@ -510,9 +483,9 @@ def check_authorization(email):
     authorized_emails = load_authorized_emails()
     return email.lower() in [e.lower() for e in authorized_emails]
 
-# 로그인 확인
-if not login():
-    st.stop()  # 로그인되지 않은 경우 실행 중지
+# 로그인 확인 - 제거
+# if not login():
+#     st.stop()  # 로그인되지 않은 경우 실행 중지
 
 # 데이터 로드 함수
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
@@ -692,6 +665,19 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True)
 with st.sidebar.expander("💡 전사지원"):
     st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
 
+# 로그인된 사용자 정보 표시
+if 'user_info' in st.session_state and st.session_state.user_info is not None:
+    st.sidebar.markdown("---")
+    user_name = st.session_state.user_info.get('displayName', '사용자')
+    user_email = st.session_state.user_info.get('mail', '')
+    
+    st.sidebar.markdown(f"**👤 {user_name}**")
+    st.sidebar.markdown(f"📧 {user_email}")
+    
+    if st.sidebar.button("🚪 로그아웃", use_container_width=True):
+        st.session_state.user_info = None
+        st.rerun()
+
 # 기본 메뉴 설정
 if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
@@ -699,9 +685,72 @@ menu = st.session_state.menu
 
 def main():
     # 로그인 처리
-    if not login():
+    is_logged_in = login()
+    
+    # 헤더 표시
+    show_header()
+    
+    if not is_logged_in:
+        # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
+        st.markdown("### 🔐 로그인이 필요합니다")
+        st.markdown("HRmate 시스템을 사용하려면 Microsoft 계정으로 로그인해주세요.")
+        
+        col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+        with col2:
+            if st.button("Microsoft 계정으로 로그인", type="primary", use_container_width=True):
+                # Microsoft 로그인 URL 생성
+                auth_url = msal_app.get_authorization_request_url(
+                    scopes=["User.Read"],
+                    redirect_uri=REDIRECT_URI,
+                    state=st.session_state.get("_session_id", "")
+                )
+                
+                # User-Agent를 통해 팀즈 접속 여부 확인
+                st.markdown(f"""
+                    <script>
+                        var userAgent = navigator.userAgent.toLowerCase();
+                        var isTeams = userAgent.includes('teams') || 
+                                     userAgent.includes('skype') || 
+                                     userAgent.includes('microsoft teams') ||
+                                     window.location.href.includes('teams.microsoft.com');
+                        
+                        if (isTeams) {{
+                            window.open('{auth_url}', '_blank');
+                        }} else {{
+                            window.location.href = '{auth_url}';
+                        }}
+                    </script>
+                """, unsafe_allow_html=True)
+                st.stop()
+        
+        # 시스템 소개
+        st.markdown("---")
+        st.markdown("### 📋 HRmate 기능")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("""
+            **📊 HR Data**
+            - 인원현황 조회
+            - 연도별 인원 통계
+            - 채용현황 관리
+            - 임직원 명부
+            - 연락처/생일 검색
+            """)
+        
+        with col2:
+            st.markdown("""
+            **🚀 HR Support**
+            - 채용 전형관리
+            - 채용 처우협상
+            - 기관제출용 인원현황
+            - 초과근무 조회
+            - 인사발령 내역
+            """)
+        
         st.stop()
     
+    # 로그인된 경우 - 기존 메인 로직 실행
     # 데이터 로드
     df = load_data()
     
