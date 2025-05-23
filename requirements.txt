@@ -3,7 +3,7 @@ pandas==2.2.1
 numpy==1.26.4
 plotly==5.19.0
 python-dotenv==1.0.1
-msal==1.26.0
+msal==1.26.1
 Office365-REST-Python-Client>=2.4.1
 openpyxl==3.1.2
 pillow==10.2.0
@@ -20,4 +20,5 @@ google-auth==2.27.0
 google-auth-oauthlib==1.2.0
 google-auth-httplib2==0.2.0
 python-dotenv[cli]==1.0.1
+streamlit-javascript==0.1.5
 
