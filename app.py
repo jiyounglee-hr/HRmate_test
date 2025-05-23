@@ -521,7 +521,7 @@ def login():
             max-width: 400px;
             margin: 40px auto;
             padding: 30px;
-            align-items: center;
+            align-items: center; 
             border-radius: 10px;
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
