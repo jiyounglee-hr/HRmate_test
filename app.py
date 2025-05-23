@@ -479,8 +479,45 @@ def login():
                     redirect_uri=REDIRECT_URI,
                     state=st.session_state.get("_session_id", "")
                 )
-                st.markdown(f'<meta http-equiv="refresh" content="0;url={auth_url}">', unsafe_allow_html=True)
+                
+                # User-Agent를 통해 팀즈 접속 여부 확인
+                # 팀즈에서는 새 창으로, 일반 브라우저에서는 현재 창에서 처리
+                st.markdown(f"""
+                    <script>
+                        // User-Agent 확인
+                        var userAgent = navigator.userAgent.toLowerCase();
+                        var isTeams = userAgent.includes('teams') || 
+                                     userAgent.includes('skype') || 
+                                     userAgent.includes('microsoft teams') ||
+                                     window.location.href.includes('teams.microsoft.com');
+                        
+                        if (isTeams) {{
+                            // 팀즈에서 접속한 경우 새 창으로 열기
+                            window.open('{auth_url}', '_blank');
+                        }} else {{
+                            // 일반 브라우저에서 접속한 경우 현재 창에서 이동
+                            window.location.href = '{auth_url}';
+                        }}
+                    </script>
+                """, unsafe_allow_html=True)
                 st.stop()
+        
+        # 디버깅용 - 접속 환경 정보 표시
+        with st.expander("🔧 접속 환경 정보 (개발용)", expanded=False):
+            st.markdown("""
+                <script>
+                    var userAgent = navigator.userAgent;
+                    var isTeams = userAgent.toLowerCase().includes('teams') || 
+                                 userAgent.toLowerCase().includes('skype') || 
+                                 userAgent.toLowerCase().includes('microsoft teams') ||
+                                 window.location.href.includes('teams.microsoft.com');
+                    
+                    document.write('<p><strong>User-Agent:</strong> ' + userAgent + '</p>');
+                    document.write('<p><strong>팀즈 접속 여부:</strong> ' + (isTeams ? '예' : '아니오') + '</p>');
+                    document.write('<p><strong>현재 URL:</strong> ' + window.location.href + '</p>');
+                </script>
+            """, unsafe_allow_html=True)
+            st.write("REDIRECT_URI:", REDIRECT_URI)
     else:
         # 로그인된 사용자의 이메일 확인
         user_email = st.session_state.user_info.get('mail', '')
