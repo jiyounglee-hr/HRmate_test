@@ -410,8 +410,7 @@ def login():
         st.session_state.user_info = None
     
     # URL 파라미터에서 인증 코드 확인
-    query_params = st.experimental_get_query_params()
-    auth_code = query_params.get("code", [None])[0]
+    auth_code = st.query_params.get("code")
     
     if auth_code:
         try:
@@ -434,7 +433,7 @@ def login():
                     user_info = response.json()
                     st.session_state.user_info = user_info
                     # URL에서 인증 코드 제거
-                    st.experimental_set_query_params()
+                    st.query_params.clear()
                     st.experimental_rerun()
                 else:
                     st.error("사용자 정보를 가져오는데 실패했습니다.")
