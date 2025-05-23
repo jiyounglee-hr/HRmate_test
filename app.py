@@ -70,11 +70,9 @@ def get_user_info(access_token):
         # 응답 상태 코드 확인
         if response.status_code == 200:
             user_info = response.json()
-            st.write("Debug - User Info:", user_info)  # 디버깅용 정보 출력
-            return user_info
+            return user_info 
         else:
             st.error(f"사용자 정보 조회 실패 (상태 코드: {response.status_code})")
-            st.write("Debug - Error Response:", response.text)  # 디버깅용 에러 정보 출력
             return None
             
     except Exception as e:
