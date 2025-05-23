@@ -715,24 +715,22 @@ def main():
             # 로그인 버튼 표시
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
-                st.info("🔐 Microsoft 계정으로 로그인이 필요합니다")
-                st.markdown(f"""
-                    <a href="{auth_url}" target="_blank" style="display: block; text-align: center; text-decoration: none;">
-                        <button style="width: 100%; padding: 0.5rem 1rem; background-color: #0078D4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">
-                            Microsoft 로그인
-                        </button> 
-                    </a>
-                """, unsafe_allow_html=True)
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
             st.stop()
         else:
-            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-            if has_error:
-                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-            else:
-                st.warning("자동 로그인이 작동하지 않습니다. 아래 버튼을 클릭해주세요.")
-            
             col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
             with col2:
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.")
+            
                 # st.link_button을 사용하여 직접 링크로 이동
                 st.link_button(
                     "Microsoft 계정으로 로그인",
