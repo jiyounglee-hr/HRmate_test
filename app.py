@@ -342,12 +342,12 @@ st.markdown("""
         margin: 0 auto;
         padding: 1rem;
         text-align: center;
-        right: 300px;
+        right: 200px;
     }
     .logo-container {
         position: absolute;
         top: 0;
-        right: 0;
+        right: 200px;
         width: 130px;
     }
     .title-container {
@@ -387,6 +387,7 @@ st.markdown("""
     }
     [data-testid="stSidebar"] hr {
         margin: 0.5rem 0 !important;
+        right: 200px;
     }
     </style>
 """, unsafe_allow_html=True)
