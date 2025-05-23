@@ -53,6 +53,31 @@ msal_app = msal.ConfidentialClientApplication(
     client_credential=CLIENT_SECRET
 )
 
+def get_user_info(access_token):
+    """Microsoft Graph API를 사용하여 사용자 정보를 가져옵니다."""
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    
+    # Microsoft Graph API 엔드포인트
+    graph_url = 'https://graph.microsoft.com/v1.0/me'
+    
+    try:
+        response = requests.get(graph_url, headers=headers)
+        response.raise_for_status()
+        user_info = response.json()
+        
+        return {
+            'email': user_info.get('mail', user_info.get('userPrincipalName')),
+            'name': user_info.get('displayName'),
+            'department': user_info.get('department'),
+            'job_title': user_info.get('jobTitle')
+        }
+    except Exception as e:
+        st.error(f"사용자 정보를 가져오는 중 오류가 발생했습니다: {str(e)}")
+        return None
+
 # 날짜 정규화 함수
 def normalize_date(date_str):
     if pd.isna(date_str) or date_str == '':
