@@ -406,6 +406,10 @@ def show_header():
 
 # Microsoft 로그인
 def login():
+    # session_state 초기화
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+        
     # URL 파라미터에서 code 확인
     code = st.query_params.get("code", None)
     
@@ -689,6 +693,10 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
+    # session_state 초기화
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+        
     user_info = login()
     
     if user_info is None:
