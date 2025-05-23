@@ -63,7 +63,7 @@ def get_browser_info():
             'user_agent': user_agent.lower(),
             'browser_info': browser_info,
             'check_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        })
+        }) 
         
         return browser_info
     except Exception as e:
