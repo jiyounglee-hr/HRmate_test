@@ -698,7 +698,7 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
         st.session_state.auto_redirect_attempted = False
         st.rerun()
 
-# 기본 메뉴 설정
+# 기본 메뉴 설정 
 if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
