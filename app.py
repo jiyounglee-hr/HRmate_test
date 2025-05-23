@@ -570,7 +570,11 @@ def login():
                 <p>인원 현황 및 자동화 지원 시스템</p>
                 <div class="divider"><hr></div>
     """, unsafe_allow_html=True) 
-    st.markdown(f'<a href="{auth_url}" target="_blank" class="login-button">Microsoft로 로그인</a>', unsafe_allow_html=True)
+    st.markdown(f'''
+        <div style="width:100%; text-align:center; margin-top:40px;">
+            <a href="{auth_url}" target="_blank" class="login-button">Microsoft로 로그인</a>
+        </div>
+    ''', unsafe_allow_html=True)
     st.markdown(""" 
             </div>
         </div>
