@@ -2482,7 +2482,7 @@ def main():
                             st.error("HR 권한이 없습니다. 접근이 제한됩니다.")
                             st.stop()
                         else:
-                            st.success("HR 권한이 확인되었습니다.")
+                            st.markdown("JK/HR 권한이 확인되었습니다.")
 
                 # 추가 필터링
                 filtered_df = status_filtered_df
