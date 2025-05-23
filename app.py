@@ -31,8 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
-from streamlit_javascript import st_javascript
-
+ 
 # 환경 변수 로드
 load_dotenv()
 
@@ -710,26 +709,15 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         if not st.session_state.auto_redirect_attempted and not has_error:
-            # 브라우저 감지용 JavaScript 삽입
-            st.markdown("""
-                <script>
-                    const ua = navigator.userAgent;
-                    const isEdge = ua.includes("Edg/");
-                    window.localStorage.setItem("isEdge", isEdge);
-                </script>
-            """, unsafe_allow_html=True)
-            
-            # Edge 브라우저 여부 확인
-            is_edge = st_javascript("return window.localStorage.getItem('isEdge') === 'true';")
+            # User-Agent를 통한 Edge 브라우저 감지
+            user_agent = st.get_user_agent()
+            is_edge = "Edg/" in str(user_agent)
             
             # 자동 리디렉션 시도
             st.session_state.auto_redirect_attempted = True
             
             if is_edge:
                 st.markdown(f"""
-                    <script>
-                        window.open("{auth_url}", "_blank");
-                    </script>
                     <div style="padding: 1rem; background-color: #f0f2f6; border-radius: 0.5rem; margin: 1rem 0;">
                         <p style="margin: 0;">🔓 Edge 브라우저는 보안 정책상 새 창에서 로그인이 필요합니다.</p>
                         <a href="{auth_url}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #ff4b4b;">여기를 클릭하여 로그인하세요</a>
