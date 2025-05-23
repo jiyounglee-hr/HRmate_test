@@ -54,28 +54,31 @@ msal_app = msal.ConfidentialClientApplication(
 )
 
 def get_user_info(access_token):
-    """Microsoft Graph API를 사용하여 사용자 정보를 가져옵니다."""
+    """Microsoft Graph API를 사용하여 사용자 정보를 가져오는 함수"""
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json'
     }
     
-    # Microsoft Graph API 엔드포인트
-    graph_url = 'https://graph.microsoft.com/v1.0/me'
-    
     try:
-        response = requests.get(graph_url, headers=headers)
-        response.raise_for_status()
-        user_info = response.json()
+        # Microsoft Graph API 엔드포인트
+        response = requests.get(
+            'https://graph.microsoft.com/v1.0/me',
+            headers=headers
+        )
         
-        return {
-            'email': user_info.get('mail', user_info.get('userPrincipalName')),
-            'name': user_info.get('displayName'),
-            'department': user_info.get('department'),
-            'job_title': user_info.get('jobTitle')
-        }
+        # 응답 상태 코드 확인
+        if response.status_code == 200:
+            user_info = response.json()
+            st.write("Debug - User Info:", user_info)  # 디버깅용 정보 출력
+            return user_info
+        else:
+            st.error(f"사용자 정보 조회 실패 (상태 코드: {response.status_code})")
+            st.write("Debug - Error Response:", response.text)  # 디버깅용 에러 정보 출력
+            return None
+            
     except Exception as e:
-        st.error(f"사용자 정보를 가져오는 중 오류가 발생했습니다: {str(e)}")
+        st.error(f"사용자 정보 조회 중 오류 발생: {str(e)}")
         return None
 
 # 날짜 정규화 함수
@@ -464,12 +467,14 @@ def login():
                     return False
                 
                 # 이메일 주소 추출 및 소문자 변환
-                email = user_info.get('mail', user_info.get('userPrincipalName', ''))
+                email = user_info.get('mail') or user_info.get('userPrincipalName')
                 if not email:
                     st.error("사용자 이메일을 찾을 수 없습니다.")
+                    st.write("Debug - Available User Info:", user_info)  # 디버깅용 정보 출력
                     return False
                 
                 email = email.lower()
+                st.write("Debug - Extracted Email:", email)  # 디버깅용 이메일 출력
                 
                 # 권한 확인
                 if check_authorization(email):
