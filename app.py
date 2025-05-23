@@ -470,11 +470,9 @@ def login():
                 email = user_info.get('mail') or user_info.get('userPrincipalName')
                 if not email:
                     st.error("사용자 이메일을 찾을 수 없습니다.")
-                    st.write("Debug - Available User Info:", user_info)  # 디버깅용 정보 출력
                     return False
                 
                 email = email.lower()
-                st.write("Debug - Extracted Email:", email)  # 디버깅용 이메일 출력
                 
                 # 권한 확인
                 if check_authorization(email):
