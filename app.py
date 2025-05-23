@@ -390,20 +390,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-def show_header():
-    """로고와 시스템 이름을 표시하는 함수"""
-    st.markdown("""
-        <div class="header-container">
-            <div class="logo-container">
-                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-            </div>
-            <div class="title-container">
-                <h1>HRmate</h1>
-                <p>인원 현황 및 자동화 지원 시스템</p>
-            </div>
-        </div>
-        <div class="divider"><hr></div>
-    """, unsafe_allow_html=True)
+
 
 # Microsoft 로그인
 def login():
@@ -692,8 +679,20 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
-        st.markdown("### 🔐 로그인이 필요합니다")
-        st.markdown("HRmate 시스템을 사용하려면 Microsoft 계정으로 로그인해주세요.")
+
+        def show_header():
+        st.markdown("""
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                    <p>🔐 HRmate 시스템을 사용하려면 Microsoft 계정으로 로그인해주세요.</p>
+                </div>
+            </div>
+            <div class="divider"><hr></div>
+        """, unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
         with col2:
