@@ -673,10 +673,6 @@ menu = st.session_state.menu
 def main():
     # 로그인 처리
     is_logged_in = login()
-    
-    # 헤더 표시
-    show_header()
-    
     if not is_logged_in:
         # 로그인되지 않은 경우 - 메인 화면에 로그인 버튼 표시
 
