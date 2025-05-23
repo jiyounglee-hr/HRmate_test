@@ -463,7 +463,7 @@ def login():
         redirect_uri=REDIRECT_URI,
         state="login_state"
     )
-    col1, col2, col3 = st.columns([0.3, 0.4, 0.3])
+    col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
     with col2:
         # Streamlit link_button을 사용하여 로그인 버튼 표시
         st.link_button("Microsoft 계정으로 로그인", login_url, type="primary", use_container_width=True)
