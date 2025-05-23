@@ -310,6 +310,65 @@ st.set_page_config(
 # CSS 스타일 추가
 st.markdown("""
     <style>
+    /* 사이드바 스타일 */
+    [data-testid="stSidebar"] {
+        min-width: 200px !important;
+        background-color: #f0f2f6;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        font-size: 0.8rem !important;
+    }
+    
+    [data-testid="stSidebar"] .stRadio [role="radiogroup"] label {
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    [data-testid="stSidebar"] a {
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    [data-testid="stSidebar"] button {
+        width: 80% !important;
+        margin: 0 auto !important;
+        display: block !important;
+    }
+
+    div[data-testid="stSidebarNav"] {
+        background-color: #f0f2f6;
+        padding: 10px;
+    }
+    
+    div[data-testid="stSidebarContent"] {
+        background-color: #f0f2f6;
+    }
+    
+    div[data-testid="stSidebarNav"] li div a:hover {
+        color: #FF0000 !important;
+        border: 2px solid #FF0000 !important;
+        border-radius: 4px;
+        padding: 10px;
+        background-color: white !important;
+    }
+    
+    div[data-testid="stSidebarNav"] li div a {
+        padding: 10px;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# CSS 스타일 추가
+st.markdown("""
+    <style>
     /* 비밀번호 입력 필드 스타일 */
     .password-input [data-testid="stTextInput"] {
         width: 150px !important;
@@ -378,18 +437,6 @@ st.markdown("""
         line-height: 1.2 !important;
         text-align: left !important;
     }
-    [data-testid="stSidebar"] [data-testid="stExpander"] {
-        width: 80% !important;
-        margin: 0.1rem auto !important;
-        display: block !important;
-    }
-    [data-testid="stSidebar"] section[data-testid="stSidebarNav"] {
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-    }
-    [data-testid="stSidebar"] hr {
-        margin: 0.5rem 0 !important;
-    }
     .stButton > button {
         background-color: white !important;
         color: #1b1b1e !important;
@@ -410,9 +457,6 @@ st.markdown("""
     }
     div[data-testid="stSidebarNav"] > ul {
         padding-top: 2rem;
-    }
-    div[data-testid="stSidebarContent"] {
-        background-color: #f0f2f6;
     }
     .st-emotion-cache-16txtl3 {
         padding: 1rem;
@@ -519,7 +563,7 @@ def login():
     return False
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-def load_authorized_emails():
+def load_authorized_emails(): 
     """권한이 있는 이메일 목록을 로드하는 함수"""
     try:
         # 엑셀 파일에서 권한 정보 읽기
