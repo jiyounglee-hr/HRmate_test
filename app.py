@@ -720,7 +720,7 @@ def main():
                     <a href="{auth_url}" target="_blank" style="display: block; text-align: center; text-decoration: none;">
                         <button style="width: 100%; padding: 0.5rem 1rem; background-color: #0078D4; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">
                             Microsoft 로그인
-                        </button>
+                        </button> 
                     </a>
                 """, unsafe_allow_html=True)
             st.stop()
