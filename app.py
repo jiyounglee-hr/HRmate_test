@@ -458,20 +458,40 @@ def login():
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_authorized_emails():
-    """권한이 있는 이메일 목록을 로드하는 함수"""
+    """권한이 있는 이메일과 권한명을 로드하는 함수"""
     try:
         # 엑셀 파일에서 권한 정보 읽기
         df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
-        authorized_emails = df['이메일'].dropna().tolist()
-        return authorized_emails
+        return df[['이메일', '권한']].dropna().to_dict('records')
     except Exception as e:
         st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return [] 
+        return []
 
 def check_authorization(email):
-    """이메일 권한을 확인하는 함수"""
-    authorized_emails = load_authorized_emails()
-    return email.lower() in [e.lower() for e in authorized_emails]
+    """
+    이메일 권한을 확인하고 권한명을 반환하는 함수
+    :param email: 확인할 이메일 주소
+    :return: 권한명 (권한이 없으면 None)
+    """
+    auth_data = load_authorized_emails()
+    for user in auth_data:
+        if user['이메일'].lower().strip() == email.lower().strip():
+            return user['권한']
+    return None
+
+def check_user_permission(required_permissions):
+    """
+    사용자의 권한을 체크하는 함수
+    :param required_permissions: 필요한 권한 리스트 (예: ['HR', 'C-LEVEL'])
+    :return: bool
+    """
+    if 'user_info' not in st.session_state or st.session_state.user_info is None:
+        return False
+        
+    user_email = st.session_state.user_info.get('email', '')
+    user_permission = check_authorization(user_email)
+    
+    return user_permission in required_permissions if user_permission else False
 
 # 로그인 확인 - 제거
 # if not login():
@@ -2516,16 +2536,13 @@ def main():
                 with col3:
                     # 🐯 보고 선택 시 HR 권한 확인
                     if selected_status == '🐯 보고예정' or selected_status == '🐯 보고완료':
-                        # 현재 로그인된 사용자의 이메일 확인
-                        user_email = st.session_state.user_info.get('mail', '')
-                        
-                        # 권한 확인
-                        if not check_authorization(user_email):
-                            st.error("🐯권한이 없습니다. 접근이 제한됩니다.")
+                        # HR 권한 확인
+                        if not check_user_permission(['HR']):
+                            st.error("🐯 보고 내용은 HR 권한이 있는 사용자만 볼 수 있습니다.")
                             st.stop()
                         else:
-                            st.markdown("<br>🐯권한이 확인되었습니다.", unsafe_allow_html=True)
-                            
+                            st.markdown("<br>🐯 보고 내용을 확인할 수 있습니다.")
+
                 # 추가 필터링
                 filtered_df = status_filtered_df
                 if selected_type_date != '전체':
