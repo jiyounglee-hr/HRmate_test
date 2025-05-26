@@ -620,49 +620,44 @@ st.markdown("""
 st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
-# HR Data 섹션
-st.sidebar.markdown("#### HR Data")
-if st.sidebar.button("📊 인원현황", use_container_width=True):
-    st.session_state.menu = "📊 인원현황"
-if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-    st.session_state.menu = "📈 연도별 인원 통계"
-if st.sidebar.button("🚀 채용현황", use_container_width=True):
-    st.session_state.menu = "🚀 채용현황"
-if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-    st.session_state.menu = "🔔 인사팀 업무 공유"
-if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-    st.session_state.menu = "😊 임직원 명부"
-if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-    st.session_state.menu = "🔍 연락처/생일 검색"
-
-
-st.sidebar.markdown("#### HR Surpport")
-# HR Support 섹션
-if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-    st.session_state.menu = "🚀 채용 전형관리"
-if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-    st.session_state.menu = "📋 채용 처우협상"
-if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-    st.session_state.menu = "🏦 기관제출용 인원현황"
-if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-    st.session_state.menu = "⏰ 초과근무 조회"
-if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-    st.session_state.menu = "📅 인사발령 내역"
-
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
-with st.sidebar.expander("💡 전사지원"):
-    st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
-
-
-# 로그인된 사용자 정보 표시
+# 로그인된 사용자만 메뉴 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
+    # HR Data 섹션
+    st.sidebar.markdown("#### HR Data")
+    if st.sidebar.button("📊 인원현황", use_container_width=True):
+        st.session_state.menu = "📊 인원현황"
+    if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
+        st.session_state.menu = "📈 연도별 인원 통계"
+    if st.sidebar.button("🚀 채용현황", use_container_width=True):
+        st.session_state.menu = "🚀 채용현황"
+    if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+        st.session_state.menu = "🔔 인사팀 업무 공유"
+    if st.sidebar.button("😊 임직원 명부", use_container_width=True):
+        st.session_state.menu = "😊 임직원 명부"
+    if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
+        st.session_state.menu = "🔍 연락처/생일 검색"
 
+    st.sidebar.markdown("#### HR Support")
+    if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
+        st.session_state.menu = "🚀 채용 전형관리"
+    if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+        st.session_state.menu = "📋 채용 처우협상"
+    if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+        st.session_state.menu = "🏦 기관제출용 인원현황"
+    if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+        st.session_state.menu = "⏰ 초과근무 조회"
+    if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+        st.session_state.menu = "📅 인사발령 내역"
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("<br>", unsafe_allow_html=True)
+    with st.sidebar.expander("💡 전사지원"):
+        st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
+
+    st.sidebar.markdown("---")
+
+    # 로그인된 사용자 정보 표시
     user_name = st.session_state.user_info.get('displayName', '사용자')
-    
     st.sidebar.markdown(f"**👤접속자 : {user_name}**")
 
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
