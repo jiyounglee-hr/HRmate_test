@@ -481,32 +481,29 @@ def check_authorization(email):
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_data():
     try:
-        # 현재 디렉토리에서 엑셀 파일 경로 설정
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+        # 엑셀 파일 경로
+        file_path = "임직원 기초 데이터.xlsx"
+        
+        # 파일이 존재하는지 확인
+        if not os.path.exists(file_path):
+            st.error(f"파일을 찾을 수 없습니다: {file_path}")
+            return None
+             
+        # 파일 수정 시간 확인
+        last_modified = os.path.getmtime(file_path)
         
         # 엑셀 파일 읽기
         df = pd.read_excel(file_path)
         
         # 데이터 로드 시간 표시 (한국 시간대 적용)
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
-        last_modified = os.path.getmtime(file_path)
         kst_time = datetime.fromtimestamp(last_modified, pytz.timezone('Asia/Seoul'))
         st.sidebar.markdown(f"*마지막 데이터 업데이트: {kst_time.strftime('%Y년 %m월 %d일 %H:%M')}*")
         
-        return df, None  # permission_df는 None으로 반환
+        return df
     except Exception as e:
         st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None, None
-
-def check_user_permission(required_permissions):
-    """
-    사용자의 권한을 체크하는 함수
-    :param required_permissions: 필요한 권한 리스트 (예: ['HR', 'C-LEVEL'])
-    :return: bool
-    """
-    # 임시로 모든 권한 허용
-    return True
+        return None
 
 # 날짜 변환 함수 캐싱
 @st.cache_data(ttl=3600)  # 1시간 캐시 유지
@@ -626,71 +623,32 @@ st.sidebar.markdown("---")
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
 if st.sidebar.button("📊 인원현황", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
-        st.session_state.menu = "📊 인원현황"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "📊 인원현황"
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
-        st.session_state.menu = "📈 연도별 인원 통계"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "📈 연도별 인원 통계"
 if st.sidebar.button("🚀 채용현황", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
-        st.session_state.menu = "🚀 채용현황"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "🚀 채용현황"
 if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
-        st.session_state.menu = "🔔 인사팀 업무 공유"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "🔔 인사팀 업무 공유"
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "😊 임직원 명부"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "😊 임직원 명부"
 if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "🔍 연락처/생일 검색"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
+    st.session_state.menu = "🔍 연락처/생일 검색"
 
-st.sidebar.markdown("#### HR Support")
+
+st.sidebar.markdown("#### HR Surpport")
+# HR Support 섹션
 if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "🚀 채용 전형관리"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "🚀 채용 전형관리"
 if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "📋 채용 처우협상"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "📋 채용 처우협상"
 if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "🏦 기관제출용 인원현황"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "🏦 기관제출용 인원현황"
 if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "⏰ 초과근무 조회"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
-
+    st.session_state.menu = "⏰ 초과근무 조회"
 if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-    if check_user_permission(['HR', 'C-LEVEL']):
-        st.session_state.menu = "📅 인사발령 내역"
-    else:
-        st.sidebar.error("접근 권한이 없습니다.")
+    st.session_state.menu = "📅 인사발령 내역"
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
@@ -719,1086 +677,1064 @@ if 'menu' not in st.session_state:
 menu = st.session_state.menu
 
 def main():
-    if 'authenticated' not in st.session_state:
-        login()
-    elif not st.session_state.authenticated:
-        login()
-    else:
-        # 메뉴 상태 초기화
-        if 'menu' not in st.session_state:
-            st.session_state.menu = "📊 인원현황"
-
-        # 데이터 로드
-        df, _ = load_data()
+    # 로그인 처리
+    is_logged_in = login()
+    
+    if not is_logged_in:
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
+        with col2:
+            st.markdown("""
+                <div class="header-container">
+                    <div class="logo-container">
+                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                    </div>
+                    <div class="title-container">
+                        <h1>HRmate</h1>
+                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                    </div>
+                </div>
+                <div class="divider"><hr></div>
+            """, unsafe_allow_html=True)
         
-        if df is None:
-            st.error("데이터를 불러올 수 없습니다. 관리자에게 문의하세요.")
-            return
+        # Microsoft 로그인 URL 생성
+        auth_url = msal_app.get_authorization_request_url(
+            scopes=["User.Read"],
+            redirect_uri=REDIRECT_URI,
+            state=st.session_state.get("_session_id", "")
+        )
+        
+        # 자동 리디렉션 시도 여부 확인
+        if 'auto_redirect_attempted' not in st.session_state:
+            st.session_state.auto_redirect_attempted = False
+        
+        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        query_params = st.query_params
+        has_error = query_params.get("error", None) is not None
+        
+        if not st.session_state.auto_redirect_attempted and not has_error:
+            # 로그인 시도 상태 업데이트
+            st.session_state.auto_redirect_attempted = True
             
-        # 메인 컨텐츠
-        menu = st.session_state.menu
-
-        # 로그인 처리
-        is_logged_in = login()
-        
-        if not is_logged_in:
-            # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
             col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
             with col2:
-                st.markdown("""
-                    <div class="header-container">
-                        <div class="logo-container">
-                            <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
-                        </div>
-                        <div class="title-container">
-                            <h1>HRmate</h1>
-                            <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+            st.stop()
+        else:
+            col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
+            with col2:
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+            
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
+        
+        st.stop()
+    
+    # 로그인된 경우 - 기존 메인 로직 실행
+    # 데이터 로드
+    df = load_data()
+    
+    if df is not None:
+        # Excel 날짜 형식 변환 함수
+        def convert_excel_date(date_value):
+            try:
+                if pd.isna(date_value):
+                    return pd.NaT
+                return pd.to_datetime('1899-12-30') + pd.Timedelta(days=int(date_value))
+            except:
+                return pd.to_datetime(date_value, errors='coerce')
+
+        # 날짜 컬럼 변환
+        date_columns = ['정규직전환일', '퇴사일', '생년월일', '입사일']
+        for col in date_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(convert_excel_date)
+        
+        # 연도 컬럼 미리 생성
+        if '정규직전환일' in df.columns:
+            df['정규직전환연도'] = df['정규직전환일'].dt.year
+        if '퇴사일' in df.columns:
+            df['퇴사연도'] = df['퇴사일'].dt.year
+        
+        if menu == "📊 인원현황":
+            # 기본통계 분석
+            st.markdown("##### 📊 인원현황")
+            
+            # 조회 기준일 선택
+            query_date = st.date_input(
+                "조회 기준일",
+                value=datetime.now().date(),
+                help="선택한 날짜 기준으로 인원현황을 조회합니다.",
+                key="query_date_input",
+                label_visibility="visible"
+            )
+            st.markdown(
+                """
+                <style>
+                div[data-testid="stDateInput"] {
+                    width: 200px;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # 기준일자로 재직자 필터링
+            재직자 = len(df[
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
+            ])
+            
+            # 해당 연도의 입퇴사자 계산
+            selected_year = query_date.year
+            정규직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['입사일'].dt.date <= query_date)])
+            정규직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['퇴사일'].dt.date <= query_date)])
+            계약직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['입사일'].dt.date <= query_date)])
+            계약직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['퇴사일'].dt.date <= query_date)])
+            
+            # 퇴사율 계산 (소수점 첫째자리까지)
+            재직_정규직_수 = len(df[
+                (df['고용구분'] == '정규직') & 
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > query_date))
+            ])
+            퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
+            
+            # 통계 표시
+            st.markdown(
+                f"""
+                <div class="metric-row">
+                    <div>
+                        <div class="metric-label">전체</div>
+                        <div class="metric-value total-value">{재직자:,}</div>
+                        <div class="metric-sublabel">재직자</div>
+                    </div>
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div style="min-width: 100px;">
+                        <div class="metric-label">정규직</div>
+                        <div style="display: flex; justify-content: space-between; gap: 20px;">
+                            <div>
+                                <div class="metric-value">{정규직_입사자}</div>
+                                <div class="metric-sublabel">입사자</div>
+                            </div>
+                            <div>
+                                <div class="metric-value">{정규직_퇴사자}</div>
+                                <div class="metric-sublabel">퇴사자</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="divider"><hr></div>
-                """, unsafe_allow_html=True)
-            
-            # Microsoft 로그인 URL 생성
-            auth_url = msal_app.get_authorization_request_url(
-                scopes=["User.Read"],
-                redirect_uri=REDIRECT_URI,
-                state=st.session_state.get("_session_id", "")
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div style="min-width: 100px;">
+                        <div class="metric-label">계약직</div>
+                        <div style="display: flex; justify-content: space-between; gap: 20px;">
+                            <div>
+                                <div class="metric-value" style="color: #666;">{계약직_입사자}</div>
+                                <div class="metric-sublabel">입사자</div>
+                            </div>
+                            <div>
+                                <div class="metric-value" style="color: #666;">{계약직_퇴사자}</div>
+                                <div class="metric-sublabel">퇴사자</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 2px; background-color: #ddd;"></div>
+                    <div>
+                        <div class="metric-label">퇴사율</div>
+                        <div class="metric-value" style="color: #ff0000;">{퇴사율}%</div>
+                        <div class="metric-sublabel">정규직 {재직_정규직_수}명</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
-            
-            # 자동 리디렉션 시도 여부 확인
-            if 'auto_redirect_attempted' not in st.session_state:
-                st.session_state.auto_redirect_attempted = False
-            
-            # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
-            query_params = st.query_params
-            has_error = query_params.get("error", None) is not None
-            
-            if not st.session_state.auto_redirect_attempted and not has_error:
-                # 로그인 시도 상태 업데이트
-                st.session_state.auto_redirect_attempted = True
-                
-                col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
-                with col2:
-                    st.link_button(
-                        "Microsoft 계정으로 로그인",
-                        auth_url,
-                        type="primary",
-                        use_container_width=True
-                    )
-                st.stop()
-            else:
-                col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
-                with col2:
-                    # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                    if has_error:
-                        st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                    else:
-                        st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
-                
-                    # st.link_button을 사용하여 직접 링크로 이동
-                    st.link_button(
-                        "Microsoft 계정으로 로그인",
-                        auth_url,
-                        type="primary",
-                        use_container_width=True
-                    )
-                    
-            
-            st.stop()
-        
-        # 로그인된 경우 - 기존 메인 로직 실행
-        # 데이터 로드
-        df = load_data()
-        
-        if df is not None:
-            # Excel 날짜 형식 변환 함수
-            def convert_excel_date(date_value):
-                try:
-                    if pd.isna(date_value):
-                        return pd.NaT
-                    return pd.to_datetime('1899-12-30') + pd.Timedelta(days=int(date_value))
-                except:
-                    return pd.to_datetime(date_value, errors='coerce')
 
-            # 날짜 컬럼 변환
-            date_columns = ['정규직전환일', '퇴사일', '생년월일', '입사일']
-            for col in date_columns:
-                if col in df.columns:
-                    df[col] = df[col].apply(convert_excel_date)
+            st.markdown("<br>", unsafe_allow_html=True)
             
-            # 연도 컬럼 미리 생성
-            if '정규직전환일' in df.columns:
-                df['정규직전환연도'] = df['정규직전환일'].dt.year
-            if '퇴사일' in df.columns:
-                df['퇴사연도'] = df['퇴사일'].dt.year
+            # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
+            col1, col2, col3 = st.columns([0.4, 0.3, 0.3])
             
-            if menu == "📊 인원현황":
-                # 기본통계 분석
-                st.markdown("##### 📊 인원현황")
+            # 현재 재직자 필터링 (조회 기준일 기준)
+            current_employees = df[
+                (df['입사일'].dt.date <= query_date) & 
+                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
+            ]
+            
+            with col1:
+                # 본부별 인원 현황
+                dept_counts = current_employees['본부'].value_counts().reset_index()
+                dept_counts.columns = ['본부', '인원수']
                 
-                # 조회 기준일 선택
-                query_date = st.date_input(
-                    "조회 기준일",
-                    value=datetime.now().date(),
-                    help="선택한 날짜 기준으로 인원현황을 조회합니다.",
-                    key="query_date_input",
-                    label_visibility="visible"
+                # 본부별 그래프 (수평 막대 그래프)
+                fig_dept = px.bar(
+                    dept_counts,
+                    y='본부',
+                    x='인원수',
+                    title="본부별",
+                    width=400,
+                    height=300,
+                    orientation='h'  # 수평 방향으로 변경
                 )
-                st.markdown(
-                    """
-                    <style>
-                    div[data-testid="stDateInput"] {
-                        width: 200px;
-                    }
-                    </style>
-                    """,
-                    unsafe_allow_html=True
+                fig_dept.update_traces(
+                    marker_color='#FF4B4B',
+                    text=dept_counts['인원수'],
+                    textposition='outside',
+                    textfont=dict(size=14)
                 )
+                fig_dept.update_layout(
+                    showlegend=False,
+                    title_x=0.5,
+                    title_y=0.95,
+                    margin=dict(t=50, r=50),  # 오른쪽 여백 추가
+                    xaxis=dict(
+                        title="",
+                        range=[0, max(dept_counts['인원수']) * 1.2]
+                    ),
+                    yaxis=dict(
+                        title="",
+                        autorange="reversed"  # 위에서 아래로 정렬
+                    )
+                )
+                st.plotly_chart(fig_dept, use_container_width=True)
+            
+            with col2:
+                # 직책별 인원 현황
+                position_order = ['C-LEVEL', '실리드', '팀리드', '멤버', '계약직']
+                position_counts = current_employees['직책'].value_counts()
+                position_counts = pd.Series(position_counts.reindex(position_order).fillna(0))
+                position_counts = position_counts.reset_index()
+                position_counts.columns = ['직책', '인원수']
+                
+                # 직책별 그래프
+                fig_position = px.area(
+                    position_counts,
+                    x='직책',
+                    y='인원수',
+                    title="직책별",
+                    width=400,
+                    height=300
+                )
+                fig_position.update_traces(
+                    fill='tonexty',
+                    line=dict(color='#666666'),
+                    text=position_counts['인원수'],
+                    textposition='top center'
+                )
+                fig_position.update_layout(
+                    showlegend=False,
+                    title_x=0.5,
+                    title_y=0.95,
+                    margin=dict(t=50),
+                    yaxis=dict(range=[0, max(position_counts['인원수']) * 1.2])
+                )
+                st.plotly_chart(fig_position, use_container_width=True)
+            
+            with col3:
+                # 성별 비율 계산 (조회 기준일 기준)
+                gender_counts = current_employees['남/여'].value_counts()
+                gender_percentages = (gender_counts / len(current_employees) * 100).round(1)
+                
+                # 도넛 차트 생성
+                fig = go.Figure(data=[go.Pie(
+                    labels=['남', '여'],
+                    values=[gender_percentages['남'], gender_percentages['여']],
+                    hole=0.4,
+                    marker_colors=['#4A4A4A', '#FF4B4B'],
+                    textinfo='label+percent',
+                    textposition='inside',
+                    showlegend=False,
+                    textfont=dict(color='white')  # 텍스트 색상을 흰색으로 설정
+                )])
+                
+                fig.update_layout(
+                    title="성별",
+                    title_x=0.4,
+                    title_y=0.95,
+                    width=220,
+                    height=220,
+                    margin=dict(t=50, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)'
+                )
+                
+                st.plotly_chart(fig)
 
-                # 기준일자로 재직자 필터링
-                재직자 = len(df[
-                    (df['입사일'].dt.date <= query_date) & 
-                    ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
-                ])
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 2025년 입퇴사자 현황
+            list_col1, list_col2 = st.columns(2)
+            
+            with list_col1:
+                st.markdown("###### 2025년 입사자")
+                입사자_df = df[df['입사일'].dt.year == 2025][['성명', '팀', '직위', '입사일']]
+                if not 입사자_df.empty:
+                    입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
+                    # 입사일 컬럼을 문자열로 변환
+                    입사자_df['입사일'] = 입사자_df['입사일'].dt.strftime('%Y-%m-%d')
+                    입사자_df = 입사자_df.reset_index(drop=True)
+                    입사자_df.index = 입사자_df.index + 1
+                    입사자_df = 입사자_df.rename_axis('No.')
+                    st.dataframe(입사자_df,
+                               use_container_width=True)
+                else:
+                    st.info("2025년 입사 예정자가 없습니다.")
+
+            with list_col2:
+                st.markdown("###### 2025년 퇴사자")
+                퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
+                if not 퇴사자_df.empty:
+                    퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
+                    # 퇴사일 컬럼을 문자열로 변환
+                    퇴사자_df['퇴사일'] = 퇴사자_df['퇴사일'].dt.strftime('%Y-%m-%d')
+                    퇴사자_df = 퇴사자_df.reset_index(drop=True)
+                    퇴사자_df.index = 퇴사자_df.index + 1
+                    퇴사자_df = 퇴사자_df.rename_axis('No.')
+                    st.dataframe(퇴사자_df,
+                               use_container_width=True)
+                else:
+                    st.info("2025년 퇴사자가 없습니다.")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # 근속기간별 퇴사자 현황 분석
+            st.markdown("##### 퇴사자 현황_정규직")
+            
+            # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                # 퇴사연도 선택 드롭다운
+                available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().astype(int).unique())
+                default_index = list(['전체'] + list(available_years)).index(2025) if 2025 in available_years else 0
+                selected_year = st.selectbox(
+                    "퇴사연도 선택",
+                    options=['전체'] + list(available_years),
+                    index=default_index,
+                    key='tenure_year_select'
+                )
+            
+            with col2:
+                # 선택된 연도의 퇴사인원 계산
+                if selected_year == '전체':
+                    퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')])
+                else:
+                    퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['퇴사연도'] == selected_year) & (df['고용구분'] == '정규직')])
                 
-                # 해당 연도의 입퇴사자 계산
-                selected_year = query_date.year
-                정규직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['입사일'].dt.date <= query_date)])
-                정규직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['퇴사일'].dt.date <= query_date)])
-                계약직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['입사일'].dt.date <= query_date)])
-                계약직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['퇴사일'].dt.date <= query_date)])
-                
-                # 퇴사율 계산 (소수점 첫째자리까지)
-                재직_정규직_수 = len(df[
-                    (df['고용구분'] == '정규직') & 
-                    (df['입사일'].dt.date <= query_date) & 
-                    ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > query_date))
-                ])
-                퇴사율 = round((정규직_퇴사자 / 재직_정규직_수 * 100), 1) if 재직_정규직_수 > 0 else 0
-                
-                # 통계 표시
                 st.markdown(
                     f"""
-                    <div class="metric-row">
-                        <div>
-                            <div class="metric-label">전체</div>
-                            <div class="metric-value total-value">{재직자:,}</div>
-                            <div class="metric-sublabel">재직자</div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div style="min-width: 100px;">
-                            <div class="metric-label">정규직</div>
-                            <div style="display: flex; justify-content: space-between; gap: 20px;">
-                                <div>
-                                    <div class="metric-value">{정규직_입사자}</div>
-                                    <div class="metric-sublabel">입사자</div>
-                                </div>
-                                <div>
-                                    <div class="metric-value">{정규직_퇴사자}</div>
-                                    <div class="metric-sublabel">퇴사자</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div style="min-width: 100px;">
-                            <div class="metric-label">계약직</div>
-                            <div style="display: flex; justify-content: space-between; gap: 20px;">
-                                <div>
-                                    <div class="metric-value" style="color: #666;">{계약직_입사자}</div>
-                                    <div class="metric-sublabel">입사자</div>
-                                </div>
-                                <div>
-                                    <div class="metric-value" style="color: #666;">{계약직_퇴사자}</div>
-                                    <div class="metric-sublabel">퇴사자</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="width: 2px; background-color: #ddd;"></div>
-                        <div>
-                            <div class="metric-label">퇴사율</div>
-                            <div class="metric-value" style="color: #ff0000;">{퇴사율}%</div>
-                            <div class="metric-sublabel">정규직 {재직_정규직_수}명</div>
-                        </div>
+                    <div style="padding: 0.5rem; margin-top: 1.6rem;">
+                        <span style="font-size: 1rem; color: #666;">정규직 퇴사인원: </span>
+                        <span style="font-size: 1.2rem; font-weight: bold; color: #FF0000;">{퇴사인원:,}명</span>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
+            
+            # 그래프를 위한 컬럼 생성 (60:40 비율)
+            graph_col, space_col = st.columns([0.5, 0.5])
+            
+            with graph_col:
+                def calculate_tenure_months(row):
+                    if pd.isna(row['입사일']) or pd.isna(row['퇴사일']):
+                        return None
+                    tenure = row['퇴사일'] - row['입사일']
+                    return tenure.days / 30.44  # 평균 한 달을 30.44일로 계산
 
-                st.markdown("<br>", unsafe_allow_html=True)
+                # 근속기간 계산
+                df['근속월수'] = df.apply(calculate_tenure_months, axis=1)
+
+                # 근속기간 구간 설정
+                def get_tenure_category(months):
+                    if pd.isna(months):
+                        return None
+                    elif months <= 5:
+                        return "0~5개월"
+                    elif months <= 11:
+                        return "6~11개월"
+                    elif months <= 24:
+                        return "1년~2년"
+                    elif months <= 36:
+                        return "2년~3년"
+                    else:
+                        return "3년이상"
+
+                df['근속기간_구분'] = df['근속월수'].apply(get_tenure_category)
+
+                # 퇴직자 데이터 필터링
+                퇴직자_df = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')]
+                if selected_year != '전체':
+                    퇴직자_df = 퇴직자_df[퇴직자_df['퇴사연도'] == selected_year]
                 
-                # 3개의 컬럼 생성 (0.4:0.4:0.2 비율)
-                col1, col2, col3 = st.columns([0.4, 0.3, 0.3])
+                # 근속기간별 인원 집계
+                tenure_counts = 퇴직자_df['근속기간_구분'].value_counts().reindex(["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"], fill_value=0)
+
+                # 그래프 생성
+                fig = go.Figure()
                 
-                # 현재 재직자 필터링 (조회 기준일 기준)
-                current_employees = df[
-                    (df['입사일'].dt.date <= query_date) & 
-                    ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date >= query_date))
+                # 막대 색상 설정
+                colors = ['#E0E0E0', '#E0E0E0', '#E0E0E0', '#FF0000', '#FF0000']
+                
+                fig.add_trace(go.Bar(
+                    x=tenure_counts.index,
+                    y=tenure_counts.values,
+                    marker_color=colors,
+                    text=tenure_counts.values,
+                    textposition='outside',
+                ))
+
+                # 레이아웃 설정
+                title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
+                fig.update_layout(
+                    height=300,
+                    showlegend=False,
+                    plot_bgcolor='white',
+                    yaxis=dict(
+                        title="퇴사자 수 (명)",
+                        range=[0, max(max(tenure_counts.values) * 1.2, 10)],
+                        gridcolor='lightgray',
+                        gridwidth=0.5,
+                    ),
+                    xaxis=dict(
+                        showgrid=False,
+                    ),
+                    margin=dict(t=50, b=20)  # 하단 여백을 20으로 줄임
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
+
+            with space_col:
+                st.write("")  # 빈 공간
+            
+            # 부서별 근속기간 분석
+            본부별_근속기간 = pd.pivot_table(
+                퇴직자_df,
+                values='사번',
+                index='본부',
+                columns='근속기간_구분',
+                aggfunc='count',
+                fill_value=0
+            ).reindex(columns=["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"])
+
+            # 재직자 수 계산
+            재직자_수 = df[df['재직상태'] == '재직'].groupby('본부')['사번'].count()
+
+            # 퇴직자 수 계산 - 선택된 연도에 따라 필터링
+            if selected_year == '전체':
+                퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')].groupby('본부')['사번'].count()
+            else:
+                퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직') & (df['퇴사연도'] == selected_year)].groupby('본부')['사번'].count()
+
+            # 퇴사율 계산
+            본부별_퇴사율 = (퇴직자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
+
+            # 조기퇴사율 계산 (1년 미만 퇴사자)
+            조기퇴사자_수 = 본부별_근속기간[["0~5개월", "6~11개월"]].sum(axis=1)
+            조기퇴사율 = (조기퇴사자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
+
+            # 결과 테이블 생성
+            result_df = pd.DataFrame({
+                '0~5개월': 본부별_근속기간["0~5개월"],
+                '6~11개월': 본부별_근속기간["6~11개월"],
+                '1년~2년': 본부별_근속기간["1년~2년"],
+                '2년~3년': 본부별_근속기간["2년~3년"],
+                '3년이상': 본부별_근속기간["3년이상"],
+                '퇴직인원': 퇴직자_수,
+                '재직인원': 재직자_수,
+                '퇴사율': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format),
+                '조기퇴사율': 조기퇴사율.fillna(0).map('{:.1f}%'.format),
+                '퇴사율 비중': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format)
+            }).fillna(0)
+
+            # 합계 행 추가
+            total_row = pd.Series({
+                '0~5개월': result_df['0~5개월'].sum(),
+                '6~11개월': result_df['6~11개월'].sum(),
+                '1년~2년': result_df['1년~2년'].sum(),
+                '2년~3년': result_df['2년~3년'].sum(),
+                '3년이상': result_df['3년이상'].sum(),
+                '퇴직인원': result_df['퇴직인원'].sum(),
+                '재직인원': result_df['재직인원'].sum(),
+                '퇴사율': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%",
+                '조기퇴사율': f"{(result_df['0~5개월'].sum() + result_df['6~11개월'].sum()) / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100:.1f}%",
+                '퇴사율 비중': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%"
+            }, name='총합계')
+
+            result_df = pd.concat([result_df, pd.DataFrame(total_row).T])
+
+            # 스타일이 적용된 테이블 표시
+            st.markdown(
+                """
+                <style>
+                .custom-table {
+                    font-size: 12px;
+                    width: 80%;
+                    border-collapse: collapse;
+                }
+                .custom-table th {
+                    background-color: #f0f2f6;
+                    padding: 7px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                }
+                .custom-table td {
+                    padding: 5px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                }
+                .custom-table tr:last-child {
+                    background-color: #f0f2f6;
+                    font-weight: bold;
+                }
+                .red-text {
+                    color: red;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # 테이블 HTML 생성
+            table_html = "<table class='custom-table'><tr><th>구분</th>"
+            for col in result_df.columns:
+                table_html += f"<th>{col}</th>"
+            table_html += "</tr>"
+
+            for idx, row in result_df.iterrows():
+                table_html += f"<tr><td>{idx}</td>"
+                for col in result_df.columns:
+                    value = row[col]
+                    if isinstance(value, (int, float)):
+                        if col in ['0~5개월', '6~11개월', '1년~2년', '2년~3년', '3년이상', '퇴직인원', '재직인원']:
+                            table_html += f"<td>{int(value)}</td>"
+                        else:
+                            table_html += f"<td>{value}</td>"
+                    else:
+                        if '%' in str(value) and float(str(value).rstrip('%')) > 0:
+                            table_html += f"<td class='red-text'>{value}</td>"
+                        else:
+                            table_html += f"<td>{value}</td>"
+                table_html += "</tr>"
+            table_html += "</table>"
+
+            st.markdown(table_html, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+        elif menu == "📈 연도별 인원 통계":
+            # 최근 5년간 인원 현황 분석
+            st.markdown("##### 📈 연도별 인원 통계")
+            
+            def get_year_end_headcount(df, year):
+                # 해당 연도 말일 설정
+                year_end = pd.Timestamp(f"{year}-12-31")
+                
+                # 해당 연도 말일 기준 재직자 수 계산
+                # 입사일이 연도 말일 이전이고, 퇴사일이 없거나 연도 말일과 같거나 이후인 직원
+                year_end_employees = df[
+                    (df['입사일'] <= year_end) & 
+                    ((df['퇴사일'].isna()) | (df['퇴사일'] >= year_end))
                 ]
                 
-                with col1:
-                    # 본부별 인원 현황
-                    dept_counts = current_employees['본부'].value_counts().reset_index()
-                    dept_counts.columns = ['본부', '인원수']
-                    
-                    # 본부별 그래프 (수평 막대 그래프)
-                    fig_dept = px.bar(
-                        dept_counts,
-                        y='본부',
-                        x='인원수',
-                        title="본부별",
-                        width=400,
-                        height=300,
-                        orientation='h'  # 수평 방향으로 변경
-                    )
-                    fig_dept.update_traces(
-                        marker_color='#FF4B4B',
-                        text=dept_counts['인원수'],
-                        textposition='outside',
-                        textfont=dict(size=14)
-                    )
-                    fig_dept.update_layout(
-                        showlegend=False,
-                        title_x=0.5,
-                        title_y=0.95,
-                        margin=dict(t=50, r=50),  # 오른쪽 여백 추가
-                        xaxis=dict(
-                            title="",
-                            range=[0, max(dept_counts['인원수']) * 1.2]
-                        ),
-                        yaxis=dict(
-                            title="",
-                            autorange="reversed"  # 위에서 아래로 정렬
-                        )
-                    )
-                    st.plotly_chart(fig_dept, use_container_width=True)
+                # 전체 인원
+                total = len(year_end_employees)
                 
-                with col2:
-                    # 직책별 인원 현황
-                    position_order = ['C-LEVEL', '실리드', '팀리드', '멤버', '계약직']
-                    position_counts = current_employees['직책'].value_counts()
-                    position_counts = pd.Series(position_counts.reindex(position_order).fillna(0))
-                    position_counts = position_counts.reset_index()
-                    position_counts.columns = ['직책', '인원수']
-                    
-                    # 직책별 그래프
-                    fig_position = px.area(
-                        position_counts,
-                        x='직책',
-                        y='인원수',
-                        title="직책별",
-                        width=400,
-                        height=300
-                    )
-                    fig_position.update_traces(
-                        fill='tonexty',
-                        line=dict(color='#666666'),
-                        text=position_counts['인원수'],
-                        textposition='top center'
-                    )
-                    fig_position.update_layout(
-                        showlegend=False,
-                        title_x=0.5,
-                        title_y=0.95,
-                        margin=dict(t=50),
-                        yaxis=dict(range=[0, max(position_counts['인원수']) * 1.2])
-                    )
-                    st.plotly_chart(fig_position, use_container_width=True)
+                # 정규직/계약직 인원
+                regular = len(year_end_employees[year_end_employees['고용구분'] == '정규직'])
+                contract = len(year_end_employees[year_end_employees['고용구분'] == '계약직'])
                 
-                with col3:
-                    # 성별 비율 계산 (조회 기준일 기준)
-                    gender_counts = current_employees['남/여'].value_counts()
-                    gender_percentages = (gender_counts / len(current_employees) * 100).round(1)
-                    
-                    # 도넛 차트 생성
-                    fig = go.Figure(data=[go.Pie(
-                        labels=['남', '여'],
-                        values=[gender_percentages['남'], gender_percentages['여']],
-                        hole=0.4,
-                        marker_colors=['#4A4A4A', '#FF4B4B'],
-                        textinfo='label+percent',
-                        textposition='inside',
-                        showlegend=False,
-                        textfont=dict(color='white')  # 텍스트 색상을 흰색으로 설정
-                    )])
-                    
-                    fig.update_layout(
-                        title="성별",
-                        title_x=0.4,
-                        title_y=0.95,
-                        width=220,
-                        height=220,
-                        margin=dict(t=50, b=0, l=0, r=0),  # 제목을 위한 상단 여백 추가
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)'
-                    )
-                    
-                    st.plotly_chart(fig)
-
-                st.markdown("<br>", unsafe_allow_html=True)
+                return total, regular, contract
+            
+            # 연도별 입/퇴사 인원 계산 함수 (get_year_end_headcount 함수 다음에 추가)
+            @st.cache_data(ttl=3600)  # 1시간 캐시 유지
+            def get_year_employee_stats(df, year):
+                # 정규직 입사
+                reg_join = len(df[(df['고용구분'] == '정규직') & 
+                                  (df['입사일'].dt.year == year)])
                 
-                # 2025년 입퇴사자 현황
-                list_col1, list_col2 = st.columns(2)
+                # 정규직 퇴사
+                reg_leave = len(df[(df['고용구분'] == '정규직') & 
+                                   (df['퇴사일'].dt.year == year)])
                 
-                with list_col1:
-                    st.markdown("###### 2025년 입사자")
-                    입사자_df = df[df['입사일'].dt.year == 2025][['성명', '팀', '직위', '입사일']]
-                    if not 입사자_df.empty:
-                        입사자_df = 입사자_df.sort_values('입사일', ascending=False)  # 내림차순 정렬
-                        # 입사일 컬럼을 문자열로 변환
-                        입사자_df['입사일'] = 입사자_df['입사일'].dt.strftime('%Y-%m-%d')
-                        입사자_df = 입사자_df.reset_index(drop=True)
-                        입사자_df.index = 입사자_df.index + 1
-                        입사자_df = 입사자_df.rename_axis('No.')
-                        st.dataframe(입사자_df,
-                                   use_container_width=True)
-                    else:
-                        st.info("2025년 입사 예정자가 없습니다.")
-
-                with list_col2:
-                    st.markdown("###### 2025년 퇴사자")
-                    퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
-                    if not 퇴사자_df.empty:
-                        퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
-                        # 퇴사일 컬럼을 문자열로 변환
-                        퇴사자_df['퇴사일'] = 퇴사자_df['퇴사일'].dt.strftime('%Y-%m-%d')
-                        퇴사자_df = 퇴사자_df.reset_index(drop=True)
-                        퇴사자_df.index = 퇴사자_df.index + 1
-                        퇴사자_df = 퇴사자_df.rename_axis('No.')
-                        st.dataframe(퇴사자_df,
-                                   use_container_width=True)
-                    else:
-                        st.info("2025년 퇴사자가 없습니다.")
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # 근속기간별 퇴사자 현황 분석
-                st.markdown("##### 퇴사자 현황_정규직")
-                
-                # 퇴사연도 선택 드롭다운과 퇴사인원 표시를 위한 컬럼 생성
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    # 퇴사연도 선택 드롭다운
-                    available_years = sorted(df[df['재직상태'] == '퇴직']['퇴사연도'].dropna().astype(int).unique())
-                    default_index = list(['전체'] + list(available_years)).index(2025) if 2025 in available_years else 0
-                    selected_year = st.selectbox(
-                        "퇴사연도 선택",
-                        options=['전체'] + list(available_years),
-                        index=default_index,
-                        key='tenure_year_select'
-                    )
-                
-                with col2:
-                    # 선택된 연도의 퇴사인원 계산
-                    if selected_year == '전체':
-                        퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')])
-                    else:
-                        퇴사인원 = len(df[(df['재직상태'] == '퇴직') & (df['퇴사연도'] == selected_year) & (df['고용구분'] == '정규직')])
-                    
-                    st.markdown(
-                        f"""
-                        <div style="padding: 0.5rem; margin-top: 1.6rem;">
-                            <span style="font-size: 1rem; color: #666;">정규직 퇴사인원: </span>
-                            <span style="font-size: 1.2rem; font-weight: bold; color: #FF0000;">{퇴사인원:,}명</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                
-                # 그래프를 위한 컬럼 생성 (60:40 비율)
-                graph_col, space_col = st.columns([0.5, 0.5])
-                
-                with graph_col:
-                    def calculate_tenure_months(row):
-                        if pd.isna(row['입사일']) or pd.isna(row['퇴사일']):
-                            return None
-                        tenure = row['퇴사일'] - row['입사일']
-                        return tenure.days / 30.44  # 평균 한 달을 30.44일로 계산
-
-                    # 근속기간 계산
-                    df['근속월수'] = df.apply(calculate_tenure_months, axis=1)
-
-                    # 근속기간 구간 설정
-                    def get_tenure_category(months):
-                        if pd.isna(months):
-                            return None
-                        elif months <= 5:
-                            return "0~5개월"
-                        elif months <= 11:
-                            return "6~11개월"
-                        elif months <= 24:
-                            return "1년~2년"
-                        elif months <= 36:
-                            return "2년~3년"
-                        else:
-                            return "3년이상"
-
-                    df['근속기간_구분'] = df['근속월수'].apply(get_tenure_category)
-
-                    # 퇴직자 데이터 필터링
-                    퇴직자_df = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')]
-                    if selected_year != '전체':
-                        퇴직자_df = 퇴직자_df[퇴직자_df['퇴사연도'] == selected_year]
-                    
-                    # 근속기간별 인원 집계
-                    tenure_counts = 퇴직자_df['근속기간_구분'].value_counts().reindex(["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"], fill_value=0)
-
-                    # 그래프 생성
-                    fig = go.Figure()
-                    
-                    # 막대 색상 설정
-                    colors = ['#E0E0E0', '#E0E0E0', '#E0E0E0', '#FF0000', '#FF0000']
-                    
-                    fig.add_trace(go.Bar(
-                        x=tenure_counts.index,
-                        y=tenure_counts.values,
-                        marker_color=colors,
-                        text=tenure_counts.values,
-                        textposition='outside',
-                    ))
-
-                    # 레이아웃 설정
-                    title_text = f"{'전체 기간' if selected_year == '전체' else str(selected_year) + '년'} 근속기간별 퇴사자 현황"
-                    fig.update_layout(
-                        height=300,
-                        showlegend=False,
-                        plot_bgcolor='white',
-                        yaxis=dict(
-                            title="퇴사자 수 (명)",
-                            range=[0, max(max(tenure_counts.values) * 1.2, 10)],
-                            gridcolor='lightgray',
-                            gridwidth=0.5,
-                        ),
-                        xaxis=dict(
-                            showgrid=False,
-                        ),
-                        margin=dict(t=50, b=20)  # 하단 여백을 20으로 줄임
-                    )
-
-                    st.plotly_chart(fig, use_container_width=True)
-
-                with space_col:
-                    st.write("")  # 빈 공간
-                
-                # 부서별 근속기간 분석
-                본부별_근속기간 = pd.pivot_table(
-                    퇴직자_df,
-                    values='사번',
-                    index='본부',
-                    columns='근속기간_구분',
-                    aggfunc='count',
-                    fill_value=0
-                ).reindex(columns=["0~5개월", "6~11개월", "1년~2년", "2년~3년", "3년이상"])
-
-                # 재직자 수 계산
-                재직자_수 = df[df['재직상태'] == '재직'].groupby('본부')['사번'].count()
-
-                # 퇴직자 수 계산 - 선택된 연도에 따라 필터링
-                if selected_year == '전체':
-                    퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직')].groupby('본부')['사번'].count()
-                else:
-                    퇴직자_수 = df[(df['재직상태'] == '퇴직') & (df['고용구분'] == '정규직') & (df['퇴사연도'] == selected_year)].groupby('본부')['사번'].count()
-
-                # 퇴사율 계산
-                본부별_퇴사율 = (퇴직자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
-
-                # 조기퇴사율 계산 (1년 미만 퇴사자)
-                조기퇴사자_수 = 본부별_근속기간[["0~5개월", "6~11개월"]].sum(axis=1)
-                조기퇴사율 = (조기퇴사자_수 / (재직자_수 + 퇴직자_수) * 100).round(1)
-
-                # 결과 테이블 생성
-                result_df = pd.DataFrame({
-                    '0~5개월': 본부별_근속기간["0~5개월"],
-                    '6~11개월': 본부별_근속기간["6~11개월"],
-                    '1년~2년': 본부별_근속기간["1년~2년"],
-                    '2년~3년': 본부별_근속기간["2년~3년"],
-                    '3년이상': 본부별_근속기간["3년이상"],
-                    '퇴직인원': 퇴직자_수,
-                    '재직인원': 재직자_수,
-                    '퇴사율': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format),
-                    '조기퇴사율': 조기퇴사율.fillna(0).map('{:.1f}%'.format),
-                    '퇴사율 비중': 본부별_퇴사율.fillna(0).map('{:.1f}%'.format)
-                }).fillna(0)
-
-                # 합계 행 추가
-                total_row = pd.Series({
-                    '0~5개월': result_df['0~5개월'].sum(),
-                    '6~11개월': result_df['6~11개월'].sum(),
-                    '1년~2년': result_df['1년~2년'].sum(),
-                    '2년~3년': result_df['2년~3년'].sum(),
-                    '3년이상': result_df['3년이상'].sum(),
-                    '퇴직인원': result_df['퇴직인원'].sum(),
-                    '재직인원': result_df['재직인원'].sum(),
-                    '퇴사율': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%",
-                    '조기퇴사율': f"{(result_df['0~5개월'].sum() + result_df['6~11개월'].sum()) / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100:.1f}%",
-                    '퇴사율 비중': f"{(result_df['퇴직인원'].sum() / (result_df['재직인원'].sum() + result_df['퇴직인원'].sum()) * 100):.1f}%"
-                }, name='총합계')
-
-                result_df = pd.concat([result_df, pd.DataFrame(total_row).T])
-
-                # 스타일이 적용된 테이블 표시
-                st.markdown(
-                    """
-                    <style>
-                    .custom-table {
-                        font-size: 12px;
-                        width: 80%;
-                        border-collapse: collapse;
-                    }
-                    .custom-table th {
-                        background-color: #f0f2f6;
-                        padding: 7px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                    }
-                    .custom-table td {
-                        padding: 5px;
-                        text-align: center;
-                        border: 1px solid #ddd;
-                    }
-                    .custom-table tr:last-child {
-                        background-color: #f0f2f6;
-                        font-weight: bold;
-                    }
-                    .red-text {
-                        color: red;
-                    }
-                    </style>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                # 테이블 HTML 생성
-                table_html = "<table class='custom-table'><tr><th>구분</th>"
-                for col in result_df.columns:
-                    table_html += f"<th>{col}</th>"
-                table_html += "</tr>"
-
-                for idx, row in result_df.iterrows():
-                    table_html += f"<tr><td>{idx}</td>"
-                    for col in result_df.columns:
-                        value = row[col]
-                        if isinstance(value, (int, float)):
-                            if col in ['0~5개월', '6~11개월', '1년~2년', '2년~3년', '3년이상', '퇴직인원', '재직인원']:
-                                table_html += f"<td>{int(value)}</td>"
-                            else:
-                                table_html += f"<td>{value}</td>"
-                        else:
-                            if '%' in str(value) and float(str(value).rstrip('%')) > 0:
-                                table_html += f"<td class='red-text'>{value}</td>"
-                            else:
-                                table_html += f"<td>{value}</td>"
-                    table_html += "</tr>"
-                table_html += "</table>"
-
-                st.markdown(table_html, unsafe_allow_html=True)
-
-                st.markdown("<br>", unsafe_allow_html=True)
-
-            elif menu == "📈 연도별 인원 통계":
-                # 최근 5년간 인원 현황 분석
-                st.markdown("##### 📈 연도별 인원 통계")
-                
-                def get_year_end_headcount(df, year):
-                    # 해당 연도 말일 설정
-                    year_end = pd.Timestamp(f"{year}-12-31")
-                    
-                    # 해당 연도 말일 기준 재직자 수 계산
-                    # 입사일이 연도 말일 이전이고, 퇴사일이 없거나 연도 말일과 같거나 이후인 직원
-                    year_end_employees = df[
-                        (df['입사일'] <= year_end) & 
-                        ((df['퇴사일'].isna()) | (df['퇴사일'] >= year_end))
-                    ]
-                    
-                    # 전체 인원
-                    total = len(year_end_employees)
-                    
-                    # 정규직/계약직 인원
-                    regular = len(year_end_employees[year_end_employees['고용구분'] == '정규직'])
-                    contract = len(year_end_employees[year_end_employees['고용구분'] == '계약직'])
-                    
-                    return total, regular, contract
-                
-                # 연도별 입/퇴사 인원 계산 함수 (get_year_end_headcount 함수 다음에 추가)
-                @st.cache_data(ttl=3600)  # 1시간 캐시 유지
-                def get_year_employee_stats(df, year):
-                    # 정규직 입사
-                    reg_join = len(df[(df['고용구분'] == '정규직') & 
+                # 계약직 입사
+                contract_join = len(df[(df['고용구분'] == '계약직') & 
                                       (df['입사일'].dt.year == year)])
-                    
-                    # 정규직 퇴사
-                    reg_leave = len(df[(df['고용구분'] == '정규직') & 
+                
+                # 계약직 퇴사
+                contract_leave = len(df[(df['고용구분'] == '계약직') & 
                                        (df['퇴사일'].dt.year == year)])
-                    
-                    # 계약직 입사
-                    contract_join = len(df[(df['고용구분'] == '계약직') & 
-                                          (df['입사일'].dt.year == year)])
-                    
-                    # 계약직 퇴사
-                    contract_leave = len(df[(df['고용구분'] == '계약직') & 
-                                           (df['퇴사일'].dt.year == year)])
-                    
-                    return reg_join, reg_leave, contract_join, contract_leave
                 
-                # stats_df 생성 부분을 다음과 같이 수정
-                stats_df = pd.DataFrame([
-                    {
-                        '연도': year,
-                        '전체': get_year_end_headcount(df, year)[0],
-                        '정규직_전체': get_year_end_headcount(df, year)[1],
-                        '계약직_전체': get_year_end_headcount(df, year)[2],
-                        '정규직_입사': get_year_employee_stats(df, year)[0],
-                        '정규직_퇴사': get_year_employee_stats(df, year)[1],
-                        '계약직_입사': get_year_employee_stats(df, year)[2],
-                        '계약직_퇴사': get_year_employee_stats(df, year)[3]
-                    }
-                    for year in range(2021, 2026)  # 2021년부터 2025년까지
-                ])
-                
-                # 그래프를 위한 컬럼 생성 (50:50 비율)
-                graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05, 0.35, 0.2])
-                
-                with graph_col1:
-                    # 전체 인원 그래프 생성
-                    fig = go.Figure()
-                    
-                    fig.add_trace(go.Scatter(
-                        x=stats_df['연도'],
-                        y=stats_df['전체'],
-                        mode='lines+markers+text',
-                        name='전체 인원',
-                        text=stats_df['전체'],
-                        textposition='top center',
-                        line=dict(color='#FF4B4B', width=3),
-                        marker=dict(size=10)
-                    ))
-
-                    fig.update_layout(
-                        title="전체 인원",
-                        title_x=0,
-                        height=350,
-                        showlegend=False,
-                        plot_bgcolor='white',
-                        yaxis=dict(
-                            title="인원 수 (명)",
-                            gridcolor='lightgray',
-                            gridwidth=0.5,
-                            range=[0, max(stats_df['전체']) * 1.2]
-                        ),
-                        xaxis=dict(
-                            showgrid=False,
-                            tickformat='d'  # 정수 형식으로 표시
-                        ),
-                        margin=dict(t=50)
-                    )
-
-                    st.plotly_chart(fig, use_container_width=True)
-
-                with space_col1:
-                    st.write("")  # 빈 공간
-
-                with graph_col2:
-                    # 정규직/계약직 막대 그래프 생성
-                    fig2 = go.Figure()
-
-                    # 정규직 막대
-                    fig2.add_trace(go.Bar(
-                        x=stats_df['연도'],
-                        y=stats_df['정규직_전체'],
-                        name='정규직',
-                        text=stats_df['정규직_전체'],
-                        textposition='auto',
-                        textfont=dict(color='white'),
-                        marker_color='#FF4B4B'
-                    ))
-
-                    # 계약직 막대
-                    fig2.add_trace(go.Bar(
-                        x=stats_df['연도'],
-                        y=stats_df['계약직_전체'],
-                        name='계약직',
-                        text=stats_df['계약직_전체'],
-                        textposition='auto',
-                        marker_color='#FFB6B6'
-                    ))
-
-                    fig2.update_layout(
-                        title="고용형태별 인원",
-                        title_x=0,
-                        height=350,
-                        barmode='stack',
-                        plot_bgcolor='white',
-                        yaxis=dict(
-                            gridcolor='lightgray',
-                            gridwidth=0.5,
-                            range=[0, max(stats_df['전체']) * 1.2]
-                        ),
-                        xaxis=dict(
-                            showgrid=False,
-                            tickformat='d'  # 정수 형식으로 표시
-                        ),
-                        margin=dict(t=50),
-                        legend=dict(
-                            orientation="h",
-                            yanchor="bottom",
-                            y=1.02,
-                            xanchor="right",
-                            x=1
-                        )
-                    )
-
-                    st.plotly_chart(fig2, use_container_width=True)
-
-                with space_col2:
-                    st.write("")  # 빈 공간
-                
-                # DataFrame을 직접 표시
-                st.dataframe(
-                    stats_df.rename(columns={
-                        '연도': '연도',
-                        '전체': '전체 인원',
-                        '정규직_전체': '정규직\n전체',
-                        '계약직_전체': '계약직\n전체',
-                        '정규직_입사': '정규직\n입사',
-                        '정규직_퇴사': '정규직\n퇴사',
-                        '계약직_입사': '계약직\n입사',
-                        '계약직_퇴사': '계약직\n퇴사'
-                    }).style.format({
-                        '연도': '{:.0f}',
-                        '전체 인원': '{:,.0f}',
-                        '정규직\n전체': '{:,.0f}',
-                        '계약직\n전체': '{:,.0f}',
-                        '정규직\n입사': '{:,.0f}',
-                        '정규직\n퇴사': '{:,.0f}',
-                        '계약직\n입사': '{:,.0f}',
-                        '계약직\n퇴사': '{:,.0f}'
-                    }).set_properties(**{
-                        'text-align': 'center',
-                        'vertical-align': 'middle'
-                    }).set_table_styles([
-                        {'selector': 'th', 'props': [('text-align', 'center')]},
-                        {'selector': 'td', 'props': [('text-align', 'center')]}
-                    ]),
-                    hide_index=True,
-                    width=800,
-                    use_container_width=False
-                )
-
-            elif menu == "🔍 연락처/생일 검색":
-                st.markdown("##### 🔍 연락처/생일 검색")
-                
-                # 검색 부분을 컬럼으로 나누기
-                search_col, space_col = st.columns([0.3, 0.7])
-                
-                with search_col:
-                    st.markdown('<div class="search-container">', unsafe_allow_html=True)
-                    search_name = st.text_input("성명으로 검색", key="contact_search")
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                if search_name:
-                    contact_df = df[df['성명'].str.contains(search_name, na=False)]
-                    if not contact_df.empty:
-                        st.markdown("""
-                            <style>
-                            .dataframe {
-                                text-align: left !important;
-                            }
-                            .dataframe td, .dataframe th {
-                                text-align: left !important;
-                            }
-                            </style>
-                        """, unsafe_allow_html=True)
-                        
-                        # 생년월일 컬럼을 포함하여 표시할 컬럼 선택
-                        contact_info = contact_df[['성명', '생년월일', '본부', '팀', '직위', 'E-Mail', '핸드폰', '주소']].reset_index(drop=True)
-                        
-                        # 생년월일 형식 변환 (datetime 형식으로 변환 후 YYYY-MM-DD 형식으로 표시)
-                        contact_info['생년월일'] = pd.to_datetime(contact_info['생년월일']).dt.strftime('%Y-%m-%d')
-                        
-                        contact_info.index = contact_info.index + 1
-                        contact_info = contact_info.rename_axis('No.')
-                        st.dataframe(contact_info.style.set_properties(**{'text-align': 'left'}), use_container_width=True)
-                    else:
-                        st.info("검색 결과가 없습니다.")
-
-                st.markdown("---")
-
-                # 생일자 검색
-                st.markdown("##### 🎂이달의 생일자")
-                current_month = datetime.now(pytz.timezone('Asia/Seoul')).month
-                birth_month = st.selectbox(
-                    "생일 월 선택",
-                    options=list(range(1, 13)),
-                    format_func=lambda x: f"{x}월",
-                    index=current_month - 1
-                )
-                
-                if birth_month:
-                    birthday_df = df[(df['재직상태'] == '재직') & 
-                                   (pd.to_datetime(df['생년월일']).dt.month == birth_month)]
-                    if not birthday_df.empty:
-                        today = pd.Timestamp.now()
-                        birthday_info = birthday_df[['성명', '본부', '팀', '직위', '입사일']].copy()
-                        birthday_info['근속기간'] = (today - birthday_info['입사일']).dt.days // 365
-                        birthday_info['생일'] = pd.to_datetime(birthday_df['생년월일']).dt.strftime('%m-%d')
-                        
-                        birthday_info = birthday_info[['성명', '본부', '팀', '생일', '근속기간']]
-                        birthday_info = birthday_info.sort_values('생일')
-                        
-                        birthday_info['근속기간'] = birthday_info['근속기간'].astype(str) + '년'
-                        
-                        birthday_info = birthday_info.reset_index(drop=True)
-                        birthday_info.index = birthday_info.index + 1
-                        birthday_info = birthday_info.rename_axis('No.')
-                        
-                        st.dataframe(birthday_info, use_container_width=True)
-                    else:
-                        st.info(f"{birth_month}월 재직자 중 생일자가 없습니다.")
-
-            elif menu == "🏦 기관제출용 인원현황":
-                st.markdown("##### 🏦 기관제출용 인원현황")
-                
-                # 데이터 로드
-                df = load_data()
-                if df is not None:
-                    # 날짜 컬럼 변환 함수
-                    def convert_date(date_value):
-                        if pd.isna(date_value):
-                            return pd.NaT
-                        try:
-                            # 엑셀 숫자 형식의 날짜 처리
-                            if isinstance(date_value, (int, float)):
-                                return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(date_value))
-                            
-                            # 문자열로 변환
-                            date_str = str(date_value)
-                            
-                            # 여러 날짜 형식 시도
-                            formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
-                            for fmt in formats:
-                                try:
-                                    return pd.to_datetime(date_str, format=fmt)
-                                except:
-                                    continue
-                            
-                            # 모든 형식이 실패하면 기본 변환 시도
-                            return pd.to_datetime(date_str)
-                        except:
-                            return pd.NaT
-
-                    # 날짜 컬럼 변환
-                    df['입사일'] = df['입사일'].apply(convert_date)
-                    df['퇴사일'] = df['퇴사일'].apply(convert_date)
-                    
-                    
-                    # 조회 기준일 설정
-                    current_year = datetime.now().year
-                    current_month = datetime.now().month
-                    years = list(range(2016, current_year + 1))
-                    years.sort(reverse=True)  # 내림차순 정렬
-                    
-                    col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
-                    with col1:
-                        selected_year = st.selectbox("조회년도", years, index=0)
-                    with col2:
-                        months = list(range(1, 13))
-                        selected_month = st.selectbox("조회월", months, index=current_month-1)
-                    with col3:
-                        st.write("")  # 공백 컬럼
-                    
-                    # 선택된 년월의 마지막 날짜 계산
-                    last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
-                                   
-                    # 기준일에 재직중인 직원 필터링
-                    current_employees = df[
-                        (df['입사일'].notna()) & 
-                        (df['입사일'] <= last_day) & 
-                        ((df['퇴사일'].isna()) | 
-                         (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
-                         (df['퇴사일'] >= last_day))
-                    ]
-                    
-                    st.markdown("---")
-                    
-                    if not df[df['입사일'] <= last_day].empty:
-                        # 구분별 인원 현황 계산 및 표시
-                        # 구분1: 주주간담회 등 IR팀 자료
-                        st.markdown("1. 주주간담회 등 IR팀 자료 작성용")
-                        group1_stats = current_employees['구분1'].value_counts().reset_index()
-                        group1_stats.columns = ['구분', '인원수']
-                        total_count1 = group1_stats['인원수'].sum()
-                        
-                        # '임원'이 있는 행을 찾아서 첫 번째로 이동
-                        임원_row = group1_stats[group1_stats['구분'] == '임원']
-                        other_rows = group1_stats[group1_stats['구분'] != '임원']
-                        group1_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
-                        
-                        group1_stats = group1_stats.T  # 행과 열을 바꿈
-                        group1_stats.columns = group1_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
-                        group1_stats = group1_stats.iloc[1:]  # 첫 번째 행 제외
-                        group1_stats['총인원'] = total_count1  # 총인원 열 추가
-                        st.dataframe(
-                            group1_stats,
-                            use_container_width=False,
-                            width=900,
-                            column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
-                        )
-                        
-                        # 구분2: 투자자 사업현황 보고1
-                        st.markdown("2. 투자자 사업현황 보고")
-                        group2_stats = current_employees['구분2'].value_counts().reset_index()
-                        group2_stats.columns = ['구분', '인원수']
-                        total_count2 = group2_stats['인원수'].sum()
-                        
-                        # '임원'이 있는 행을 찾아서 첫 번째로 이동
-                        임원_row = group2_stats[group2_stats['구분'] == '임원']
-                        other_rows = group2_stats[group2_stats['구분'] != '임원']
-                        group2_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
-                        
-                        group2_stats = group2_stats.T  # 행과 열을 바꿈
-                        group2_stats.columns = group2_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
-                        group2_stats = group2_stats.iloc[1:]  # 첫 번째 행 제외
-                        group2_stats['총인원'] = total_count2  # 총인원 열 추가
-                        st.dataframe(
-                            group2_stats,
-                            use_container_width=False,
-                            width=600,
-                            column_config={col: st.column_config.NumberColumn(col, width=50) for col in group2_stats.columns}
-                        )
-                        
-                        # 구분3: 의료기기 생산 및 수출·수입·수리실적보고
-                        st.markdown("3. 의료기기 생산 및 수출·수입·수리실적보고")
-                        group3_stats = current_employees['구분3'].value_counts().reset_index()
-                        group3_stats.columns = ['구분', '인원수']
-                        total_count3 = group3_stats['인원수'].sum()
-                        
-                        # '임원'이 있는 행을 찾아서 첫 번째로 이동
-                        임원_row = group3_stats[group3_stats['구분'] == '임원']
-                        other_rows = group3_stats[group3_stats['구분'] != '임원']
-                        group3_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
-                        
-                        group3_stats = group3_stats.T  # 행과 열을 바꿈
-                        group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
-                        group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
-                        group3_stats['총인원'] = total_count3  # 총인원 열 추가
-                        st.dataframe(
-                            group3_stats,
-                            use_container_width=False,
-                            width=700,
-                            column_config={col: st.column_config.NumberColumn(col, width=50) for col in group3_stats.columns}
-                        )
-                        
-                        # 인원상세 목록
-                        st.markdown("###### 🧑 인원상세")
-                        detail_columns = ['성명', '본부', '실', '팀', '고용구분', '입사일', '재직상태', '남/여', '구분1', '구분2', '구분3']
-                        detail_df = current_employees[detail_columns].copy()
-                        detail_df['입사일'] = detail_df['입사일'].dt.strftime('%Y-%m-%d')
-                        
-                        # 인덱스를 1부터 시작하는 번호로 리셋
-                        detail_df = detail_df.reset_index(drop=True)
-                        detail_df.index = detail_df.index + 1
-                        detail_df.index.name = 'No'
-                        detail_df = detail_df.reset_index()
-                        
-                        st.dataframe(
-                            detail_df,
-                            hide_index=True,
-                            column_config={
-                                "No": st.column_config.NumberColumn("No", width=50),
-                                "성명": st.column_config.TextColumn("성명", width=80),
-                                "본부": st.column_config.TextColumn("본부", width=120),
-                                "실": st.column_config.TextColumn("실", width=120),
-                                "팀": st.column_config.TextColumn("팀", width=120),
-                                "고용구분": st.column_config.TextColumn("고용구분", width=80),
-                                "입사일": st.column_config.TextColumn("입사일", width=100),
-                                "재직상태": st.column_config.TextColumn("재직상태", width=80),
-                                "성별": st.column_config.TextColumn("남/여", width=60),
-                                "구분1": st.column_config.TextColumn("구분1", width=120),
-                                "구분2": st.column_config.TextColumn("구분2", width=120),
-                                "구분3": st.column_config.TextColumn("구분3", width=120)
-                            }
-                        )
-                        
-                        # 엑셀 다운로드 버튼
-                        output = BytesIO()
-                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                            detail_df.to_excel(writer, index=False)
-                        excel_data = output.getvalue()
-                        st.download_button(
-                            label="📥 엑셀 다운로드",
-                            data=excel_data,
-                            file_name=f"기관제출용_인원현황_{selected_year}{selected_month:02d}.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        )
-                    else:
-                        st.warning(f"{selected_year}년 {selected_month}월 데이터가 없습니다.")
-                else:
-                    st.error("데이터를 불러오는 중 오류가 발생했습니다.")
-
-            elif menu == "📋 채용 처우협상":
-                st.markdown("##### 🔎 처우 기본정보")
-                
-                # 직군 매핑 정의
-                job_mapping = {
-                    "연구직": "직군1",
-                    "개발직": "직군2",
-                    "임상연구, QA, 인증(RA)": "직군2",
-                    "연구기획": "직군3",
-                    "디자인": "직군3",
-                    "SV, SCM": "직군3",
-                    "마케팅": "직군3",
-                    "기획": "직군3",
-                    "기술영업 / SE(5년 이상)": "직군3",
-                    "경영기획(전략,회계,인사,재무,법무,보안)": "직군3",
-                    "지원(연구, 기술, 경영 지원 등)": "직군4",
-                    "일반영업 /SE(5년 미만)": "직군4",
-                    "고객지원(CS)": "직군5",
-                    "레이블링": "직군5"
+                return reg_join, reg_leave, contract_join, contract_leave
+            
+            # stats_df 생성 부분을 다음과 같이 수정
+            stats_df = pd.DataFrame([
+                {
+                    '연도': year,
+                    '전체': get_year_end_headcount(df, year)[0],
+                    '정규직_전체': get_year_end_headcount(df, year)[1],
+                    '계약직_전체': get_year_end_headcount(df, year)[2],
+                    '정규직_입사': get_year_employee_stats(df, year)[0],
+                    '정규직_퇴사': get_year_employee_stats(df, year)[1],
+                    '계약직_입사': get_year_employee_stats(df, year)[2],
+                    '계약직_퇴사': get_year_employee_stats(df, year)[3]
                 }
+                for year in range(2021, 2026)  # 2021년부터 2025년까지
+            ])
+            
+            # 그래프를 위한 컬럼 생성 (50:50 비율)
+            graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05, 0.35, 0.2])
+            
+            with graph_col1:
+                # 전체 인원 그래프 생성
+                fig = go.Figure()
                 
-                # 직군 상세 목록
-                job_roles = list(job_mapping.keys())
-                # 경력입력 폼 생성
-                with st.form("experience_form"):
-                    experience_text = st.text_area("경력기간 입력 (이력서의 날짜 부분을 복사해서 붙여주세요.)", 
-                                                 help="# 날짜 패턴 : # 날짜 패턴 : 2023. 04, 2024.05.01, 2024.05, 2024-05, 2024-05-01, 2024/05, 2024/05/01, 2023/05, 2015.01.")
-                    
-                    # 경력기간 조회 버튼 추가
-                    experience_submitted = st.form_submit_button("경력기간 조회")
-                    
-                    if experience_submitted and experience_text:
-                        try:
-                            # 경력기간 계산
-                            experience_result = calculate_experience(experience_text)
-                            if experience_result:
-                                # 경력기간과 총 경력기간 분리
-                                experience_lines = experience_result.split('\n')
-                                total_experience = experience_lines[-1]  # 마지막 줄이 총 경력기간
-                                experience_periods = experience_lines[:-2]  # 마지막 두 줄(총 경력기간과 빈 줄) 제외
-                                
-                                # 총 경력기간을 소수점으로 변환
-                                total_match = re.search(r'총 경력기간: (\d+)년 (\d+)개월', total_experience)
-                                if total_match:
-                                    years, months = map(int, total_match.groups())
-                                    total_years = years + months / 12
-                                    total_experience = f"총 경력기간: {total_years:.1f}년"
-                                
-                                # 경력기간 표시
-                                st.markdown(f"**{total_experience}**")
-                                st.markdown("**경력기간:**")
-                                for period in experience_periods:
-                                    st.markdown(period)
-                            else:
-                                st.markdown("**경력기간:** 경력 정보가 없습니다.")
-                                st.session_state['years'] = 0.0
-                            # 인정경력(년) 필드 업데이트
-                            st.query_params["years"] = float(f"{total_years:.1f}")
-                        except Exception as e:
-                            st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
+                fig.add_trace(go.Scatter(
+                    x=stats_df['연도'],
+                    y=stats_df['전체'],
+                    mode='lines+markers+text',
+                    name='전체 인원',
+                    text=stats_df['전체'],
+                    textposition='top center',
+                    line=dict(color='#FF4B4B', width=3),
+                    marker=dict(size=10)
+                ))
 
-                # 입력 폼 생성
-                with st.form("salary_form"):
-                    # 1줄: 포지션명, 후보자명
+                fig.update_layout(
+                    title="전체 인원",
+                    title_x=0,
+                    height=350,
+                    showlegend=False,
+                    plot_bgcolor='white',
+                    yaxis=dict(
+                        title="인원 수 (명)",
+                        gridcolor='lightgray',
+                        gridwidth=0.5,
+                        range=[0, max(stats_df['전체']) * 1.2]
+                    ),
+                    xaxis=dict(
+                        showgrid=False,
+                        tickformat='d'  # 정수 형식으로 표시
+                    ),
+                    margin=dict(t=50)
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
+
+            with space_col1:
+                st.write("")  # 빈 공간
+
+            with graph_col2:
+                # 정규직/계약직 막대 그래프 생성
+                fig2 = go.Figure()
+
+                # 정규직 막대
+                fig2.add_trace(go.Bar(
+                    x=stats_df['연도'],
+                    y=stats_df['정규직_전체'],
+                    name='정규직',
+                    text=stats_df['정규직_전체'],
+                    textposition='auto',
+                    textfont=dict(color='white'),
+                    marker_color='#FF4B4B'
+                ))
+
+                # 계약직 막대
+                fig2.add_trace(go.Bar(
+                    x=stats_df['연도'],
+                    y=stats_df['계약직_전체'],
+                    name='계약직',
+                    text=stats_df['계약직_전체'],
+                    textposition='auto',
+                    marker_color='#FFB6B6'
+                ))
+
+                fig2.update_layout(
+                    title="고용형태별 인원",
+                    title_x=0,
+                    height=350,
+                    barmode='stack',
+                    plot_bgcolor='white',
+                    yaxis=dict(
+                        gridcolor='lightgray',
+                        gridwidth=0.5,
+                        range=[0, max(stats_df['전체']) * 1.2]
+                    ),
+                    xaxis=dict(
+                        showgrid=False,
+                        tickformat='d'  # 정수 형식으로 표시
+                    ),
+                    margin=dict(t=50),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1
+                    )
+                )
+
+                st.plotly_chart(fig2, use_container_width=True)
+
+            with space_col2:
+                st.write("")  # 빈 공간
+            
+            # DataFrame을 직접 표시
+            st.dataframe(
+                stats_df.rename(columns={
+                    '연도': '연도',
+                    '전체': '전체 인원',
+                    '정규직_전체': '정규직\n전체',
+                    '계약직_전체': '계약직\n전체',
+                    '정규직_입사': '정규직\n입사',
+                    '정규직_퇴사': '정규직\n퇴사',
+                    '계약직_입사': '계약직\n입사',
+                    '계약직_퇴사': '계약직\n퇴사'
+                }).style.format({
+                    '연도': '{:.0f}',
+                    '전체 인원': '{:,.0f}',
+                    '정규직\n전체': '{:,.0f}',
+                    '계약직\n전체': '{:,.0f}',
+                    '정규직\n입사': '{:,.0f}',
+                    '정규직\n퇴사': '{:,.0f}',
+                    '계약직\n입사': '{:,.0f}',
+                    '계약직\n퇴사': '{:,.0f}'
+                }).set_properties(**{
+                    'text-align': 'center',
+                    'vertical-align': 'middle'
+                }).set_table_styles([
+                    {'selector': 'th', 'props': [('text-align', 'center')]},
+                    {'selector': 'td', 'props': [('text-align', 'center')]}
+                ]),
+                hide_index=True,
+                width=800,
+                use_container_width=False
+            )
+
+        elif menu == "🔍 연락처/생일 검색":
+            st.markdown("##### 🔍 연락처/생일 검색")
+            
+            # 검색 부분을 컬럼으로 나누기
+            search_col, space_col = st.columns([0.3, 0.7])
+            
+            with search_col:
+                st.markdown('<div class="search-container">', unsafe_allow_html=True)
+                search_name = st.text_input("성명으로 검색", key="contact_search")
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            if search_name:
+                contact_df = df[df['성명'].str.contains(search_name, na=False)]
+                if not contact_df.empty:
+                    st.markdown("""
+                        <style>
+                        .dataframe {
+                            text-align: left !important;
+                        }
+                        .dataframe td, .dataframe th {
+                            text-align: left !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    
+                    # 생년월일 컬럼을 포함하여 표시할 컬럼 선택
+                    contact_info = contact_df[['성명', '생년월일', '본부', '팀', '직위', 'E-Mail', '핸드폰', '주소']].reset_index(drop=True)
+                    
+                    # 생년월일 형식 변환 (datetime 형식으로 변환 후 YYYY-MM-DD 형식으로 표시)
+                    contact_info['생년월일'] = pd.to_datetime(contact_info['생년월일']).dt.strftime('%Y-%m-%d')
+                    
+                    contact_info.index = contact_info.index + 1
+                    contact_info = contact_info.rename_axis('No.')
+                    st.dataframe(contact_info.style.set_properties(**{'text-align': 'left'}), use_container_width=True)
+                else:
+                    st.info("검색 결과가 없습니다.")
+
+            st.markdown("---")
+
+            # 생일자 검색
+            st.markdown("##### 🎂이달의 생일자")
+            current_month = datetime.now(pytz.timezone('Asia/Seoul')).month
+            birth_month = st.selectbox(
+                "생일 월 선택",
+                options=list(range(1, 13)),
+                format_func=lambda x: f"{x}월",
+                index=current_month - 1
+            )
+            
+            if birth_month:
+                birthday_df = df[(df['재직상태'] == '재직') & 
+                               (pd.to_datetime(df['생년월일']).dt.month == birth_month)]
+                if not birthday_df.empty:
+                    today = pd.Timestamp.now()
+                    birthday_info = birthday_df[['성명', '본부', '팀', '직위', '입사일']].copy()
+                    birthday_info['근속기간'] = (today - birthday_info['입사일']).dt.days // 365
+                    birthday_info['생일'] = pd.to_datetime(birthday_df['생년월일']).dt.strftime('%m-%d')
+                    
+                    birthday_info = birthday_info[['성명', '본부', '팀', '생일', '근속기간']]
+                    birthday_info = birthday_info.sort_values('생일')
+                    
+                    birthday_info['근속기간'] = birthday_info['근속기간'].astype(str) + '년'
+                    
+                    birthday_info = birthday_info.reset_index(drop=True)
+                    birthday_info.index = birthday_info.index + 1
+                    birthday_info = birthday_info.rename_axis('No.')
+                    
+                    st.dataframe(birthday_info, use_container_width=True)
+                else:
+                    st.info(f"{birth_month}월 재직자 중 생일자가 없습니다.")
+
+        elif menu == "🏦 기관제출용 인원현황":
+            st.markdown("##### 🏦 기관제출용 인원현황")
+            
+            # 데이터 로드
+            df = load_data()
+            if df is not None:
+                # 날짜 컬럼 변환 함수
+                def convert_date(date_value):
+                    if pd.isna(date_value):
+                        return pd.NaT
+                    try:
+                        # 엑셀 숫자 형식의 날짜 처리
+                        if isinstance(date_value, (int, float)):
+                            return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(date_value))
+                        
+                        # 문자열로 변환
+                        date_str = str(date_value)
+                        
+                        # 여러 날짜 형식 시도
+                        formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
+                        for fmt in formats:
+                            try:
+                                return pd.to_datetime(date_str, format=fmt)
+                            except:
+                                continue
+                        
+                        # 모든 형식이 실패하면 기본 변환 시도
+                        return pd.to_datetime(date_str)
+                    except:
+                        return pd.NaT
+
+                # 날짜 컬럼 변환
+                df['입사일'] = df['입사일'].apply(convert_date)
+                df['퇴사일'] = df['퇴사일'].apply(convert_date)
+                
+                
+                # 조회 기준일 설정
+                current_year = datetime.now().year
+                current_month = datetime.now().month
+                years = list(range(2016, current_year + 1))
+                years.sort(reverse=True)  # 내림차순 정렬
+                
+                col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+                with col1:
+                    selected_year = st.selectbox("조회년도", years, index=0)
+                with col2:
+                    months = list(range(1, 13))
+                    selected_month = st.selectbox("조회월", months, index=current_month-1)
+                with col3:
+                    st.write("")  # 공백 컬럼
+                
+                # 선택된 년월의 마지막 날짜 계산
+                last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
+                               
+                # 기준일에 재직중인 직원 필터링
+                current_employees = df[
+                    (df['입사일'].notna()) & 
+                    (df['입사일'] <= last_day) & 
+                    ((df['퇴사일'].isna()) | 
+                     (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
+                     (df['퇴사일'] >= last_day))
+                ]
+                
+                st.markdown("---")
+                
+                if not df[df['입사일'] <= last_day].empty:
+                    # 구분별 인원 현황 계산 및 표시
+                    # 구분1: 주주간담회 등 IR팀 자료
+                    st.markdown("1. 주주간담회 등 IR팀 자료 작성용")
+                    group1_stats = current_employees['구분1'].value_counts().reset_index()
+                    group1_stats.columns = ['구분', '인원수']
+                    total_count1 = group1_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group1_stats[group1_stats['구분'] == '임원']
+                    other_rows = group1_stats[group1_stats['구분'] != '임원']
+                    group1_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
+                    group1_stats = group1_stats.T  # 행과 열을 바꿈
+                    group1_stats.columns = group1_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group1_stats = group1_stats.iloc[1:]  # 첫 번째 행 제외
+                    group1_stats['총인원'] = total_count1  # 총인원 열 추가
+                    st.dataframe(
+                        group1_stats,
+                        use_container_width=False,
+                        width=900,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group1_stats.columns}
+                    )
+                    
+                    # 구분2: 투자자 사업현황 보고1
+                    st.markdown("2. 투자자 사업현황 보고")
+                    group2_stats = current_employees['구분2'].value_counts().reset_index()
+                    group2_stats.columns = ['구분', '인원수']
+                    total_count2 = group2_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group2_stats[group2_stats['구분'] == '임원']
+                    other_rows = group2_stats[group2_stats['구분'] != '임원']
+                    group2_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
+                    group2_stats = group2_stats.T  # 행과 열을 바꿈
+                    group2_stats.columns = group2_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group2_stats = group2_stats.iloc[1:]  # 첫 번째 행 제외
+                    group2_stats['총인원'] = total_count2  # 총인원 열 추가
+                    st.dataframe(
+                        group2_stats,
+                        use_container_width=False,
+                        width=600,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group2_stats.columns}
+                    )
+                    
+                    # 구분3: 의료기기 생산 및 수출·수입·수리실적보고
+                    st.markdown("3. 의료기기 생산 및 수출·수입·수리실적보고")
+                    group3_stats = current_employees['구분3'].value_counts().reset_index()
+                    group3_stats.columns = ['구분', '인원수']
+                    total_count3 = group3_stats['인원수'].sum()
+                    
+                    # '임원'이 있는 행을 찾아서 첫 번째로 이동
+                    임원_row = group3_stats[group3_stats['구분'] == '임원']
+                    other_rows = group3_stats[group3_stats['구분'] != '임원']
+                    group3_stats = pd.concat([임원_row, other_rows]).reset_index(drop=True)
+                    
+                    group3_stats = group3_stats.T  # 행과 열을 바꿈
+                    group3_stats.columns = group3_stats.iloc[0]  # 첫 번째 행을 컬럼명으로 설정
+                    group3_stats = group3_stats.iloc[1:]  # 첫 번째 행 제외
+                    group3_stats['총인원'] = total_count3  # 총인원 열 추가
+                    st.dataframe(
+                        group3_stats,
+                        use_container_width=False,
+                        width=700,
+                        column_config={col: st.column_config.NumberColumn(col, width=50) for col in group3_stats.columns}
+                    )
+                    
+                    # 인원상세 목록
+                    st.markdown("###### 🧑 인원상세")
+                    detail_columns = ['성명', '본부', '실', '팀', '고용구분', '입사일', '재직상태', '남/여', '구분1', '구분2', '구분3']
+                    detail_df = current_employees[detail_columns].copy()
+                    detail_df['입사일'] = detail_df['입사일'].dt.strftime('%Y-%m-%d')
+                    
+                    # 인덱스를 1부터 시작하는 번호로 리셋
+                    detail_df = detail_df.reset_index(drop=True)
+                    detail_df.index = detail_df.index + 1
+                    detail_df.index.name = 'No'
+                    detail_df = detail_df.reset_index()
+                    
+                    st.dataframe(
+                        detail_df,
+                        hide_index=True,
+                        column_config={
+                            "No": st.column_config.NumberColumn("No", width=50),
+                            "성명": st.column_config.TextColumn("성명", width=80),
+                            "본부": st.column_config.TextColumn("본부", width=120),
+                            "실": st.column_config.TextColumn("실", width=120),
+                            "팀": st.column_config.TextColumn("팀", width=120),
+                            "고용구분": st.column_config.TextColumn("고용구분", width=80),
+                            "입사일": st.column_config.TextColumn("입사일", width=100),
+                            "재직상태": st.column_config.TextColumn("재직상태", width=80),
+                            "성별": st.column_config.TextColumn("남/여", width=60),
+                            "구분1": st.column_config.TextColumn("구분1", width=120),
+                            "구분2": st.column_config.TextColumn("구분2", width=120),
+                            "구분3": st.column_config.TextColumn("구분3", width=120)
+                        }
+                    )
+                    
+                    # 엑셀 다운로드 버튼
+                    output = BytesIO()
+                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                        detail_df.to_excel(writer, index=False)
+                    excel_data = output.getvalue()
+                    st.download_button(
+                        label="📥 엑셀 다운로드",
+                        data=excel_data,
+                        file_name=f"기관제출용_인원현황_{selected_year}{selected_month:02d}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                else:
+                    st.warning(f"{selected_year}년 {selected_month}월 데이터가 없습니다.")
+            else:
+                st.error("데이터를 불러오는 중 오류가 발생했습니다.")
+
+        elif menu == "📋 채용 처우협상":
+            st.markdown("##### 🔎 처우 기본정보")
+            
+            # 직군 매핑 정의
+            job_mapping = {
+                "연구직": "직군1",
+                "개발직": "직군2",
+                "임상연구, QA, 인증(RA)": "직군2",
+                "연구기획": "직군3",
+                "디자인": "직군3",
+                "SV, SCM": "직군3",
+                "마케팅": "직군3",
+                "기획": "직군3",
+                "기술영업 / SE(5년 이상)": "직군3",
+                "경영기획(전략,회계,인사,재무,법무,보안)": "직군3",
+                "지원(연구, 기술, 경영 지원 등)": "직군4",
+                "일반영업 /SE(5년 미만)": "직군4",
+                "고객지원(CS)": "직군5",
+                "레이블링": "직군5"
+            }
+            
+            # 직군 상세 목록
+            job_roles = list(job_mapping.keys())
+            # 경력입력 폼 생성
+            with st.form("experience_form"):
+                experience_text = st.text_area("경력기간 입력 (이력서의 날짜 부분을 복사해서 붙여주세요.)", 
+                                             help="# 날짜 패턴 : # 날짜 패턴 : 2023. 04, 2024.05.01, 2024.05, 2024-05, 2024-05-01, 2024/05, 2024/05/01, 2023/05, 2015.01.")
+                
+                # 경력기간 조회 버튼 추가
+                experience_submitted = st.form_submit_button("경력기간 조회")
+                
+                if experience_submitted and experience_text:
+                    try:
+                        # 경력기간 계산
+                        experience_result = calculate_experience(experience_text)
+                        if experience_result:
+                            # 경력기간과 총 경력기간 분리
+                            experience_lines = experience_result.split('\n')
+                            total_experience = experience_lines[-1]  # 마지막 줄이 총 경력기간
+                            experience_periods = experience_lines[:-2]  # 마지막 두 줄(총 경력기간과 빈 줄) 제외
+                            
+                            # 총 경력기간을 소수점으로 변환
+                            total_match = re.search(r'총 경력기간: (\d+)년 (\d+)개월', total_experience)
+                            if total_match:
+                                years, months = map(int, total_match.groups())
+                                total_years = years + months / 12
+                                total_experience = f"총 경력기간: {total_years:.1f}년"
+                            
+                            # 경력기간 표시
+                            st.markdown(f"**{total_experience}**")
+                            st.markdown("**경력기간:**")
+                            for period in experience_periods:
+                                st.markdown(period)
+                        else:
+                            st.markdown("**경력기간:** 경력 정보가 없습니다.")
+                            st.session_state['years'] = 0.0
+                        # 인정경력(년) 필드 업데이트
+                        st.query_params["years"] = float(f"{total_years:.1f}")
+                    except Exception as e:
+                        st.error(f"경력기간 계산 중 오류가 발생했습니다: {str(e)}")
+
             # 입력 폼 생성
             with st.form("salary_form"):
                 # 1줄: 포지션명, 후보자명
@@ -3450,4 +3386,4 @@ def main():
                 st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
 if __name__ == "__main__":
-    main() 
+    main()
