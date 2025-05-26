@@ -674,6 +674,8 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     if check_user_permission(['HR', 'C-LEVEL']):
         if st.sidebar.button("😊 임직원 명부", use_container_width=True):
             st.session_state.menu = "😊 임직원 명부"
+        if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+            st.session_state.menu = "🏦 기관제출용 인원현황"
         if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
             st.session_state.menu = "🔍 연락처/생일 검색"
 
@@ -682,8 +684,6 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🚀 채용 전형관리"
         if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
             st.session_state.menu = "📋 채용 처우협상"
-        if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-            st.session_state.menu = "🏦 기관제출용 인원현황"
         if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
             st.session_state.menu = "⏰ 초과근무 조회"
         if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
