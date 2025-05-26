@@ -688,12 +688,11 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "⏰ 초과근무 조회"
         if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
             st.session_state.menu = "📅 인사발령 내역"
-
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("<br>", unsafe_allow_html=True)
-    with st.sidebar.expander("💡 전사지원"):
-        st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
-
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+        with st.sidebar.expander("💡 전사지원"):
+            st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
+    
     st.sidebar.markdown("---")
 
     # 로그인된 사용자 정보 표시
