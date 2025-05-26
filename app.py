@@ -40,7 +40,7 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+REDIRECT_URI = "https://hrmate.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -622,38 +622,32 @@ st.sidebar.markdown("---")
 
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
+if st.sidebar.button("📊 인원현황", use_container_width=True):
+    st.session_state.menu = "📊 인원현황"
+if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
+    st.session_state.menu = "📈 연도별 인원 통계"
+if st.sidebar.button("🚀 채용현황", use_container_width=True):
+    st.session_state.menu = "🚀 채용현황"
+if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+    st.session_state.menu = "🔔 인사팀 업무 공유"
+if st.sidebar.button("😊 임직원 명부", use_container_width=True):
+    st.session_state.menu = "😊 임직원 명부"
+if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
+    st.session_state.menu = "🔍 연락처/생일 검색"
 
-# 인원현황 - HR, C-LEVEL, Director 권한
-if check_user_permission(["HR", "C-LEVEL", "Director"]):
-    if st.sidebar.button("📊 인원현황", use_container_width=True):
-        st.session_state.menu = "📊 인원현황"
-    if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-        st.session_state.menu = "📈 연도별 인원 통계"
-    if st.sidebar.button("🚀 채용현황", use_container_width=True):
-        st.session_state.menu = "🚀 채용현황"
-    if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-        st.session_state.menu = "🔔 인사팀 업무 공유"
-
-# HR, C-LEVEL 권한만 필요한 메뉴
-if check_user_permission(["HR", "C-LEVEL"]):
-    if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-        st.session_state.menu = "😊 임직원 명부"
-    if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-        st.session_state.menu = "🔍 연락처/생일 검색"
 
 st.sidebar.markdown("#### HR Surpport")
-# HR Support 섹션 - HR, C-LEVEL 권한
-if check_user_permission(["HR", "C-LEVEL"]):
-    if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-        st.session_state.menu = "🚀 채용 전형관리"
-    if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-        st.session_state.menu = "📋 채용 처우협상"
-    if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-        st.session_state.menu = "🏦 기관제출용 인원현황"
-    if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-        st.session_state.menu = "⏰ 초과근무 조회"
-    if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-        st.session_state.menu = "📅 인사발령 내역"
+# HR Support 섹션
+if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
+    st.session_state.menu = "🚀 채용 전형관리"
+if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+    st.session_state.menu = "📋 채용 처우협상"
+if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+    st.session_state.menu = "🏦 기관제출용 인원현황"
+if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+    st.session_state.menu = "⏰ 초과근무 조회"
+if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+    st.session_state.menu = "📅 인사발령 내역"
 
 
 st.sidebar.markdown("---")
@@ -3390,18 +3384,6 @@ def main():
                     st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
             except Exception as e:
                 st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-
-def check_user_permission(required_roles):
-    """
-    사용자의 권한을 확인하는 함수
-    :param required_roles: 필요한 권한 목록 (list)
-    :return: bool
-    """
-    if 'user_role' not in st.session_state:
-        return False
-    
-    user_role = st.session_state.user_role
-    return user_role in required_roles
 
 if __name__ == "__main__":
     main()
