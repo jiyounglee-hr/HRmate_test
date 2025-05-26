@@ -482,8 +482,8 @@ def get_user_permission(email):
     try:
         df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
         user_row = df[df['이메일'].str.lower().str.strip() == email.lower().strip()]
-        if not user_row.empty and '권한' in user_row.columns:
-            return user_row.iloc[0]['권한']
+        if not user_row.empty and '권한명' in user_row.columns:
+            return user_row.iloc[0]['권한명']
         return None
     except Exception as e:
         st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
