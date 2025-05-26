@@ -506,7 +506,7 @@ def check_user_permission(required_permissions):
         st.write("Debug - 세션 정보 없음")
         return False
         
-    user_email = st.session_state.user_info.get('email', '')
+    user_email = st.session_state.user_info.get('mail', '')  # 'email' 대신 'mail' 사용
     user_permission = get_user_permission(user_email)
     
     st.write("Debug - 사용자 이메일:", user_email)
