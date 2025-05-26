@@ -650,38 +650,44 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 제목
-st.sidebar.title("👥 HRmate")
-st.sidebar.markdown("---")
-
 # 로그인된 사용자만 메뉴 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
+    # 제목
+    st.sidebar.title("👥 HRmate")
+    st.sidebar.markdown("---")
+
     # HR Data 섹션
     st.sidebar.markdown("#### HR Data")
-    if st.sidebar.button("📊 인원현황", use_container_width=True):
-        st.session_state.menu = "📊 인원현황"
-    if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-        st.session_state.menu = "📈 연도별 인원 통계"
-    if st.sidebar.button("🚀 채용현황", use_container_width=True):
-        st.session_state.menu = "🚀 채용현황"
-    if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-        st.session_state.menu = "🔔 인사팀 업무 공유"
-    if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-        st.session_state.menu = "😊 임직원 명부"
-    if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-        st.session_state.menu = "🔍 연락처/생일 검색"
+    
+    # HR, C-LEVEL, Director 권한 메뉴
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        if st.sidebar.button("📊 인원현황", use_container_width=True):
+            st.session_state.menu = "📊 인원현황"
+        if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
+            st.session_state.menu = "📈 연도별 인원 통계"
+        if st.sidebar.button("🚀 채용현황", use_container_width=True):
+            st.session_state.menu = "🚀 채용현황"
+        if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+            st.session_state.menu = "🔔 인사팀 업무 공유"
 
-    st.sidebar.markdown("#### HR Support")
-    if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-        st.session_state.menu = "🚀 채용 전형관리"
-    if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-        st.session_state.menu = "📋 채용 처우협상"
-    if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-        st.session_state.menu = "🏦 기관제출용 인원현황"
-    if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-        st.session_state.menu = "⏰ 초과근무 조회"
-    if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-        st.session_state.menu = "📅 인사발령 내역"
+    # HR, C-LEVEL 권한 메뉴
+    if check_user_permission(['HR', 'C-LEVEL']):
+        if st.sidebar.button("😊 임직원 명부", use_container_width=True):
+            st.session_state.menu = "😊 임직원 명부"
+        if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
+            st.session_state.menu = "🔍 연락처/생일 검색"
+
+        st.sidebar.markdown("#### HR Support")
+        if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
+            st.session_state.menu = "🚀 채용 전형관리"
+        if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+            st.session_state.menu = "📋 채용 처우협상"
+        if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+            st.session_state.menu = "🏦 기관제출용 인원현황"
+        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+            st.session_state.menu = "⏰ 초과근무 조회"
+        if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+            st.session_state.menu = "📅 인사발령 내역"
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
