@@ -481,29 +481,42 @@ def check_authorization(email):
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_data():
     try:
-        # 엑셀 파일 경로
-        file_path = "임직원 기초 데이터.xlsx"
+        SHEET_NAME = '임직원기초정보'
+        PERMISSION_SHEET = 'hrmate권한'
         
-        # 파일이 존재하는지 확인
-        if not os.path.exists(file_path):
-            st.error(f"파일을 찾을 수 없습니다: {file_path}")
-            return None
-             
-        # 파일 수정 시간 확인
-        last_modified = os.path.getmtime(file_path)
+        # 임직원 기초정보 시트 로드
+        worksheet = sheet.worksheet(SHEET_NAME)
+        data = worksheet.get_all_records()
+        df = pd.DataFrame(data)
         
-        # 엑셀 파일 읽기
-        df = pd.read_excel(file_path)
+        # 권한 시트 로드
+        permission_worksheet = sheet.worksheet(PERMISSION_SHEET)
+        permission_data = permission_worksheet.get_all_records()
+        permission_df = pd.DataFrame(permission_data)
         
-        # 데이터 로드 시간 표시 (한국 시간대 적용)
-        st.sidebar.markdown("<br>", unsafe_allow_html=True)
-        kst_time = datetime.fromtimestamp(last_modified, pytz.timezone('Asia/Seoul'))
-        st.sidebar.markdown(f"*마지막 데이터 업데이트: {kst_time.strftime('%Y년 %m월 %d일 %H:%M')}*")
-        
-        return df
+        return df, permission_df
     except Exception as e:
-        st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None
+        st.error(f"데이터 로드 중 오류가 발생했습니다: {str(e)}")
+        return pd.DataFrame(), pd.DataFrame()
+
+def check_user_permission(required_permissions):
+    """
+    사용자의 권한을 체크하는 함수
+    :param required_permissions: 필요한 권한 리스트 (예: ['HR', 'C-LEVEL'])
+    :return: bool
+    """
+    if 'user_info' not in st.session_state or st.session_state.user_info is None:
+        return False
+        
+    user_email = st.session_state.user_info.get('email', '')
+    _, permission_df = load_data()
+    
+    if permission_df.empty:
+        return False
+        
+    user_permission = permission_df[permission_df['이메일'] == user_email]['권한'].iloc[0] if not permission_df[permission_df['이메일'] == user_email].empty else None
+    
+    return user_permission in required_permissions if user_permission else False
 
 # 날짜 변환 함수 캐싱
 @st.cache_data(ttl=3600)  # 1시간 캐시 유지
@@ -623,32 +636,71 @@ st.sidebar.markdown("---")
 # HR Data 섹션
 st.sidebar.markdown("#### HR Data")
 if st.sidebar.button("📊 인원현황", use_container_width=True):
-    st.session_state.menu = "📊 인원현황"
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        st.session_state.menu = "📊 인원현황"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
 if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-    st.session_state.menu = "📈 연도별 인원 통계"
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        st.session_state.menu = "📈 연도별 인원 통계"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
 if st.sidebar.button("🚀 채용현황", use_container_width=True):
-    st.session_state.menu = "🚀 채용현황"
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        st.session_state.menu = "🚀 채용현황"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
 if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-    st.session_state.menu = "🔔 인사팀 업무 공유"
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        st.session_state.menu = "🔔 인사팀 업무 공유"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
 if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-    st.session_state.menu = "😊 임직원 명부"
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "😊 임직원 명부"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
 if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-    st.session_state.menu = "🔍 연락처/생일 검색"
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "🔍 연락처/생일 검색"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
 
-
-st.sidebar.markdown("#### HR Surpport")
-# HR Support 섹션
+st.sidebar.markdown("#### HR Support")
 if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-    st.session_state.menu = "🚀 채용 전형관리"
-if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-    st.session_state.menu = "📋 채용 처우협상"
-if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-    st.session_state.menu = "🏦 기관제출용 인원현황"
-if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-    st.session_state.menu = "⏰ 초과근무 조회"
-if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-    st.session_state.menu = "📅 인사발령 내역"
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "🚀 채용 전형관리"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
 
+if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "📋 채용 처우협상"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
+if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "🏦 기관제출용 인원현황"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
+if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "⏰ 초과근무 조회"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
+
+if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+    if check_user_permission(['HR', 'C-LEVEL']):
+        st.session_state.menu = "📅 인사발령 내역"
+    else:
+        st.sidebar.error("접근 권한이 없습니다.")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
