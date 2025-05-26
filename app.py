@@ -458,26 +458,36 @@ def login():
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_authorized_emails():
-    """권한이 있는 이메일과 권한명을 로드하는 함수"""
+    """권한이 있는 이메일 목록을 로드하는 함수"""
     try:
         # 엑셀 파일에서 권한 정보 읽기
         df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
-        return df[['이메일', '권한']].dropna().to_dict('records')
+        authorized_emails = df['이메일'].dropna().tolist()
+        return authorized_emails
     except Exception as e:
-        st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        st.error(f"이메일 목록을 불러오는 중 오류가 발생했습니다: {str(e)}")
         return []
 
 def check_authorization(email):
+    """이메일 권한을 확인하는 함수"""
+    authorized_emails = load_authorized_emails()
+    return email.lower().strip() in [e.lower().strip() for e in authorized_emails]
+
+def get_user_permission(email):
     """
-    이메일 권한을 확인하고 권한명을 반환하는 함수
+    사용자의 권한명을 가져오는 함수
     :param email: 확인할 이메일 주소
     :return: 권한명 (권한이 없으면 None)
     """
-    auth_data = load_authorized_emails()
-    for user in auth_data:
-        if user['이메일'].lower().strip() == email.lower().strip():
-            return user['권한']
-    return None
+    try:
+        df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
+        user_row = df[df['이메일'].str.lower().str.strip() == email.lower().strip()]
+        if not user_row.empty and '권한' in user_row.columns:
+            return user_row.iloc[0]['권한']
+        return None
+    except Exception as e:
+        st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 def check_user_permission(required_permissions):
     """
@@ -489,7 +499,7 @@ def check_user_permission(required_permissions):
         return False
         
     user_email = st.session_state.user_info.get('email', '')
-    user_permission = check_authorization(user_email)
+    user_permission = get_user_permission(user_email)
     
     return user_permission in required_permissions if user_permission else False
 
