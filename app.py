@@ -481,9 +481,16 @@ def get_user_permission(email):
     """
     try:
         df = pd.read_excel('임직원 기초 데이터.xlsx', sheet_name='hrmate권한')
+        st.write("Debug - 권한 시트 로드 성공")
+        st.write("Debug - 권한 시트 컬럼:", df.columns.tolist())
+        
         user_row = df[df['이메일'].str.lower().str.strip() == email.lower().strip()]
+        st.write("Debug - 검색된 사용자 행:", user_row.to_dict('records'))
+        
         if not user_row.empty and '권한명' in user_row.columns:
-            return user_row.iloc[0]['권한명']
+            permission = user_row.iloc[0]['권한명']
+            st.write("Debug - 찾은 권한명:", permission)
+            return permission
         return None
     except Exception as e:
         st.error(f"권한 정보를 불러오는 중 오류가 발생했습니다: {str(e)}")
@@ -496,10 +503,15 @@ def check_user_permission(required_permissions):
     :return: bool
     """
     if 'user_info' not in st.session_state or st.session_state.user_info is None:
+        st.write("Debug - 세션 정보 없음")
         return False
         
     user_email = st.session_state.user_info.get('email', '')
     user_permission = get_user_permission(user_email)
+    
+    st.write("Debug - 사용자 이메일:", user_email)
+    st.write("Debug - 사용자 권한:", user_permission)
+    st.write("Debug - 필요한 권한:", required_permissions)
     
     return user_permission in required_permissions if user_permission else False
 
