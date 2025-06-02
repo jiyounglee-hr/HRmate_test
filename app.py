@@ -3508,7 +3508,42 @@ def main():
                         # "합계" 행 제외
                         df = df[df['성명'] != '합계']
                         
-                        # 검색 기능 추가
+                        # 엑셀 다운로드를 위한 데이터 준비
+                        excel_data = []
+                        for _, row in df.iterrows():
+                            total_amount = sum(int(option['금액합계'].replace('원', '').replace(',', '')) for option in row['스톡옵션내역'])
+                            for option in row['스톡옵션내역']:
+                                excel_data.append({
+                                    '성명': row['성명'],
+                                    '본부': row['본부'],
+                                    '팀': row['팀'],
+                                    '직책': row['직책'],
+                                    '총 주식수': int(row['합계']),
+                                    '총 금액': total_amount,
+                                    '구분': option['구분'],
+                                    '회차': option['회차'],
+                                    '행사기간': option['행사기간'],
+                                    '행사가능비율': option['행사가능비율'],
+                                    '행사금액': option['행사금액'].replace('원', ''),
+                                    '부여주식': option['부여주식'].replace('주', ''),
+                                    '금액합계': option['금액합계'].replace('원', '')
+                                })
+                        
+                        # 데이터프레임 생성 및 컬럼 순서 정리
+                        excel_df = pd.DataFrame(excel_data)
+                        excel_df = excel_df[['성명', '본부', '팀', '직책', '총 주식수', '총 금액', 
+                                               '구분', '회차', '행사기간', '행사가능비율', '행사금액', 
+                                               '부여주식', '금액합계']]
+                        
+                        # 다운로드 버튼 추가
+                        st.download_button(
+                            label="📥 전체 스톡옵션 현황 다운로드",
+                            data=convert_df_to_excel(excel_df),
+                            file_name="스톡옵션_전체현황.xlsx",
+                            mime="application/vnd.ms-excel"
+                        )
+                        
+                        # 검색 기능 추가 
                         search_name = st.text_input('이름으로 검색', '')
                         
                         # 필터링된 데이터
