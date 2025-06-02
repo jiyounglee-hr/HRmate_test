@@ -3419,9 +3419,123 @@ def main():
                 st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
         elif menu == "💰 스톡옵션 조회":
-            st.title("💰 스톡옵션 조회")
-            st.info("🚧 현재 개발 진행 중인 기능입니다.") 
-            st.markdown("---")
+            st.markdown("##### 💰 스톡옵션 조회")
+            
+            # 파일 업로드 섹션
+            uploaded_file = st.file_uploader("스톡옵션 엑셀 파일을 업로드해주세요", type=['xlsx', 'xls'])
+            
+            if uploaded_file is not None:
+                try:
+                    # 엑셀 파일의 시트 목록 확인
+                    excel_file = pd.ExcelFile(uploaded_file)
+                    required_sheets = ['스톡옵션안내', 'ST코드']
+                    missing_sheets = [sheet for sheet in required_sheets if sheet not in excel_file.sheet_names]
+                    
+                    if missing_sheets:
+                        st.error(f"필수 시트가 없습니다: {', '.join(missing_sheets)}\n'스톡옵션안내'와 'ST코드' 시트가 모두 필요합니다.")
+                        st.stop()
+                    
+                    @st.cache_data(ttl=300)
+                    def load_stock_option_data(file):
+                        try:
+                            # 엑셀 파일 읽기
+                            stock_option_info = pd.read_excel(file, sheet_name='스톡옵션안내')
+                            stock_option_code = pd.read_excel(file, sheet_name='ST코드')
+                            
+                            # 재직 중인 직원만 필터링
+                            active_employees = stock_option_info[stock_option_info['재직상태'] != '퇴직']
+                            
+                            # ST 코드 컬럼 식별 (L열부터)
+                            st_columns = active_employees.columns[11:]  # L열부터 시작
+                            
+                            # 결과를 저장할 리스트
+                            result_data = []
+                            
+                            # 각 직원에 대해 처리
+                            for _, employee in active_employees.iterrows():
+                                base_info = {
+                                    '성명': employee['성명'],
+                                    '재직상태': employee['재직상태'],
+                                    '본부': employee['본부'],
+                                    '팀': employee['팀'],
+                                    '직책': employee['직책'],
+                                    '합계': employee['합계']
+                                }
+                                
+                                stock_options = []
+                                current_group = None
+                                
+                                # 각 ST 코드 컬럼 확인
+                                for col in st_columns:
+                                    if employee[col] > 0:  # 1 이상의 값이 있는 경우
+                                        # ST 코드 정보 찾기
+                                        st_info = stock_option_code[stock_option_code['회차구분'] == col].iloc[0]
+                                        
+                                        # 구분이 바뀌는 경우에만 표시
+                                        group_info = f"{st_info['구분']}" if st_info['구분'] != current_group else ""
+                                        current_group = st_info['구분']
+                                        
+                                        option_info = {
+                                            '구분': group_info,
+                                            '회차': st_info['회차구분'],
+                                            '행사기간': f"{st_info['행사시작일'].strftime('%Y-%m-%d')}~{st_info['행사종료일'].strftime('%Y-%m-%d')}",
+                                            '행사가능비율': f"{st_info['행사가능 비율']}%",
+                                            '행사금액': f"{int(st_info['행사금액']):,}원",
+                                            '부여주식': f"{int(employee[col]):,}주",
+                                            '금액합계': f"{int(st_info['행사금액'] * employee[col]):,}원"
+                                        }
+                                        stock_options.append(option_info)
+                                
+                                if stock_options:  # 스톡옵션이 있는 경우만 추가
+                                    base_info['스톡옵션내역'] = stock_options
+                                    result_data.append(base_info)
+                            
+                            return pd.DataFrame(result_data)
+                        except Exception as e:
+                            st.error(f"데이터 처리 중 오류 발생: {str(e)}")
+                            return None
+
+                    # 데이터 로드
+                    df = load_stock_option_data(uploaded_file)
+                    
+                    if df is not None and not df.empty:
+                        # 부서별 필터
+                        departments = ['전체'] + sorted(df['본부'].unique().tolist())
+                        selected_dept = st.selectbox('부서 선택', departments)
+                        
+                        # 필터링된 데이터
+                        if selected_dept != '전체':
+                            filtered_df = df[df['본부'] == selected_dept]
+                        else:
+                            filtered_df = df
+                        
+                        # 각 직원의 스톡옵션 정보 표시
+                        for _, row in filtered_df.iterrows():
+                            with st.expander(f"🔍 {row['성명']} ({row['본부']} / {row['팀']} / {row['직책']})"):
+                                st.write(f"**합계:** {row['합계']:,}주")
+                                st.markdown("---")
+                                st.markdown("**스톡옵션 상세 내역**")
+                                
+                                for option in row['스톡옵션내역']:
+                                    if option['구분']:  # 구분이 있는 경우만 헤더 표시
+                                        st.markdown(f"**{option['구분']}**")
+                                    
+                                    cols = st.columns([2, 2, 1, 1, 1])
+                                    cols[0].write(f"회차: {option['회차']}")
+                                    cols[1].write(f"행사기간: {option['행사기간']}")
+                                    cols[2].write(f"행사비율: {option['행사가능비율']}")
+                                    cols[3].write(f"주식수: {option['부여주식']}")
+                                    cols[4].write(f"행사금액: {option['행사금액']}")
+                                    
+                                    st.write(f"**금액합계:** {option['금액합계']}")
+                                    st.markdown("---")
+                    else:
+                        st.warning("처리할 스톡옵션 데이터가 없습니다.")
+                
+                except Exception as e:
+                    st.error(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
+            else:
+                st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)")
 
 if __name__ == "__main__":
     main()
