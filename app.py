@@ -669,6 +669,10 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🚀 채용현황"
         if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
             st.session_state.menu = "🔔 인사팀 업무 공유"
+        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+            st.session_state.menu = "⏰ 초과근무 조회"
+        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
+            st.session_state.menu = "💰 스톡옵션 조회"
 
     # HR, C-LEVEL 권한 메뉴
     if check_user_permission(['HR', 'C-LEVEL']):
@@ -3415,6 +3419,11 @@ def main():
                     st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
             except Exception as e:
                 st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+
+        elif menu == "💰 스톡옵션 조회":
+            st.title("💰 스톡옵션 조회")
+            st.info("🚧 현재 개발 진행 중인 기능입니다.") 
+            st.markdown("---")
 
 if __name__ == "__main__":
     main()
