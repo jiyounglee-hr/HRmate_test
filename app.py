@@ -3600,13 +3600,6 @@ def main():
                                 for col_num in range(len(excel_df.columns)):
                                     worksheet.write(row_num + 1, col_num, excel_df.iloc[row_num, col_num], cell_format)
                         
-                            # 다운로드 버튼 추가
-                            st.download_button(
-                                label="📥 전체 스톡옵션 현황 다운로드",
-                                data=buffer.getvalue(),
-                                file_name="스톡옵션_전체현황.xlsx",
-                                mime="application/vnd.ms-excel"
-                            )
                             
                             # 검색 기능 추가 
                             search_name = st.text_input('이름으로 검색', '')
@@ -3639,6 +3632,14 @@ def main():
                                         cols[3].write(f"주식수: {option['부여주식']}")
                                         cols[4].write(f"행사금액: {option['행사금액']}")
                                         cols[5].write(f"금액합계: {option['금액합계']}")
+
+                                                        # 다운로드 버튼 추가
+                            st.download_button(
+                                label="📥 전체 스톡옵션 현황 다운로드",
+                                data=buffer.getvalue(),
+                                file_name="스톡옵션_전체현황.xlsx",
+                                mime="application/vnd.ms-excel"
+                            )
                     else:
                         st.warning("처리할 스톡옵션 데이터가 없습니다.") 
                         
