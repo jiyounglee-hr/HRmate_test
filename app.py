@@ -3640,7 +3640,7 @@ def main():
                                         cols[4].write(f"행사금액: {option['행사금액']}")
                                         cols[5].write(f"금액합계: {option['금액합계']}")
                     else:
-                        st.warning("처리할 스톡옵션 데이터가 없습니다.") 
+                        st.warning("처리할 스톡옵션 데이터가 없습니다.")  
                         
                 except Exception as e:
                     st.error(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
