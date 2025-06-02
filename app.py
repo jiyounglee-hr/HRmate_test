@@ -669,11 +669,6 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🚀 채용현황"
         if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
             st.session_state.menu = "🔔 인사팀 업무 공유"
-        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-            st.session_state.menu = "⏰ 초과근무 조회"
-        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
-            st.session_state.menu = "💰 스톡옵션 조회"
-
     # HR, C-LEVEL 권한 메뉴
     if check_user_permission(['HR', 'C-LEVEL']):
         if st.sidebar.button("😊 임직원 명부", use_container_width=True):
@@ -682,6 +677,10 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🏦 기관제출용 인원현황"
         if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
             st.session_state.menu = "🔍 연락처/생일 검색"
+        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+            st.session_state.menu = "⏰ 초과근무 조회"
+        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
+            st.session_state.menu = "💰 스톡옵션 조회"
 
         st.sidebar.markdown("#### HR Support")
         if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
