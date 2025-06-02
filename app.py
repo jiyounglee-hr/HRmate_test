@@ -3438,9 +3438,27 @@ def main():
                     @st.cache_data(ttl=300)
                     def load_stock_option_data(file):
                         try:
+                            # 날짜 변환 함수
+                            def convert_date(date_val):
+                                if pd.isna(date_val):
+                                    return None
+                                if isinstance(date_val, (int, float)):
+                                    # Excel의 날짜 시리얼 넘버를 datetime으로 변환
+                                    return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(date_val))
+                                if isinstance(date_val, str):
+                                    try:
+                                        return pd.to_datetime(date_val)
+                                    except:
+                                        return None
+                                return date_val
+
                             # 엑셀 파일 읽기
                             stock_option_info = pd.read_excel(file, sheet_name='스톡옵션안내')
                             stock_option_code = pd.read_excel(file, sheet_name='ST코드')
+                            
+                            # 날짜 컬럼 변환
+                            for col in ['행사시작일', '행사종료일']:
+                                stock_option_code[col] = stock_option_code[col].apply(convert_date)
                             
                             # 재직 중인 직원만 필터링
                             active_employees = stock_option_info[stock_option_info['재직상태'] != '퇴직']
@@ -3456,10 +3474,10 @@ def main():
                                 base_info = {
                                     '성명': employee['성명'],
                                     '재직상태': employee['재직상태'],
-                                    '본부': employee['본부'],
-                                    '팀': employee['팀'],
-                                    '직책': employee['직책'],
-                                    '합계': employee['합계']
+                                    '본부': employee.get('본부', ''),
+                                    '팀': employee.get('팀', ''),
+                                    '직책': employee.get('직책', ''),
+                                    '합계': employee.get('합계', 0)
                                 }
                                 
                                 stock_options = []
@@ -3467,24 +3485,34 @@ def main():
                                 
                                 # 각 ST 코드 컬럼 확인
                                 for col in st_columns:
-                                    if employee[col] > 0:  # 1 이상의 값이 있는 경우
+                                    value = employee.get(col, 0)
+                                    if pd.notna(value) and float(value) > 0:  # 1 이상의 값이 있는 경우
                                         # ST 코드 정보 찾기
-                                        st_info = stock_option_code[stock_option_code['회차구분'] == col].iloc[0]
-                                        
-                                        # 구분이 바뀌는 경우에만 표시
-                                        group_info = f"{st_info['구분']}" if st_info['구분'] != current_group else ""
-                                        current_group = st_info['구분']
-                                        
-                                        option_info = {
-                                            '구분': group_info,
-                                            '회차': st_info['회차구분'],
-                                            '행사기간': f"{st_info['행사시작일'].strftime('%Y-%m-%d')}~{st_info['행사종료일'].strftime('%Y-%m-%d')}",
-                                            '행사가능비율': f"{st_info['행사가능 비율']}%",
-                                            '행사금액': f"{int(st_info['행사금액']):,}원",
-                                            '부여주식': f"{int(employee[col]):,}주",
-                                            '금액합계': f"{int(st_info['행사금액'] * employee[col]):,}원"
-                                        }
-                                        stock_options.append(option_info)
+                                        st_info_rows = stock_option_code[stock_option_code['회차구분'] == col]
+                                        if not st_info_rows.empty:
+                                            st_info = st_info_rows.iloc[0]
+                                            
+                                            # 구분이 바뀌는 경우에만 표시
+                                            group_info = f"{st_info['구분']}" if st_info['구분'] != current_group else ""
+                                            current_group = st_info['구분']
+                                            
+                                            # 날짜 형식 처리
+                                            start_date = st_info['행사시작일']
+                                            end_date = st_info['행사종료일']
+                                            
+                                            start_date_str = start_date.strftime('%Y-%m-%d') if pd.notna(start_date) else '날짜 없음'
+                                            end_date_str = end_date.strftime('%Y-%m-%d') if pd.notna(end_date) else '날짜 없음'
+                                            
+                                            option_info = {
+                                                '구분': group_info,
+                                                '회차': st_info['회차구분'],
+                                                '행사기간': f"{start_date_str}~{end_date_str}",
+                                                '행사가능비율': f"{st_info.get('행사가능 비율', 0)}%",
+                                                '행사금액': f"{int(st_info.get('행사금액', 0)):,}원",
+                                                '부여주식': f"{int(float(value)):,}주",
+                                                '금액합계': f"{int(st_info.get('행사금액', 0) * float(value)):,}원"
+                                            }
+                                            stock_options.append(option_info)
                                 
                                 if stock_options:  # 스톡옵션이 있는 경우만 추가
                                     base_info['스톡옵션내역'] = stock_options
@@ -3492,7 +3520,7 @@ def main():
                             
                             return pd.DataFrame(result_data)
                         except Exception as e:
-                            st.error(f"데이터 처리 중 오류 발생: {str(e)}")
+                            st.error(f"데이터 처리 중 상세 오류: {str(e)}")
                             return None
 
                     # 데이터 로드
@@ -3535,7 +3563,7 @@ def main():
                 except Exception as e:
                     st.error(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
             else:
-                st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)")
+                st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)") 
 
 if __name__ == "__main__":
     main()
