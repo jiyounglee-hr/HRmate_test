@@ -3510,7 +3510,7 @@ def main():
                         selected_dept = st.selectbox('부서 선택', departments)
                         
                         # 필터링된 데이터
-                        filtered_df = df if selected_dept == '전체' else df[df['본부'] == selected_dept]
+                        filtered_df = df if selected_dept == '전체' else df[df['본부'] == selected_dept] 
                         
                         # 각 직원의 스톡옵션 정보 표시
                         for _, row in filtered_df.iterrows():
