@@ -3441,7 +3441,7 @@ def main():
                     result_data = []
                     
                     # L열(12번째 컬럼)부터의 ST 코드 컬럼들
-                    st_columns = active_employees.columns[11:]
+                    st_columns = active_employees.columns[11:] 
                     
                     # 각 직원에 대해 처리
                     for _, employee in active_employees.iterrows():
