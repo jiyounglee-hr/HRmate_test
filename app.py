@@ -3520,7 +3520,9 @@ def main():
                         # 각 직원의 스톡옵션 정보 표시
                         for _, row in filtered_df.iterrows():
                             with st.expander(f"{row['성명']} ({row['본부']} / {row['팀']} / {row['직책']})"):
-                                st.write(f"**합계:** {int(row['합계']):,}주")
+                                # 총 금액 계산
+                                total_amount = sum(int(option['금액합계'].replace('원', '').replace(',', '')) for option in row['스톡옵션내역'])
+                                st.write(f"**총 주식수:** {int(row['합계']):,}주  |  **총 금액:** {total_amount:,}원")
                                 st.markdown("---")
                                 st.markdown("**스톡옵션 상세 내역**")
                                 
