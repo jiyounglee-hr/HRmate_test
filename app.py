@@ -3460,8 +3460,14 @@ def main():
                             for col in ['행사시작일', '행사종료일']:
                                 stock_option_code[col] = stock_option_code[col].apply(convert_date)
                             
-                            # 재직 중인 직원만 필터링
-                            active_employees = stock_option_info[stock_option_info['재직상태'] != '퇴직']
+                            # 재직 중인 직원만 필터링 (데이터 타입 안전하게 처리)
+                            active_employees = stock_option_info.copy()
+                            active_employees['재직상태'] = active_employees['재직상태'].astype(str)
+                            active_employees = active_employees[active_employees['재직상태'].str.contains('퇴직') == False]
+                            
+                            # 숫자 데이터 타입 변환
+                            for col in active_employees.columns[11:]:  # L열부터의 모든 컬럼
+                                active_employees[col] = pd.to_numeric(active_employees[col], errors='coerce').fillna(0)
                             
                             # ST 코드 컬럼 식별 (L열부터)
                             st_columns = active_employees.columns[11:]  # L열부터 시작
