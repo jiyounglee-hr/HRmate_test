@@ -3422,7 +3422,17 @@ def main():
         elif menu == "💰 스톡옵션 조회":
             st.markdown("##### 💰 스톡옵션 조회")
             
-            uploaded_file = st.file_uploader("스톡옵션 엑셀 파일을 업로드해주세요", type=['xlsx', 'xls'])
+            # 검색 입력 필드 스타일 추가
+            st.markdown("""
+            <style>
+            /* 검색 입력 필드 스타일 */
+            [data-testid="stTextInput"] input {
+                background-color: #eee;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            uploaded_file = st.file_uploader("스톡옵션 엑셀 파일을 업로드해주세요", type=['xlsx', 'xls']) 
             
             if uploaded_file is not None:
                 try:
