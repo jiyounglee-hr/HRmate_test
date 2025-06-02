@@ -3485,7 +3485,7 @@ def main():
                                     '구분': str(st_info.get('구분', '')),
                                     '회차': str(col),
                                     '행사기간': f"{start_date_str}~{end_date_str}",
-                                    '행사가능비율': f"{int(exercise_ratio/100)}%",
+                                    '행사가능비율': f"{int(exercise_ratio)}%",
                                     '행사금액': f"{int(exercise_price):,}원",
                                     '부여주식': f"{int(quantity):,}주",
                                     '금액합계': f"{int(exercise_price * quantity):,}원"
