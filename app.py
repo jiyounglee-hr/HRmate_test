@@ -3497,9 +3497,9 @@ def main():
                                     '회차': str(col),
                                     '행사기간': f"{start_date_str}~{end_date_str}",
                                     '행사가능비율': f"{int(exercise_ratio * 100)}%",
-                                    '행사금액': exercise_price,  # 숫자 형태로 저장
-                                    '부여주식': quantity,  # 숫자 형태로 저장
-                                    '금액합계': exercise_price * quantity  # 숫자 형태로 저장
+                                    '행사금액': f"{int(exercise_price):,}원",
+                                    '부여주식': f"{int(quantity):,}주",
+                                    '금액합계': f"{int(exercise_price * quantity):,}원"
                                 }
                                 
                                 employee_info['스톡옵션내역'].append(option_info)
@@ -3640,7 +3640,7 @@ def main():
                                         cols[4].write(f"행사금액: {option['행사금액']}")
                                         cols[5].write(f"금액합계: {option['금액합계']}")
                     else:
-                        st.warning("처리할 스톡옵션 데이터가 없습니다.")  
+                        st.warning("처리할 스톡옵션 데이터가 없습니다.") 
                         
                 except Exception as e:
                     st.error(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
