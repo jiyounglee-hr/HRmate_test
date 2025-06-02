@@ -3505,16 +3505,21 @@ def main():
                     if result_data:
                         df = pd.DataFrame(result_data)
                         
-                        # 부서별 필터
-                        departments = ['전체'] + sorted(df['본부'].unique().tolist())
-                        selected_dept = st.selectbox('부서 선택', departments)
+                        # "합계" 행 제외
+                        df = df[df['성명'] != '합계']
+                        
+                        # 검색 기능 추가
+                        search_name = st.text_input('이름으로 검색', '')
                         
                         # 필터링된 데이터
-                        filtered_df = df if selected_dept == '전체' else df[df['본부'] == selected_dept] 
+                        if search_name:
+                            filtered_df = df[df['성명'].str.contains(search_name, case=False, na=False)]
+                        else:
+                            filtered_df = df
                         
                         # 각 직원의 스톡옵션 정보 표시
                         for _, row in filtered_df.iterrows():
-                            with st.expander(f"🔍 {row['성명']} ({row['본부']} / {row['팀']} / {row['직책']})"):
+                            with st.expander(f"{row['성명']} ({row['본부']} / {row['팀']} / {row['직책']})"):
                                 st.write(f"**합계:** {int(row['합계']):,}주")
                                 st.markdown("---")
                                 st.markdown("**스톡옵션 상세 내역**")
