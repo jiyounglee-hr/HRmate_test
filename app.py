@@ -31,6 +31,7 @@ import tempfile
 from PyPDF2 import PdfMerger
 import msal
 from dotenv import load_dotenv
+import xlsxwriter
 
 # 환경 변수 로드
 load_dotenv()
@@ -3535,10 +3536,25 @@ def main():
                                                '구분', '회차', '행사기간', '행사가능비율', '행사금액', 
                                                '부여주식', '금액합계']]
                         
+                        # 엑셀 파일로 변환
+                        buffer = io.BytesIO()
+                        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                            excel_df.to_excel(writer, sheet_name='스톡옵션현황', index=False)
+                            
+                            # 열 너비 자동 조정
+                            worksheet = writer.sheets['스톡옵션현황']
+                            for idx, col in enumerate(excel_df.columns):
+                                series = excel_df[col]
+                                max_len = max(
+                                    series.astype(str).map(len).max(),
+                                    len(str(series.name))
+                                ) + 2
+                                worksheet.set_column(idx, idx, max_len)
+                        
                         # 다운로드 버튼 추가
                         st.download_button(
                             label="📥 전체 스톡옵션 현황 다운로드",
-                            data=convert_df_to_excel(excel_df),
+                            data=buffer.getvalue(),
                             file_name="스톡옵션_전체현황.xlsx",
                             mime="application/vnd.ms-excel"
                         )
