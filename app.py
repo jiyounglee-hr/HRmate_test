@@ -3530,7 +3530,7 @@ def main():
                                         st.markdown(f"**{option['구분']}**")
                                         current_group = option['구분']
                                     
-                                    cols = st.columns([1, 2, 1, 1, 1, 2.5])
+                                    cols = st.columns([1, 2, 1, 1, 1.5, 2])
                                     cols[0].write(f"회차: {option['회차']}")
                                     cols[1].write(f"행사기간: {option['행사기간']}")
                                     cols[2].write(f"행사비율: {option['행사가능비율']}")
