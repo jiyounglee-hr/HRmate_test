@@ -3601,9 +3601,89 @@ def main():
                                     worksheet.write(row_num + 1, col_num, excel_df.iloc[row_num, col_num], cell_format)
                             
                             # 검색 기능 추가
-                            search_name = st.text_input('이름으로 검색', '')
+                            search_name = st.text_input('이름으로 검색', '', key='stock_option_search')
+
+                            # 엑셀 다운로드용 데이터프레임 생성
+                            download_data = []
                             
-                            # 필터링된 데이터
+                            for _, row in df.iterrows():
+                                total_amount = sum(int(option['금액합계'].replace('원', '').replace(',', '')) for option in row['스톡옵션내역'])
+                                
+                                # 스톡옵션 상세 내역 문자열 생성
+                                details = []
+                                current_group = None
+                                
+                                for option in row['스톡옵션내역']:
+                                    if option['구분'] != current_group:
+                                        details.append(f"\n[{option['구분']}]")
+                                        current_group = option['구분']
+                                    
+                                    details.append(
+                                        f"회차: {option['회차']}, "
+                                        f"행사기간: {option['행사기간']}, "
+                                        f"행사비율: {option['행사가능비율']}, "
+                                        f"주식수: {option['부여주식']}, "
+                                        f"행사금액: {option['행사금액']}, "
+                                        f"금액합계: {option['금액합계']}"
+                                    )
+                                
+                                download_data.append({
+                                    '임직원 정보': f"{row['성명']} ({row['본부']} / {row['팀']} / {row['직책']})",
+                                    '총계': f"총 주식수: {int(row['합계']):,}주 | 총 금액: {total_amount:,}원",
+                                    '스톡옵션 상세내역': '\n'.join(details)
+                                })
+                            
+                            # 데이터프레임 생성 및 엑셀 변환
+                            download_df = pd.DataFrame(download_data)
+                            buffer = io.BytesIO()
+                            
+                            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                                download_df.to_excel(writer, index=False, sheet_name='스톡옵션현황')
+                                workbook = writer.book
+                                worksheet = writer.sheets['스톡옵션현황']
+                                
+                                # 포맷 설정
+                                header_format = workbook.add_format({
+                                    'bold': True,
+                                    'bg_color': '#D9D9D9',
+                                    'border': 1,
+                                    'align': 'center',
+                                    'valign': 'vcenter'
+                                })
+                                
+                                cell_format = workbook.add_format({
+                                    'align': 'left',
+                                    'valign': 'vcenter',
+                                    'text_wrap': True
+                                })
+                                
+                                # 열 너비 설정
+                                worksheet.set_column('A:A', 40)
+                                worksheet.set_column('B:B', 40)
+                                worksheet.set_column('C:C', 80)
+                                
+                                # 행 높이 설정
+                                worksheet.set_default_row(30)
+                                
+                                # 헤더 포맷 적용
+                                for col_num, value in enumerate(download_df.columns.values):
+                                    worksheet.write(0, col_num, value, header_format)
+                                
+                                # 데이터 포맷 적용
+                                for row_num in range(len(download_df)):
+                                    for col_num in range(len(download_df.columns)):
+                                        worksheet.write(row_num + 1, col_num, download_df.iloc[row_num, col_num], cell_format)
+                            
+                            # 다운로드 버튼 배치
+                            st.download_button(
+                                label="📥 전체 스톡옵션 현황 다운로드",
+                                data=buffer.getvalue(),
+                                file_name="스톡옵션_전체현황.xlsx",
+                                mime="application/vnd.ms-excel",
+                                key='stock_option_download'
+                            )
+
+                            # 검색 결과 표시
                             if search_name:
                                 filtered_df = df[df['성명'].str.contains(search_name, case=False, na=False)]
                             else:
@@ -3634,7 +3714,7 @@ def main():
 
                             # 다운로드 버튼 추가
                             st.download_button(
-                                label="📥 전체 스톡옵션 현황 다운로드",
+                                label="📥 전체 스톡옵션 현황 다운로드", 
                                 data=buffer.getvalue(),
                                 file_name="스톡옵션_전체현황.xlsx",
                                 mime="application/vnd.ms-excel"
