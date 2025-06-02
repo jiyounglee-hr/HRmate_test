@@ -3599,9 +3599,8 @@ def main():
                             for row_num in range(len(excel_df)):
                                 for col_num in range(len(excel_df.columns)):
                                     worksheet.write(row_num + 1, col_num, excel_df.iloc[row_num, col_num], cell_format)
-                        
                             
-                            # 검색 기능 추가 
+                            # 검색 기능 추가
                             search_name = st.text_input('이름으로 검색', '')
                             
                             # 필터링된 데이터
