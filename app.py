@@ -3536,7 +3536,7 @@ def main():
                                     cols[2].write(f"행사비율: {option['행사가능비율']}")
                                     cols[3].write(f"주식수: {option['부여주식']}")
                                     cols[4].write(f"행사금액: {option['행사금액']}")
-                                    st.write(f"**금액합계:** {option['금액합계']}")
+                                    st.write(f"**금액합계:** {option['금액합계']}") 
                     else:
                         st.warning("처리할 스톡옵션 데이터가 없습니다.")
                         
