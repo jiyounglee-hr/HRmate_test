@@ -677,20 +677,19 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🏦 기관제출용 인원현황"
         if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
             st.session_state.menu = "🔍 연락처/생일 검색"
-        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-            st.session_state.menu = "⏰ 초과근무 조회"
-        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
-            st.session_state.menu = "💰 스톡옵션 조회"
 
         st.sidebar.markdown("#### HR Support")
         if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
             st.session_state.menu = "🚀 채용 전형관리"
         if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
             st.session_state.menu = "📋 채용 처우협상"
-        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-            st.session_state.menu = "⏰ 초과근무 조회"
         if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
             st.session_state.menu = "📅 인사발령 내역"
+        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+            st.session_state.menu = "⏰ 초과근무 조회"
+        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
+            st.session_state.menu = "💰 스톡옵션 조회"
+
         st.sidebar.markdown("---")
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
         with st.sidebar.expander("💡 전사지원"):
