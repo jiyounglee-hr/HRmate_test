@@ -3530,13 +3530,13 @@ def main():
                                         st.markdown(f"**{option['구분']}**")
                                         current_group = option['구분']
                                     
-                                    cols = st.columns([2, 2, 1, 1, 1])
+                                    cols = st.columns([1, 2, 1, 1, 1, 2.5])
                                     cols[0].write(f"회차: {option['회차']}")
                                     cols[1].write(f"행사기간: {option['행사기간']}")
                                     cols[2].write(f"행사비율: {option['행사가능비율']}")
                                     cols[3].write(f"주식수: {option['부여주식']}")
                                     cols[4].write(f"행사금액: {option['행사금액']}")
-                                    st.write(f"**금액합계:** {option['금액합계']}") 
+                                    cols[5].write(f"금액합계: {option['금액합계']}")
                     else:
                         st.warning("처리할 스톡옵션 데이터가 없습니다.")
                         
