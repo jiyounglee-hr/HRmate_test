@@ -3543,9 +3543,9 @@ def main():
                                     f"회차: {option['회차']}, "
                                     f"행사기간: {option['행사기간']}, "
                                     f"행사비율: {option['행사가능비율']}, "
-                                    f"주식수: {int(option['부여주식']):,}주, "
-                                    f"행사금액: {int(option['행사금액']):,}원, "
-                                    f"금액합계: {int(option['금액합계']):,}원"
+                                    f"주식수: {option['부여주식']}, "
+                                    f"행사금액: {option['행사금액']}, "
+                                    f"금액합계: {option['금액합계']}"
                                 )
                                 stock_options.append(option_detail)
                             
@@ -3636,16 +3636,16 @@ def main():
                                         cols[0].write(f"회차: {option['회차']}")
                                         cols[1].write(f"행사기간: {option['행사기간']}")
                                         cols[2].write(f"행사비율: {option['행사가능비율']}")
-                                        cols[3].write(f"주식수: {int(option['부여주식']):,}주")
-                                        cols[4].write(f"행사금액: {int(option['행사금액']):,}원")
-                                        cols[5].write(f"금액합계: {int(option['금액합계']):,}원")
+                                        cols[3].write(f"주식수: {option['부여주식']}")
+                                        cols[4].write(f"행사금액: {option['행사금액']}")
+                                        cols[5].write(f"금액합계: {option['금액합계']}")
                     else:
                         st.warning("처리할 스톡옵션 데이터가 없습니다.") 
                         
                 except Exception as e:
                     st.error(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
             else:
-                st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)") 
+                st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)")
 
 if __name__ == "__main__":
     main()
