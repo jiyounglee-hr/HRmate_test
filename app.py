@@ -688,7 +688,7 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "📅 인사발령 내역"
         if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
             st.session_state.menu = "⏰ 초과근무 조회"
-        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True):
+        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True): 
             st.session_state.menu = "💰 스톡옵션 조회"
 
         st.sidebar.markdown("---")
@@ -3527,7 +3527,7 @@ def main():
                             
                             # 총계 정보 행
                             total_amount = sum(int(option['금액합계'].replace('원', '').replace(',', '')) for option in row['스톡옵션내역'])
-                            total_info = f"총 주식수: {int(row['합계']):,}주 | 총 금액: {total_amount:,}원"
+                            total_info = f"총 행사가능 주식수: {int(row['합계']):,}주 | 총 행사가액: {total_amount:,}원"
                             
                             # 스톡옵션 상세 내역
                             stock_options = []
@@ -3536,16 +3536,16 @@ def main():
                                 if option['구분'] != current_group:
                                     if current_group is not None:
                                         excel_data.append(['', '', ''])  # 구분 사이 빈 줄 추가
-                                    stock_options.append(f"[{option['구분']}]")
+                                    stock_options.append(f"[부여코드: {option['구분']}]")
                                     current_group = option['구분']
                                 
                                 option_detail = (
-                                    f"회차: {option['회차']}, "
+                                    f"행사코드: {option['회차']}, "
                                     f"행사기간: {option['행사기간']}, "
                                     f"행사비율: {option['행사가능비율']}, "
-                                    f"주식수: {option['부여주식']}, "
-                                    f"행사금액: {option['행사금액']}, "
-                                    f"금액합계: {option['금액합계']}"
+                                    f"행사가능 주식수: {option['부여주식']}, "
+                                    f"주당 행사가액: {option['행사금액']}, "
+                                    f"행사가액 합계: {option['금액합계']}"
                                 )
                                 stock_options.append(option_detail)
                             
@@ -3615,16 +3615,16 @@ def main():
                                 
                                 for option in row['스톡옵션내역']:
                                     if option['구분'] != current_group:
-                                        details.append(f"\n[{option['구분']}]")
+                                        details.append(f"\n[부여코드: {option['구분']}]")
                                         current_group = option['구분']
                                     
                                     details.append(
-                                        f"회차: {option['회차']}, "
+                                        f"행사코드: {option['회차']}, "
                                         f"행사기간: {option['행사기간']}, "
                                         f"행사비율: {option['행사가능비율']}, "
-                                        f"주식수: {option['부여주식']}, "
-                                        f"행사금액: {option['행사금액']}, "
-                                        f"금액합계: {option['금액합계']}"
+                                        f"행사가능 주식수: {option['부여주식']}, "
+                                        f"주당 행사가액: {option['행사금액']}, "
+                                        f"행사가액 합계계: {option['금액합계']}"
                                     )
                                 
                                 download_data.append({
@@ -3701,14 +3701,16 @@ def main():
                                     current_group = None
                                     for option in row['스톡옵션내역']:
                                         if option['구분'] != current_group:
-                                            st.markdown(f"** 부여코드 : {option['구분']}**")
+                                            st.markdown(f"**{option['구분']}**")
                                             current_group = option['구분']
                                         
-                                        cols = st.columns([1, 2, 1, 1, 2])
+                                        cols = st.columns([1, 2, 1, 1, 1.5, 2])
                                         cols[0].write(f"행사코드: {option['회차']}")
                                         cols[1].write(f"행사기간: {option['행사기간']}")
-                                        cols[2].write(f"행사가능 주식수: {option['부여주식']}")
-                                        cols[3].write(f"주당 행사가액: {option['행사금액']}")
+                                        cols[2].write(f"행사비율: {option['행사가능비율']}")
+                                        cols[3].write(f"행사가능 주식수: {option['부여주식']}")
+                                        cols[4].write(f"주당 행사가액: {option['행사금액']}")
+                                        cols[5].write(f"행사가액 합계: {option['금액합계']}")
                     else:
                         st.warning("처리할 스톡옵션 데이터가 없습니다.") 
                         
