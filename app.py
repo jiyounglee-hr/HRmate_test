@@ -3619,12 +3619,10 @@ def main():
                                         current_group = option['구분']
                                     
                                     details.append(
-                                        f"행사코드: {option['회차']}, "
-                                        f"행사기간: {option['행사기간']}, "
-                                        f"행사비율: {option['행사가능비율']}, "
-                                        f"행사가능 주식수: {option['부여주식']}, "
-                                        f"주당 행사가액: {option['행사금액']}, "
-                                        f"행사가액 합계계: {option['금액합계']}"
+                                        f"행사코드: {option['회차']}  "
+                                        f"행사기간: {option['행사기간']}  "
+                                        f"행사가능 주식수: {option['부여주식']}  "
+                                        f"주당 행사가액: {option['행사금액']}  "
                                     )
                                 
                                 download_data.append({
