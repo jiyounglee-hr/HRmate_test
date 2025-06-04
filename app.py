@@ -3701,15 +3701,15 @@ def main():
                                     current_group = None
                                     for option in row['스톡옵션내역']:
                                         if option['구분'] != current_group:
-                                            st.markdown(f"**{option['구분']}**")
+                                            st.markdown(f"** 부여코드 : {option['구분']}**")
                                             current_group = option['구분']
                                         
                                         cols = st.columns([1, 2, 1, 1, 1.5, 2])
-                                        cols[0].write(f"코드: {option['회차']}")
+                                        cols[0].write(f"행사코드: {option['회차']}")
                                         cols[1].write(f"행사기간: {option['행사기간']}")
                                         cols[2].write(f"행사가능 주식수: {option['부여주식']}")
-                                        cols[4].write(f"주당 행사가액: {option['행사금액']}")
-                                        cols[5].write(f"금액합계: {option['금액합계']}")
+                                        cols[3].write(f"주당 행사가액: {option['행사금액']}")
+                                        cols[4].write(f"금액합계: {option['금액합계']}")
 
                             # 다운로드 버튼 추가
                             st.download_button(
