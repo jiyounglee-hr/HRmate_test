@@ -3936,7 +3936,7 @@ def create_business_card(row, design_type="기본"):
             
         # 이미지 크기 설정
         width = int(949.2)  # 가로 픽셀
-        height = int(260.79)  # 세로 픽셀
+        height = int(782.37)  # 세로 픽셀
         
         # 템플릿 크기 조정
         template = template.resize((width, height))
