@@ -34,42 +34,10 @@ from dotenv import load_dotenv
 import xlsxwriter
 from PIL import Image, ImageDraw, ImageFont
 
-# Figma API 설정
-FIGMA_ACCESS_TOKEN = st.secrets["FIGMA_ACCESS_TOKEN"]  
-FIGMA_FILE_ID = st.secrets["FIGMA_FILE_ID"]
-FIGMA_NODE_ID = st.secrets["FIGMA_NODE_ID"]
+# === ✅ 로고 파일 경로 ===
+FRONT_LOGO_URL = "assets/FRONTLOGO.png"
+BACK_LOGO_URL = "assets/BACKLOGO.png"
 
-def get_figma_design():
-    """Figma API를 사용하여 명함 디자인을 가져오는 함수"""
-    try:
-        # Figma 파일의 이미지 URL 가져오기
-        headers = {
-            "X-FIGMA-TOKEN": FIGMA_ACCESS_TOKEN
-        }
-        
-        # 이미지 URL 가져오기
-        image_url = f"https://api.figma.com/v1/images/{FIGMA_FILE_ID}?ids={FIGMA_NODE_ID}&format=png&scale=2"
-        response = requests.get(image_url, headers=headers)
-        response.raise_for_status()
-        
-        image_data = response.json()
-        if 'images' in image_data and image_data['images']:
-            # 첫 번째 이미지 URL 가져오기
-            design_url = list(image_data['images'].values())[0]
-            
-            # 이미지 다운로드
-            image_response = requests.get(design_url)
-            image_response.raise_for_status()
-            
-            # 이미지 객체로 변환
-            return Image.open(BytesIO(image_response.content))
-        else:
-            st.error("Figma 디자인을 찾을 수 없습니다.")
-            return None
-            
-    except Exception as e:
-        st.error(f"Figma 디자인을 가져오는 중 오류가 발생했습니다: {str(e)}")
-        return None
 
 # 환경 변수 로드
 load_dotenv()
@@ -3925,10 +3893,12 @@ def create_business_card(row):
     """명함 이미지를 생성하는 함수"""
     try:
         # === ✅ 로고 가져오기 ===
-        response_front = requests.get(FRONT_LOGO_URL)
-        response_back = requests.get(BACK_LOGO_URL)
-        front_logo = Image.open(BytesIO(response_front.content)).convert("RGBA")
-        back_logo = Image.open(BytesIO(response_back.content)).convert("RGBA")
+        try:
+            front_logo = Image.open(FRONT_LOGO_URL).convert("RGBA")
+            back_logo = Image.open(BACK_LOGO_URL).convert("RGBA")
+        except Exception as e:
+            st.error(f"로고 파일을 불러올 수 없습니다: {str(e)}")
+            return None, None, None
 
         # === ✅ 명함 스펙 ===
         width, height = int(442.2), int(782.37)
