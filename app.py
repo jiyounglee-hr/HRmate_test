@@ -3833,29 +3833,22 @@ def main():
                                 st.write(f"**이메일:** {row['이메일']}")
                             
                             with col2:
-                                # 명함 디자인 선택
-                                design_type = st.selectbox("디자인 선택", ["기본", "심플"], key=f"design_{row['한글명']}")
-                                
-                                # 명함 미리보기 및 다운로드 버튼
-                                if st.button("명함 미리보기", key=f"preview_{row['한글명']}"):
-                                    # 명함 이미지 생성
-                                    card_image = create_business_card(row, design_type)
+                                # 명함 이미지 자동 생성 및 표시
+                                card_image = create_business_card(row)
+                                if card_image:
                                     # 이미지 표시
-                                    st.image(card_image, caption="명함 미리보기")
-                                
-                                if st.button("PNG 다운로드", key=f"download_{row['한글명']}"):
-                                    # 명함 이미지 생성
-                                    card_image = create_business_card(row, design_type)
+                                    st.image(card_image, caption=f"{row['한글명']} 명함")
+                                    
                                     # 이미지를 바이트로 변환
-                                    img_byte_arr = io.BytesIO()
+                                    img_byte_arr = BytesIO()
                                     card_image.save(img_byte_arr, format='PNG')
                                     img_byte_arr = img_byte_arr.getvalue()
                                     
-                                    # 다운로드 버튼 생성
+                                    # 다운로드 버튼
                                     st.download_button(
-                                        label="PNG 파일 다운로드",
+                                        label="명함 다운로드",
                                         data=img_byte_arr,
-                                        file_name=f"명함_{row['한글명']}.png",
+                                        file_name=f"{row['한글명']}_명함.png",
                                         mime="image/png"
                                     )
                             st.markdown("---")
