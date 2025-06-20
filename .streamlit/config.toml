@@ -1,0 +1,12 @@
+[theme]
+primaryColor = "#FF4B4B"  # 뉴로핏 레드 컬러
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#FFFFFF"  # 흰색 배경으로 변경
+textColor = "#1b1b1e"  # 텍스트 색상 변경
+font = "sans serif"
+
+[server]
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false 
