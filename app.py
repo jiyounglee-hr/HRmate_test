@@ -3824,32 +3824,28 @@ def main():
                             with col1:
                                 st.write(f"**한글명:** {row['한글명']}")
                                 st.write(f"**영문명:** {row['영문명']}")
-                                st.write(f"**특이사항:** {row['특이사항'] if pd.notna(row['특이사항']) else '-'}")
+                                if pd.notna(row['특이사항']):
+                                    st.write(f"**특이사항:** {row['특이사항']}")
                                 st.write(f"**직책:** {row['직책']}")
-                                st.write(f"**부서명:** {row['부서명']}")
                                 st.write(f"**영문부서명:** {row['영문부서명']}")
-                                st.write(f"**유선번호:** {row['유선번호'] if pd.notna(row['유선번호']) else '-'}")
+                                if pd.notna(row['유선번호']):
+                                    st.write(f"**유선번호:** {row['유선번호']}")
                                 st.write(f"**휴대폰:** {row['휴대폰']}")
                                 st.write(f"**이메일:** {row['이메일']}")
                             
                             with col2:
                                 # 명함 이미지 자동 생성 및 표시
-                                card_image = create_business_card(row)
-                                if card_image:
-                                    # 이미지 표시
-                                    st.image(card_image, caption=f"{row['한글명']} 명함")
+                                front, back, pdf_buffer = create_business_card(row)
+                                if front and back and pdf_buffer:
+                                    st.subheader("📌 앞면 & 뒷면 미리보기")
+                                    st.image([front, back], caption=["앞면", "뒷면"], use_column_width=True)
                                     
-                                    # 이미지를 바이트로 변환
-                                    img_byte_arr = BytesIO()
-                                    card_image.save(img_byte_arr, format='PNG')
-                                    img_byte_arr = img_byte_arr.getvalue()
-                                    
-                                    # 다운로드 버튼
+                                    # PDF 다운로드 버튼
                                     st.download_button(
-                                        label="명함 다운로드",
-                                        data=img_byte_arr,
-                                        file_name=f"{row['한글명']}_명함.png",
-                                        mime="image/png"
+                                        label="📄 앞면+뒷면 PDF 다운로드",
+                                        data=pdf_buffer,
+                                        file_name=f"{row['한글명']}_명함.pdf",
+                                        mime="application/pdf"
                                     )
                             st.markdown("---")
                     else:
