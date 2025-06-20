@@ -3806,7 +3806,7 @@ def main():
                                 front, back, pdf_buffer = create_business_card(row)
                                 if front and back and pdf_buffer:
                                     st.subheader("📌 앞면 & 뒷면 미리보기")
-                                    st.image([front, back], caption=["앞면", "뒷면"], use_column_width=True)
+                                    st.image([front, back], caption=["앞면", "뒷면"], use_container_width=True)
                                     
                                     # PDF 다운로드 버튼
                                     st.download_button(
@@ -3900,19 +3900,19 @@ def create_business_card(row):
             st.error(f"로고 파일을 불러올 수 없습니다: {str(e)}")
             return None, None, None
 
-        # === ✅ 명함 스펙 ===
-        width, height = int(442.2), int(782.37)
+        # === ✅ 명함 스펙 (2배 크기로 생성) ===
+        width, height = int(884.4), int(1564.74)  # 기존 크기의 2배
         front_color = "#E62A3D"
 
-        # === ✅ 폰트 설정 ===
+        # === ✅ 폰트 설정 (크기도 2배로 증가) ===
         try:
-            name_font = ImageFont.truetype("NotoSansKR-Bold.otf", 46)
-            eng_name_font = ImageFont.truetype("NotoSansKR-Regular.otf", 38)
-            special_font = ImageFont.truetype("NotoSansKR-Regular.otf", 28)
-            position_font = ImageFont.truetype("NotoSansKR-Bold.otf", 32)
-            dept_font = ImageFont.truetype("NotoSansKR-Regular.otf", 26)
-            contact_font = ImageFont.truetype("NotoSansKR-Regular.otf", 22)
-            company_font = ImageFont.truetype("NotoSansKR-Bold.otf", 30)
+            name_font = ImageFont.truetype("NotoSansKR-Bold.otf", 92)
+            eng_name_font = ImageFont.truetype("NotoSansKR-Regular.otf", 76)
+            special_font = ImageFont.truetype("NotoSansKR-Regular.otf", 56)
+            position_font = ImageFont.truetype("NotoSansKR-Bold.otf", 64)
+            dept_font = ImageFont.truetype("NotoSansKR-Regular.otf", 52)
+            contact_font = ImageFont.truetype("NotoSansKR-Regular.otf", 44)
+            company_font = ImageFont.truetype("NotoSansKR-Bold.otf", 60)
         except:
             # 폰트 로드 실패시 기본 폰트 사용
             name_font = ImageFont.load_default()
@@ -3925,55 +3925,57 @@ def create_business_card(row):
 
         # === ✅ 앞면 생성 ===
         front = Image.new("RGB", (width, height), front_color)
+        front = front.resize((width, height), Image.Resampling.LANCZOS)  # 안티앨리어싱 적용
         draw_f = ImageDraw.Draw(front)
 
-        # 로고 자동 비율 + 중앙정렬
+        # 로고 자동 비율 + 중앙정렬 (크기 2배)
         front_logo_w = int(width * 0.45)
         front_logo_h = int(front_logo_w * front_logo.height / front_logo.width)
-        front_logo_resized = front_logo.resize((front_logo_w, front_logo_h))
+        front_logo_resized = front_logo.resize((front_logo_w, front_logo_h), Image.Resampling.LANCZOS)
         front_logo_x = int(width/2 - front_logo_w/2)
-        front_logo_y = 50
+        front_logo_y = 100
         front.paste(front_logo_resized, (front_logo_x, front_logo_y), front_logo_resized)
 
-        # 텍스트 추가
-        draw_f.text((50, 200), row['한글명'], font=name_font, fill="white")
-        draw_f.text((50, 260), row['영문명'], font=eng_name_font, fill="white")
+        # 텍스트 추가 (위치도 2배로 조정)
+        draw_f.text((100, 400), row['한글명'], font=name_font, fill="white")
+        draw_f.text((100, 520), row['영문명'], font=eng_name_font, fill="white")
         if pd.notna(row['특이사항']):
-            draw_f.text((50, 310), row['특이사항'], font=special_font, fill="white")
-        draw_f.text((50, 380), row['직책'], font=position_font, fill="white")
-        draw_f.text((50, 420), row['영문부서명'], font=dept_font, fill="white")
+            draw_f.text((100, 620), row['특이사항'], font=special_font, fill="white")
+        draw_f.text((100, 760), row['직책'], font=position_font, fill="white")
+        draw_f.text((100, 840), row['영문부서명'], font=dept_font, fill="white")
 
         # === ✅ 뒷면 생성 ===
         back = Image.new("RGB", (width, height), "white")
+        back = back.resize((width, height), Image.Resampling.LANCZOS)  # 안티앨리어싱 적용
         draw_b = ImageDraw.Draw(back)
 
-        # 로고 자동 비율 + 오른쪽 상단
+        # 로고 자동 비율 + 오른쪽 상단 (크기 2배)
         back_logo_w = int(width * 0.22)
         back_logo_h = int(back_logo_w * back_logo.height / back_logo.width)
-        back_logo_resized = back_logo.resize((back_logo_w, back_logo_h))
-        back_logo_x = width - back_logo_w - 50
-        back_logo_y = 50
+        back_logo_resized = back_logo.resize((back_logo_w, back_logo_h), Image.Resampling.LANCZOS)
+        back_logo_x = width - back_logo_w - 100
+        back_logo_y = 100
         back.paste(back_logo_resized, (back_logo_x, back_logo_y), back_logo_resized)
 
-        # 텍스트 추가
-        draw_b.text((50, 50), row['한글명'], font=name_font, fill="black")
-        draw_b.text((50, 110), row['영문명'], font=eng_name_font, fill="black")
+        # 텍스트 추가 (위치도 2배로 조정)
+        draw_b.text((100, 100), row['한글명'], font=name_font, fill="black")
+        draw_b.text((100, 220), row['영문명'], font=eng_name_font, fill="black")
         if pd.notna(row['특이사항']):
-            draw_b.text((50, 160), row['특이사항'], font=special_font, fill="black")
-        draw_b.text((50, 250), "뉴로핏(주)", font=company_font, fill="black")
-        draw_b.text((50, 300), row['직책'], font=position_font, fill="black")
-        draw_b.text((50, 340), row['영문부서명'], font=dept_font, fill="black")
+            draw_b.text((100, 320), row['특이사항'], font=special_font, fill="black")
+        draw_b.text((100, 500), "뉴로핏(주)", font=company_font, fill="black")
+        draw_b.text((100, 600), row['직책'], font=position_font, fill="black")
+        draw_b.text((100, 680), row['영문부서명'], font=dept_font, fill="black")
         if pd.notna(row['유선번호']):
-            draw_b.text((50, 450), f"T  {row['유선번호']}", font=contact_font, fill="black")
-        draw_b.text((50, 480), "F  +82 2 6954 7972", font=contact_font, fill="black")
-        draw_b.text((50, 510), f"M  {row['휴대폰']}", font=contact_font, fill="black")
-        draw_b.text((50, 540), f"E  {row['이메일']}", font=contact_font, fill="black")
-        draw_b.text((50, 650), "www.neurophet.com", font=contact_font, fill="black")
-        draw_b.text((50, 680), "12F, 124, Teheran-ro, Gangnam-gu, Seoul, 06234, Republic of Korea", font=contact_font, fill="black")
+            draw_b.text((100, 900), f"T  {row['유선번호']}", font=contact_font, fill="black")
+        draw_b.text((100, 960), "F  +82 2 6954 7972", font=contact_font, fill="black")
+        draw_b.text((100, 1020), f"M  {row['휴대폰']}", font=contact_font, fill="black")
+        draw_b.text((100, 1080), f"E  {row['이메일']}", font=contact_font, fill="black")
+        draw_b.text((100, 1300), "www.neurophet.com", font=contact_font, fill="black")
+        draw_b.text((100, 1360), "12F, 124, Teheran-ro, Gangnam-gu, Seoul, 06234, Republic of Korea", font=contact_font, fill="black")
 
-        # === ✅ PDF로 묶기 ===
+        # === ✅ PDF로 묶기 (DPI 설정 추가) ===
         pdf_buffer = BytesIO()
-        front.save(pdf_buffer, format="PDF", save_all=True, append_images=[back])
+        front.save(pdf_buffer, format="PDF", save_all=True, append_images=[back], resolution=300.0)
         pdf_buffer.seek(0)
 
         return front, back, pdf_buffer
