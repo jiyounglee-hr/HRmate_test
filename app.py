@@ -3934,9 +3934,9 @@ def create_business_card(row, design_type="기본"):
             st.error("명함 템플릿을 불러올 수 없습니다.")
             return None
             
-        # 이미지 크기 설정 (가로 90mm x 세로 50mm, 300DPI)
-        width = int(90 * 300 / 25.4)  # mm를 픽셀로 변환
-        height = int(50 * 300 / 25.4)
+        # 이미지 크기 설정
+        width = int(949.2)  # 가로 픽셀
+        height = int(260.79)  # 세로 픽셀
         
         # 템플릿 크기 조정
         template = template.resize((width, height))
