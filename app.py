@@ -3820,37 +3820,35 @@ def main():
                         st.markdown("##### 🎫 명함 발급")
                         # 검색 결과 표시
                         for _, row in filtered_df.iterrows():
-                            col1, col2 = st.columns([1, 3])
-                            with col1:
-                                st.write(f"**한글명:** {row['한글명']}")
-                                st.write(f"**영문명:** {row['영문명']}")
-                                st.write(f"**특이사항:** {row['특이사항'] if pd.notna(row['특이사항']) else '-'}")
-                                st.write(f"**직책:** {row['직책']}")
-                                st.write(f"**부서명:** {row['부서명']}")
-                                st.write(f"**영문부서명:** {row['영문부서명']}")
-                                st.write(f"**유선번호:** {row['유선번호'] if pd.notna(row['유선번호']) else '-'}")
-                                st.write(f"**휴대폰:** {row['휴대폰']}")
-                                st.write(f"**이메일:** {row['이메일']}")
+                            st.write(f"**한글명:** {row['한글명']}")
+                            st.write(f"**영문명:** {row['영문명']}")
+                            st.write(f"**특이사항:** {row['특이사항'] if pd.notna(row['특이사항']) else '-'}")
+                            st.write(f"**직책:** {row['직책']}")
+                            st.write(f"**부서명:** {row['부서명']}")
+                            st.write(f"**영문부서명:** {row['영문부서명']}")
+                            st.write(f"**유선번호:** {row['유선번호'] if pd.notna(row['유선번호']) else '-'}")
+                            st.write(f"**휴대폰:** {row['휴대폰']}")
+                            st.write(f"**이메일:** {row['이메일']}")
                             
-                            with col2:
-                                # 명함 이미지 자동 생성 및 표시
-                                card_image = create_business_card(row)
-                                if card_image:
-                                    # 이미지 표시
-                                    st.image(card_image, caption=f"{row['한글명']} 명함")
+                            
+                            # 명함 이미지 자동 생성 및 표시
+                            card_image = create_business_card(row)
+                            if card_image:
+                                # 이미지 표시
+                                st.image(card_image, caption=f"{row['한글명']} 명함")
                                     
-                                    # 이미지를 바이트로 변환
-                                    img_byte_arr = BytesIO()
-                                    card_image.save(img_byte_arr, format='PNG')
-                                    img_byte_arr = img_byte_arr.getvalue()
+                                # 이미지를 바이트로 변환
+                                img_byte_arr = BytesIO()
+                                card_image.save(img_byte_arr, format='PNG')
+                                img_byte_arr = img_byte_arr.getvalue()
                                     
-                                    # 다운로드 버튼
-                                    st.download_button(
-                                        label="명함 다운로드",
-                                        data=img_byte_arr,
-                                        file_name=f"{row['한글명']}_명함.png",
-                                        mime="image/png"
-                                    )
+                                # 다운로드 버튼
+                                st.download_button(
+                                    label="명함 다운로드",
+                                    data=img_byte_arr,
+                                    file_name=f"{row['한글명']}_명함.png",
+                                    mime="image/png"
+                                )
                             st.markdown("---")
                     else:
                         st.warning("검색 결과가 없습니다.")
@@ -3935,8 +3933,8 @@ def create_business_card(row, design_type="기본"):
             return None
             
         # 이미지 크기 설정
-        width = int(949.2)  # 가로 픽셀
-        height = int(782.37)  # 세로 픽셀
+        width = int(1898.4)  # 가로 픽셀
+        height = int(1564.74)  # 세로 픽셀
         
         # 템플릿 크기 조정
         template = template.resize((width, height))
