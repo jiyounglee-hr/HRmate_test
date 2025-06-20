@@ -3925,63 +3925,96 @@ def download_and_save_logo():
         st.error(f"로고 다운로드 중 오류 발생: {str(e)}")
         return False
 
-def create_business_card(row, design_type="기본"):
+def create_business_card(row):
     """명함 이미지를 생성하는 함수"""
     try:
-        # Figma 디자인 템플릿 가져오기
-        template = get_figma_design()
-        if template is None:
-            st.error("명함 템플릿을 불러올 수 없습니다.")
-            return None
-            
-        # 이미지 크기 설정
-        width = int(1898.4)  # 가로 픽셀
-        height = int(1564.74)  # 세로 픽셀
-        
-        # 템플릿 크기 조정
-        template = template.resize((width, height))
-        
-        # 이미지 편집을 위한 드로잉 객체 생성
-        draw = ImageDraw.Draw(template)
-        
+        # === ✅ 로고 가져오기 ===
+        response_front = requests.get(FRONT_LOGO_URL)
+        response_back = requests.get(BACK_LOGO_URL)
+        front_logo = Image.open(BytesIO(response_front.content)).convert("RGBA")
+        back_logo = Image.open(BytesIO(response_back.content)).convert("RGBA")
+
+        # === ✅ 명함 스펙 ===
+        width, height = int(442.2), int(782.37)
+        front_color = "#E62A3D"
+
+        # === ✅ 폰트 설정 ===
         try:
-            # 폰트 로드 (기본 폰트 사용)
-            name_font = ImageFont.truetype("malgun.ttf", 60)  # 이름용 큰 폰트
-            info_font = ImageFont.truetype("malgun.ttf", 40)  # 정보용 작은 폰트
-            small_font = ImageFont.truetype("malgun.ttf", 30)  # 작은 정보용 폰트
+            name_font = ImageFont.truetype("NotoSansKR-Bold.otf", 46)
+            eng_name_font = ImageFont.truetype("NotoSansKR-Regular.otf", 38)
+            special_font = ImageFont.truetype("NotoSansKR-Regular.otf", 28)
+            position_font = ImageFont.truetype("NotoSansKR-Bold.otf", 32)
+            dept_font = ImageFont.truetype("NotoSansKR-Regular.otf", 26)
+            contact_font = ImageFont.truetype("NotoSansKR-Regular.otf", 22)
+            company_font = ImageFont.truetype("NotoSansKR-Bold.otf", 30)
         except:
             # 폰트 로드 실패시 기본 폰트 사용
             name_font = ImageFont.load_default()
-            info_font = ImageFont.load_default()
-            small_font = ImageFont.load_default()
-        
-        # 텍스트 정보 추가
-        margin = 50
-        line_height = 45
-        
-        # 개인 정보
-        draw.text((margin, margin), row['한글명'], font=name_font, fill='black')
-        draw.text((margin, margin + line_height), row['영문명'], font=info_font, fill='black')
+            eng_name_font = ImageFont.load_default()
+            special_font = ImageFont.load_default()
+            position_font = ImageFont.load_default()
+            dept_font = ImageFont.load_default()
+            contact_font = ImageFont.load_default()
+            company_font = ImageFont.load_default()
+
+        # === ✅ 앞면 생성 ===
+        front = Image.new("RGB", (width, height), front_color)
+        draw_f = ImageDraw.Draw(front)
+
+        # 로고 자동 비율 + 중앙정렬
+        front_logo_w = int(width * 0.45)
+        front_logo_h = int(front_logo_w * front_logo.height / front_logo.width)
+        front_logo_resized = front_logo.resize((front_logo_w, front_logo_h))
+        front_logo_x = int(width/2 - front_logo_w/2)
+        front_logo_y = 50
+        front.paste(front_logo_resized, (front_logo_x, front_logo_y), front_logo_resized)
+
+        # 텍스트 추가
+        draw_f.text((50, 200), row['한글명'], font=name_font, fill="white")
+        draw_f.text((50, 260), row['영문명'], font=eng_name_font, fill="white")
         if pd.notna(row['특이사항']):
-            draw.text((margin, margin + line_height*2), row['특이사항'], font=info_font, fill='black')
-        
-        # 직책 및 부서 정보
-        position_y = margin + line_height*3
-        draw.text((margin, position_y), row['직책'], font=info_font, fill='black')
-        draw.text((margin, position_y + line_height), row['영문부서명'], font=info_font, fill='black')
-        
-        # 연락처 정보
-        contact_y = height - margin - line_height*3
+            draw_f.text((50, 310), row['특이사항'], font=special_font, fill="white")
+        draw_f.text((50, 380), row['직책'], font=position_font, fill="white")
+        draw_f.text((50, 420), row['영문부서명'], font=dept_font, fill="white")
+
+        # === ✅ 뒷면 생성 ===
+        back = Image.new("RGB", (width, height), "white")
+        draw_b = ImageDraw.Draw(back)
+
+        # 로고 자동 비율 + 오른쪽 상단
+        back_logo_w = int(width * 0.22)
+        back_logo_h = int(back_logo_w * back_logo.height / back_logo.width)
+        back_logo_resized = back_logo.resize((back_logo_w, back_logo_h))
+        back_logo_x = width - back_logo_w - 50
+        back_logo_y = 50
+        back.paste(back_logo_resized, (back_logo_x, back_logo_y), back_logo_resized)
+
+        # 텍스트 추가
+        draw_b.text((50, 50), row['한글명'], font=name_font, fill="black")
+        draw_b.text((50, 110), row['영문명'], font=eng_name_font, fill="black")
+        if pd.notna(row['특이사항']):
+            draw_b.text((50, 160), row['특이사항'], font=special_font, fill="black")
+        draw_b.text((50, 250), "뉴로핏(주)", font=company_font, fill="black")
+        draw_b.text((50, 300), row['직책'], font=position_font, fill="black")
+        draw_b.text((50, 340), row['영문부서명'], font=dept_font, fill="black")
         if pd.notna(row['유선번호']):
-            draw.text((margin, contact_y), f"T  {row['유선번호']}", font=small_font, fill='black')
-        draw.text((margin, contact_y + line_height), f"M  {row['휴대폰']}", font=small_font, fill='black')
-        draw.text((margin, contact_y + line_height*2), f"E  {row['이메일']}", font=small_font, fill='black')
-        
-        return template
-        
+            draw_b.text((50, 450), f"T  {row['유선번호']}", font=contact_font, fill="black")
+        draw_b.text((50, 480), "F  +82 2 6954 7972", font=contact_font, fill="black")
+        draw_b.text((50, 510), f"M  {row['휴대폰']}", font=contact_font, fill="black")
+        draw_b.text((50, 540), f"E  {row['이메일']}", font=contact_font, fill="black")
+        draw_b.text((50, 650), "www.neurophet.com", font=contact_font, fill="black")
+        draw_b.text((50, 680), "12F, 124, Teheran-ro, Gangnam-gu, Seoul, 06234, Republic of Korea", font=contact_font, fill="black")
+
+        # === ✅ PDF로 묶기 ===
+        pdf_buffer = BytesIO()
+        front.save(pdf_buffer, format="PDF", save_all=True, append_images=[back])
+        pdf_buffer.seek(0)
+
+        return front, back, pdf_buffer
+
     except Exception as e:
         st.error(f"명함 생성 중 오류가 발생했습니다: {str(e)}")
-        return None
+        return None, None, None
 
 if __name__ == "__main__":
     main()
