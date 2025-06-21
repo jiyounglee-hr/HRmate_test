@@ -690,14 +690,15 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
             st.session_state.menu = "🚀 채용 전형관리"
         if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
             st.session_state.menu = "📋 채용 처우협상"
+        if st.sidebar.button("🎫 명함발급", use_container_width=True): 
+            st.session_state.menu = "🎫 명함발급"
         if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
             st.session_state.menu = "📅 인사발령 내역"
         if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
             st.session_state.menu = "⏰ 초과근무 조회"
         if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True): 
             st.session_state.menu = "💰 스톡옵션 조회"
-        if st.sidebar.button("🎫 명함발급", use_container_width=True): 
-            st.session_state.menu = "🎫 명함발급"
+
 
         st.sidebar.markdown("---")
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
@@ -3785,12 +3786,11 @@ def main():
                 display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
                 display_df = display_df.sort_values('완료 시간', ascending=False)
                 with st.expander("👇 링크 바로가기 ", expanded=True):
-                    # 1. 지원자 접수
-                    st.markdown('<div class="category-title">명함업무 처리시 참고해 주세요.</div>', unsafe_allow_html=True)
+                    # 명함처리에 필요한 링크
                     st.markdown('<div class="link-container">', unsafe_allow_html=True)
-                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️[엑셀]명함신청 및 명함 DB</a>', unsafe_allow_html=True)
-                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️[피그마] 명함 디자인 </a>', unsafe_allow_html=True)
-                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️[구글시트] 피그마 자동 싱크</a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️[엑셀] 명함신청 및 명함 DB</a> : 명함신청내용 및 현재 명함상태를 확인해 주세요. ' , unsafe_allow_html=True)
+                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️[피그마] 명함 디자인 </a> : 이름을 검색해서 명함을 인쇄할 대상을 선택하고 Export를 3배사이즈로 해서 업체 주문 ', unsafe_allow_html=True)
+                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️[구글시트] 피그마 자동 싱크 : 명함 DB가 변경된 경우 구글에 업데이트 후 피그마에서 싱크를 진행합니다. </a>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
 
                 st.markdown("<br>", unsafe_allow_html=True)                
