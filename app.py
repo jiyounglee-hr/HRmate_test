@@ -3765,16 +3765,19 @@ def main():
             application_df = load_business_card_application_data()
             
             if application_df is not None:
-                # 표시할 컬럼 선택
+                # 실제 컬럼 이름 확인을 위한 출력
+                st.write("Available columns:", list(application_df.columns))
+                
+                # 표시할 컬럼 선택 (실제 컬럼 이름으로 수정 필요)
                 columns_to_display = [
-                    'Id',
-                    '완료 시간',
+                    'ID',  # Forms의 실제 컬럼명
+                    'Completion time',  # Forms의 실제 컬럼명
                     '발급확인',
-                    '명함에 들어갈 성명(한글)을 입력해 주세요',
+                    '명함에 들어갈 성명(한글)을 입력해 주세요.',  # 마침표 주의
                     '명함 신청 사유를 선택해 주세요.',
                     '명함 수량을 선택해주세요.',
                     '기존 명함에서 변경사항이 있나요?',
-                    '명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요',
+                    '명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요.',  # 마침표 주의
                     '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
                     '명함 수령 소요 기간을 선택해주세요.',
                     '추가 요청사항이 있다면 적어주세요.'
@@ -3782,8 +3785,8 @@ def main():
                 
                 # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
                 display_df = application_df[columns_to_display].copy()
-                display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
-                display_df = display_df.sort_values('완료 시간', ascending=False)
+                display_df['Completion time'] = pd.to_datetime(display_df['Completion time'])
+                display_df = display_df.sort_values('Completion time', ascending=False)
                 
                 # 명함 신청서 리스트 표시
                 st.markdown("##### 📋 명함 신청서 리스트")
@@ -3791,12 +3794,12 @@ def main():
                     display_df,
                     use_container_width=True,
                     hide_index=True,
-                    column_config={ 
-                        "Id": st.column_config.NumberColumn(
+                    column_config={
+                        "ID": st.column_config.NumberColumn(
                             "ID",
                             width="small"
                         ),
-                        "완료 시간": st.column_config.DatetimeColumn(
+                        "Completion time": st.column_config.DatetimeColumn(
                             "신청일시",
                             width="medium",
                             format="YYYY-MM-DD HH:mm"
@@ -3805,7 +3808,7 @@ def main():
                             "발급확인",
                             width="small"
                         ),
-                        "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
+                        "명함에 들어갈 성명(한글)을 입력해 주세요.": st.column_config.TextColumn(
                             "신청자",
                             width="small"
                         ),
@@ -3821,7 +3824,7 @@ def main():
                             "변경여부",
                             width="small"
                         ),
-                        "명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요": st.column_config.TextColumn(
+                        "명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요.": st.column_config.TextColumn(
                             "변경내용",
                             width="medium"
                         ),
@@ -3835,7 +3838,7 @@ def main():
                         ),
                         "추가 요청사항이 있다면 적어주세요.": st.column_config.TextColumn(
                             "추가요청",
-                            width="medium"
+                            width="medium" 
                         )
                     }
                 )
