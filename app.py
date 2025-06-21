@@ -3812,7 +3812,7 @@ def main():
                         ),
                         "발급확인": st.column_config.TextColumn(
                             "발급확인",
-                            width="small" 
+                            width=30
                         ),
                         "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
                             "신청자",
