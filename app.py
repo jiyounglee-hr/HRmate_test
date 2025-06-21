@@ -3791,7 +3791,7 @@ def main():
                     display_df,
                     use_container_width=True,
                     hide_index=True,
-                    column_config={
+                    column_config={ 
                         "Id": st.column_config.NumberColumn(
                             "ID",
                             width="small"
