@@ -3765,6 +3765,9 @@ def main():
             application_df = load_business_card_application_data()
             
             if application_df is not None:
+                # 디버깅을 위한 컬럼 이름 출력
+                st.write("Available columns:", [f"'{col}'" for col in application_df.columns])
+                
                 # 표시할 컬럼 선택
                 columns_to_display = [
                     'Id',
@@ -3779,6 +3782,12 @@ def main():
                     '명함 수령 소요 기간을 선택해주세요.',
                     '추가 요청사항이 있다면 적어주세요.'
                 ]
+                
+                # 실제 컬럼이 존재하는지 확인
+                missing_columns = [col for col in columns_to_display if col not in application_df.columns]
+                if missing_columns:
+                    st.error(f"Missing columns: {missing_columns}")
+                    return
                 
                 # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
                 display_df = application_df[columns_to_display].copy()
