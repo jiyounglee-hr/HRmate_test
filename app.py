@@ -3765,8 +3765,6 @@ def main():
             application_df = load_business_card_application_data()
             
             if application_df is not None:
-                # 디버깅을 위한 컬럼 이름 출력
-                st.write("Available columns:", [f"'{col}'" for col in application_df.columns])
                 
                 # 표시할 컬럼 선택
                 columns_to_display = [
@@ -3782,17 +3780,20 @@ def main():
                     '추가 요청사항이 있다면 적어주세요.\n'
                 ] 
                 
-                # 실제 컬럼이 존재하는지 확인
-                missing_columns = [col for col in columns_to_display if col not in application_df.columns]
-                if missing_columns:
-                    st.error(f"Missing columns: {missing_columns}")
-                    return
-                
                 # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
                 display_df = application_df[columns_to_display].copy()
                 display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
                 display_df = display_df.sort_values('완료 시간', ascending=False)
-                
+                with st.expander("👇 링크 바로가기 ", expanded=True):
+                    # 1. 지원자 접수
+                    st.markdown('<div class="category-title">명함업무 처리시 참고해 주세요.</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="link-container">', unsafe_allow_html=True)
+                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️명함신청 및 명함 DB</a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️명함 디자인 </a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️피그마를 위한 구글 싱크</a>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                st.markdown("<br>", unsafe_allow_html=True)                
                 # 명함 신청서 리스트 표시
                 st.markdown("##### 📋 명함 신청서 리스트")
                 st.dataframe(
