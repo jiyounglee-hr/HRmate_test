@@ -3777,7 +3777,6 @@ def main():
                     '명함 신청 사유를 선택해 주세요.',
                     '명함 수량을 선택해주세요.',
                     '기존 명함에서 변경사항이 있나요?',
-                    '명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요',
                     '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
                     '명함 수령 소요 기간을 선택해주세요.',
                     '추가 요청사항이 있다면 적어주세요.\n'
@@ -3812,7 +3811,7 @@ def main():
                         ),
                         "발급확인": st.column_config.TextColumn(
                             "발급확인",
-                            width="small"
+                            width="small" 
                         ),
                         "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
                             "신청자",
@@ -3830,10 +3829,7 @@ def main():
                             "변경여부",
                             width="small"
                         ),
-                        "명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요": st.column_config.TextColumn(
-                            "변경내용",
-                            width="medium"
-                        ),
+
                         "내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.": st.column_config.TextColumn(
                             "내선번호",
                             width="small"
