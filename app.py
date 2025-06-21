@@ -3765,12 +3765,79 @@ def main():
             application_df = load_business_card_application_data()
             
             if application_df is not None:
+                # 표시할 컬럼 선택
+                columns_to_display = [
+                    'Id',
+                    '완료 시간',
+                    '발급확인',
+                    '명함에 들어갈 성명(한글)을 입력해 주세요',
+                    '명함 신청 사유를 선택해 주세요.',
+                    '명함 수량을 선택해주세요.',
+                    '기존 명함에서 변경사항이 있나요?',
+                    '명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요',
+                    '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
+                    '명함 수령 소요 기간을 선택해주세요.',
+                    '추가 요청사항이 있다면 적어주세요.'
+                ]
+                
+                # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
+                display_df = application_df[columns_to_display].copy()
+                display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
+                display_df = display_df.sort_values('완료 시간', ascending=False)
+                
                 # 명함 신청서 리스트 표시
                 st.markdown("##### 📋 명함 신청서 리스트")
                 st.dataframe(
-                    application_df,
+                    display_df,
                     use_container_width=True,
-                    hide_index=True
+                    hide_index=True,
+                    column_config={
+                        "Id": st.column_config.NumberColumn(
+                            "ID",
+                            width="small"
+                        ),
+                        "완료 시간": st.column_config.DatetimeColumn(
+                            "신청일시",
+                            width="medium",
+                            format="YYYY-MM-DD HH:mm"
+                        ),
+                        "발급확인": st.column_config.TextColumn(
+                            "발급확인",
+                            width="small"
+                        ),
+                        "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
+                            "신청자",
+                            width="small"
+                        ),
+                        "명함 신청 사유를 선택해 주세요.": st.column_config.TextColumn(
+                            "신청사유",
+                            width="small"
+                        ),
+                        "명함 수량을 선택해주세요.": st.column_config.TextColumn(
+                            "수량",
+                            width="small"
+                        ),
+                        "기존 명함에서 변경사항이 있나요?": st.column_config.TextColumn(
+                            "변경여부",
+                            width="small"
+                        ),
+                        "명함 앞,뒷면 확인 후 변경할 부분을 기재해주세요": st.column_config.TextColumn(
+                            "변경내용",
+                            width="medium"
+                        ),
+                        "내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.": st.column_config.TextColumn(
+                            "내선번호",
+                            width="small"
+                        ),
+                        "명함 수령 소요 기간을 선택해주세요.": st.column_config.TextColumn(
+                            "수령기간",
+                            width="small"
+                        ),
+                        "추가 요청사항이 있다면 적어주세요.": st.column_config.TextColumn(
+                            "추가요청",
+                            width="medium"
+                        )
+                    }
                 )
                 
                 st.markdown("---")  # 구분선 추가
