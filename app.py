@@ -2826,7 +2826,7 @@ def main():
             """, unsafe_allow_html=True)
             st.markdown("###### 📝 채용 관리 시스템")
             
-            with st.expander("👇 링크 바로가기 "):
+            with st.expander("👇 링크 바로가기 ", expanded=True):
                 # 1. 지원자 접수
                 st.markdown('<div class="category-title">1️⃣ 채용공고 관리</div>', unsafe_allow_html=True)
                 st.markdown('<div class="link-container">', unsafe_allow_html=True)
@@ -3761,6 +3761,22 @@ def main():
         elif menu == "🎫 명함발급":
             st.markdown("##### 🎫 명함발급")
             
+            # 명함 신청서 데이터 로드
+            application_df = load_business_card_application_data()
+            
+            if application_df is not None:
+                # 명함 신청서 리스트 표시
+                st.markdown("##### 📋 명함 신청서 리스트")
+                st.dataframe(
+                    application_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
+                
+                st.markdown("---")  # 구분선 추가
+            else:
+                st.error("명함 신청서 데이터를 불러올 수 없습니다.")
+            
             # 명함 데이터 로드
             business_card_df = load_business_card_data()
             
@@ -3774,6 +3790,60 @@ def main():
                 )
             else:
                 st.error("명함 데이터를 불러올 수 없습니다.")
+
+@st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+def load_business_card_application_data():
+    """SharePoint에서 명함 신청서 데이터를 로드하는 함수"""
+    try:
+        # MSAL 설정
+        authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+        app = msal.ConfidentialClientApplication(
+            client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+            client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+            authority=authority
+        )
+
+        # 토큰 받기
+        scopes = ["https://graph.microsoft.com/.default"]
+        result = app.acquire_token_for_client(scopes=scopes)
+        
+        if "access_token" not in result:
+            st.error("토큰을 받아오는데 실패했습니다.")
+            return None
+            
+        access_token = result['access_token']
+
+        # SharePoint 사이트 정보 가져오기
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        # 사이트 정보 가져오기 (neurophet.sharepoint.com의 team.hr 사이트)
+        site_response = requests.get(
+            "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+            headers=headers
+        )
+        site_response.raise_for_status()
+        site_info = site_response.json()
+        
+        # 파일 경로로 파일 검색
+        drive_items = requests.get(
+            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/명함 신청.xlsx",
+            headers=headers
+        )
+        drive_items.raise_for_status()
+        file_info = drive_items.json()
+        
+        # 파일 다운로드
+        download_url = file_info['@microsoft.graph.downloadUrl']
+        file_response = requests.get(download_url)
+        file_response.raise_for_status()
+
+        # BytesIO로 읽어 DataFrame 반환
+        df = pd.read_excel(BytesIO(file_response.content), sheet_name="신청리스트_폼즈")
+        
+        return df
+    except Exception as e:
+        st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_business_card_data():
