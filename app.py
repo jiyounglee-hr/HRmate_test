@@ -3807,7 +3807,7 @@ def main():
                         ),
                         "완료 시간": st.column_config.DatetimeColumn(
                             "신청일시",
-                            width="medium",
+                            width=40,
                             format="YYYY-MM-DD HH:mm"
                         ),
                         "발급확인": st.column_config.TextColumn(
