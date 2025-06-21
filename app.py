@@ -3803,7 +3803,7 @@ def main():
                     column_config={
                         "Id": st.column_config.NumberColumn(
                             "ID",
-                            width="small"
+                            width=5
                         ),
                         "완료 시간": st.column_config.DatetimeColumn(
                             "신청일시",
