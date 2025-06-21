@@ -3788,9 +3788,9 @@ def main():
                     # 1. 지원자 접수
                     st.markdown('<div class="category-title">명함업무 처리시 참고해 주세요.</div>', unsafe_allow_html=True)
                     st.markdown('<div class="link-container">', unsafe_allow_html=True)
-                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️명함신청 및 명함 DB</a>', unsafe_allow_html=True)
-                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️명함 디자인 </a>', unsafe_allow_html=True)
-                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️피그마를 위한 구글 싱크</a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️[엑셀]명함신청 및 명함 DB</a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️[피그마] 명함 디자인 </a>', unsafe_allow_html=True)
+                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️[구글시트] 피그마 자동 싱크</a>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
 
                 st.markdown("<br>", unsafe_allow_html=True)                
