@@ -3781,7 +3781,7 @@ def main():
                     '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
                     '명함 수령 소요 기간을 선택해주세요.',
                     '추가 요청사항이 있다면 적어주세요'
-                ]
+                ] 
                 
                 # 실제 컬럼이 존재하는지 확인
                 missing_columns = [col for col in columns_to_display if col not in application_df.columns]
