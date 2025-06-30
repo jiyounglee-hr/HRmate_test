@@ -941,9 +941,9 @@ def main():
             # 해당 연도의 입퇴사자 계산
             selected_year = query_date.year
             정규직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['입사일'].dt.date <= query_date)])
-            정규직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['퇴사일'].dt.date <= query_date)])
+            정규직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '정규직') & (df['퇴사일'].dt.date < query_date)])
             계약직_입사자 = len(df[(df['입사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['입사일'].dt.date <= query_date)])
-            계약직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['퇴사일'].dt.date <= query_date)])
+            계약직_퇴사자 = len(df[(df['퇴사일'].dt.year == selected_year) & (df['고용구분'] == '계약직') & (df['퇴사일'].dt.date < query_date)])
             
             # 퇴사율 계산 (소수점 첫째자리까지)
             재직_정규직_수 = len(df[
@@ -1132,7 +1132,7 @@ def main():
                     st.info("2025년 입사 예정자가 없습니다.")
 
             with list_col2:
-                st.markdown("###### 2025년 퇴사자")
+                st.markdown("###### 2025년 퇴사자(예정자 포함)")
                 퇴사자_df = df[df['퇴사연도'] == 2025][['성명', '팀', '직위', '퇴사일']]
                 if not 퇴사자_df.empty:
                     퇴사자_df = 퇴사자_df.sort_values('퇴사일', ascending=False)  # 내림차순 정렬
