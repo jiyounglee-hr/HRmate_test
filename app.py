@@ -2157,14 +2157,11 @@ def main():
         elif menu == "⏰ 초과근무 조회":
             st.markdown("##### ⏰ 초과근무 조회")
             
-            # 엑셀 파일 업로드
-            uploaded_file = st.file_uploader("초과근무 엑셀 파일을 업로드하세요", type=['xlsx'])
+            # SharePoint에서 초과근무 데이터 로드
+            overtime_df = load_overtime_base_data()
             
-            if uploaded_file is not None:
+            if overtime_df is not None:
                 try:
-                    # 엑셀 파일 읽기
-                    overtime_df = pd.read_excel(uploaded_file)
-                    
                     # 연월 구분 드롭다운 생성
                     if '연월구분' in overtime_df.columns:
                         months = overtime_df['연월구분'].unique()
@@ -2299,21 +2296,20 @@ def main():
                             excel_data = output.getvalue()
                                     
                             st.download_button(
-                                        label="📥 엑셀 파일 다운로드",
+                                label="📥 엑셀 파일 다운로드",
                                 data=excel_data,
                                 file_name=f"초과근무내역_{selected_month}.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                             )
-                            
-
-
                         else:
-                            st.error("엑셀 파일에 '연월구분' 컬럼이 없습니다.")
+                            st.warning("선택한 연월의 데이터가 없습니다.")
+                    else:
+                        st.error("데이터에 '연월구분' 컬럼이 없습니다.")
                     
                 except Exception as e:
-                    st.error(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}")
+                    st.error(f"데이터 처리 중 오류가 발생했습니다: {str(e)}")
             else:
-                st.info("초과근무 엑셀 파일을 업로드하세요.")
+                st.error("초과근무 데이터를 불러올 수 없습니다.")
 
         elif menu == "😊 임직원 명부":
             st.markdown("##### 😊 임직원 명부")
@@ -4216,6 +4212,59 @@ def load_business_card_application_data():
     except Exception as e:
         st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None 
+
+# 초과근무 데이터 로드
+@st.cache_data(ttl=300)
+def load_overtime_base_data():
+    """SharePoint '초과근무기초데이터.xlsx'의 '근태신청관리 다운로드' 시트 로딩"""
+    try:
+        authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+        app = msal.ConfidentialClientApplication(
+            client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+            client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+            authority=authority
+        )
+
+        scopes = ["https://graph.microsoft.com/.default"]
+        result = app.acquire_token_for_client(scopes=scopes)
+        
+        if "access_token" not in result:
+            st.error("토큰을 받아오는데 실패했습니다.")
+            return None
+            
+        access_token = result['access_token']
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        # SharePoint 사이트 정보
+        site_response = requests.get(
+            "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+            headers=headers
+        )
+        site_response.raise_for_status()
+        site_info = site_response.json()
+        
+        # 📁 정확한 파일 경로
+        file_path = "General/07. 근태관리/초과근무기초데이터.xlsx"
+        drive_items = requests.get(
+            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+            headers=headers
+        )
+        drive_items.raise_for_status()
+        file_info = drive_items.json()
+        
+        # 다운로드 및 읽기
+        download_url = file_info['@microsoft.graph.downloadUrl']
+        file_response = requests.get(download_url)
+        file_response.raise_for_status()
+
+        # 시트 읽기
+        df = pd.read_excel(BytesIO(file_response.content), sheet_name="근태신청관리 다운로드")
+        
+        return df
+
+    except Exception as e:
+        st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     main()
