@@ -3520,7 +3520,7 @@ def main():
                         
                         # 면접일시 컬럼 생성 (면접일자와 시간 조합)
                         df['면접일시'] = df.apply(
-                            lambda row: f"{row['면접일자'].strftime('%Y-%m-%d')} {row['시간']}" if pd.notna(row['면접일자']) else '',
+                            lambda row: f"{row['면접일자'].strftime('%Y-%m-%d')} {row['면접시간']}" if pd.notna(row['면접일자']) else '',
                             axis=1
                         )
                     
