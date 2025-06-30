@@ -47,7 +47,7 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmate.streamlit.app/"
+REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -3863,19 +3863,7 @@ def main():
             else:
                 st.error("명함 신청서 데이터를 불러올 수 없습니다.")
             
-            # 명함 데이터 로드
-            business_card_df = load_business_card_data()
-            
-            if business_card_df is not None:
-                # 전체 명함DB 리스트 표시
-                st.markdown("##### 📋 명함DB 리스트")
-                st.dataframe(
-                    business_card_df,
-                    use_container_width=True,
-                    hide_index=True
-                )
-            else:
-                st.error("명함 데이터를 불러올 수 없습니다.")
+
 
 @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
 def load_business_card_application_data():
@@ -3929,61 +3917,7 @@ def load_business_card_application_data():
         return df
     except Exception as e:
         st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None
-
-@st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-def load_business_card_data():
-    """SharePoint에서 명함 데이터를 로드하는 함수"""
-    try:
-        # MSAL 설정
-        authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
-        app = msal.ConfidentialClientApplication(
-            client_id=st.secrets['AZURE_AD_CLIENT_ID'],
-            client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
-            authority=authority
-        )
-
-        # 토큰 받기
-        scopes = ["https://graph.microsoft.com/.default"]
-        result = app.acquire_token_for_client(scopes=scopes)
-        
-        if "access_token" not in result:
-            st.error("토큰을 받아오는데 실패했습니다.")
-            return None
-            
-        access_token = result['access_token']
-
-        # SharePoint 사이트 정보 가져오기
-        headers = {'Authorization': f'Bearer {access_token}'}
-        
-        # 사이트 정보 가져오기 (neurophet.sharepoint.com의 team.hr 사이트)
-        site_response = requests.get(
-            "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
-            headers=headers
-        )
-        site_response.raise_for_status()
-        site_info = site_response.json()
-        
-        # 파일 경로로 파일 검색
-        drive_items = requests.get(
-            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/명함 신청.xlsx",
-            headers=headers
-        )
-        drive_items.raise_for_status()
-        file_info = drive_items.json()
-        
-        # 파일 다운로드
-        download_url = file_info['@microsoft.graph.downloadUrl']
-        file_response = requests.get(download_url)
-        file_response.raise_for_status()
-
-        # BytesIO로 읽어 DataFrame 반환
-        df = pd.read_excel(BytesIO(file_response.content), sheet_name="명함DB")
-        
-        return df
-    except Exception as e:
-        st.error(f"명함 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None
+        return None 
 
 if __name__ == "__main__":
     main()
