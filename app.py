@@ -3786,17 +3786,6 @@ def main():
             else: 
                 st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
  
-            # 지원자 통계
-            st.markdown("### 📊 지원자 통계")
-            try:
-                applicant_stats_df = load_applicant_stats()
-                if applicant_stats_df is not None and not applicant_stats_df.empty:
-                    # 지원자 통계 데이터 표시
-                    st.dataframe(applicant_stats_df, use_container_width=True)
-                else:
-                    st.warning("지원자 통계 데이터를 불러올 수 없습니다.")
-            except Exception as e:
-                st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
 
         elif menu == "💰 스톡옵션 조회":
             st.markdown("##### 💰 스톡옵션 조회")
