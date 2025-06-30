@@ -1366,21 +1366,87 @@ def main():
                 
                 return reg_join, reg_leave, contract_join, contract_leave
             
-            # stats_df 생성 부분을 다음과 같이 수정
-            stats_df = pd.DataFrame([
-                {
-                    '연도': year,
-                    '전체': get_year_end_headcount(df, year)[0],
-                    '정규직_전체': get_year_end_headcount(df, year)[1],
-                    '계약직_전체': get_year_end_headcount(df, year)[2],
-                    '정규직_입사': get_year_employee_stats(df, year)[0],
-                    '정규직_퇴사': get_year_employee_stats(df, year)[1],
-                    '계약직_입사': get_year_employee_stats(df, year)[2],
-                    '계약직_퇴사': get_year_employee_stats(df, year)[3]
-                }
-                for year in range(2021, 2026)  # 2021년부터 2025년까지
-            ])
+            # SharePoint에서 데이터 로드
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            def load_yearly_stats_data():
+                """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
+                try:
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
+
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
+                    
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
+                        return None
+                        
+                    access_token = result['access_token']
+
+                    # SharePoint 사이트 정보 가져오기
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    
+                    # 사이트 정보 가져오기 (neurophet.sharepoint.com의 team.hr 사이트)
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
+                    
+                    # 파일 경로로 파일 검색 (Shared Documents → General 하위)
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # BytesIO로 읽어 DataFrame 반환
+                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet1")
+                    
+                    # 날짜 컬럼 변환
+                    date_columns = ['입사일', '퇴사일']
+                    for col in date_columns:
+                        if col in df.columns:
+                            df[col] = pd.to_datetime(df[col], errors='coerce')
+                    
+                    return df
+                except Exception as e:
+                    st.error(f"연도별 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    return None
+
+            # 데이터 로드
+            df = load_yearly_stats_data()
             
+            if df is not None:
+                # stats_df 생성
+                stats_df = pd.DataFrame([
+                    {
+                        '연도': year,
+                        '전체': get_year_end_headcount(df, year)[0],
+                        '정규직_전체': get_year_end_headcount(df, year)[1],
+                        '계약직_전체': get_year_end_headcount(df, year)[2],
+                        '정규직_입사': get_year_employee_stats(df, year)[0],
+                        '정규직_퇴사': get_year_employee_stats(df, year)[1],
+                        '계약직_입사': get_year_employee_stats(df, year)[2],
+                        '계약직_퇴사': get_year_employee_stats(df, year)[3]
+                    }
+                    for year in range(2021, 2026)  # 2021년부터 2025년까지
+                ])
+
             # 그래프를 위한 컬럼 생성 (50:50 비율)
             graph_col1, space_col1,  graph_col2, space_col2 = st.columns([0.35,0.05, 0.35, 0.2])
             
