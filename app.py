@@ -3662,11 +3662,11 @@ def main():
                     df = pd.read_excel(BytesIO(file_response.content), sheet_name="채용-지원자")
                     
                     # 지원일자 컬럼 변환
-                    if '지원일자' in df.columns:
-                        df['지원일자'] = pd.to_datetime(df['지원일자'], errors='coerce')
+                    if '등록날짜' in df.columns:
+                        df['등록날짜'] = pd.to_datetime(df['등록날짜'], errors='coerce')
                     
                     # 변환 실패한 데이터 제거
-                    df = df.dropna(subset=['지원일자'])
+                    df = df.dropna(subset=['등록날짜'])
                     
                     return df
 
