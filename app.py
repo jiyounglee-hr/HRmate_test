@@ -3614,8 +3614,7 @@ def main():
             
             # 지원자 통계 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-            def load_applicant_stats_data():
-                """SharePoint에서 지원자 통계 데이터를 로드하는 함수"""
+            def load_applicant_stats():
                 try:
                     # MSAL 설정
                     authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
@@ -3646,36 +3645,47 @@ def main():
                     
                     # 파일 경로 설정
                     file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
-                    drive_items = requests.get(
-                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                    
+                    # 파일 정보 가져오기
+                    drive_response = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive",
                         headers=headers
                     )
-                    drive_items.raise_for_status()
-                    file_info = drive_items.json()
+                    drive_response.raise_for_status()
+                    drive_info = drive_response.json()
+                    
+                    # 파일 다운로드 URL 가져오기
+                    file_response = requests.get(
+                        f"https://graph.microsoft.com/v1.0/drives/{drive_info['id']}/root:/{file_path}",
+                        headers=headers
+                    )
+                    file_response.raise_for_status()
+                    file_info = file_response.json()
                     
                     # 파일 다운로드
-                    download_url = file_info['@microsoft.graph.downloadUrl']
-                    file_response = requests.get(download_url)
-                    file_response.raise_for_status()
-
-                    # "채용-지원자" 시트 읽기
-                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="채용-지원자")
+                    download_response = requests.get(
+                        file_info['@microsoft.graph.downloadUrl']
+                    )
+                    download_response.raise_for_status()
                     
-                    # 지원일자 컬럼 변환
-                    if '등록날짜' in df.columns:
-                        df['등록날짜'] = pd.to_datetime(df['등록날짜'], errors='coerce')
+                    # 엑셀 파일 읽기
+                    excel_data = io.BytesIO(download_response.content)
+                    df = pd.read_excel(excel_data, sheet_name="채용-지원자")
                     
-                    # 변환 실패한 데이터 제거
-                    df = df.dropna(subset=['등록날짜'])
+                    # 성명이 0인 행 제거
+                    df = df[df['성명'] != 0]
+                    df = df[df['성명'] != '0']
+                    
+                    # 등록날짜에서 연도 추출
+                    df['지원연도'] = pd.to_datetime(df['등록날짜']).dt.year
                     
                     return df
-
                 except Exception as e:
                     st.error(f"지원자 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None
 
             # 데이터 로드
-            applicant_df = load_applicant_stats_data()
+            applicant_df = load_applicant_stats()
             
             if applicant_df is not None and len(applicant_df) > 0:
                 # 연도 선택
@@ -3779,7 +3789,7 @@ def main():
             # 지원자 통계
             st.markdown("### 📊 지원자 통계")
             try:
-                applicant_stats_df = load_applicant_stats_data()
+                applicant_stats_df = load_applicant_stats()
                 if applicant_stats_df is not None and not applicant_stats_df.empty:
                     # 지원자 통계 데이터 표시
                     st.dataframe(applicant_stats_df, use_container_width=True)
