@@ -2165,7 +2165,7 @@ def main():
                     # 연월 구분 드롭다운 생성
                     if '연월구분' in overtime_df.columns:
                         months = overtime_df['연월구분'].unique()
-                        selected_month = st.selectbox('조회 기준을 선택하세요.', sorted(months, reverse=True))
+                        selected_month = st.selectbox('조회 기준을 선택하세요. (데이터 위치:인사/07. 근태관리/초과근무기초데이터.xlsx)', sorted(months, reverse=True))
                         
                         # 선택된 연월에 해당하는 데이터 필터링
                         filtered_df = overtime_df[overtime_df['연월구분'] == selected_month]
