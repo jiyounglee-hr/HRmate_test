@@ -1386,11 +1386,9 @@ def main():
                         return None
                         
                     access_token = result['access_token']
-
-                    # SharePoint 사이트 정보 가져오기
                     headers = {'Authorization': f'Bearer {access_token}'}
                     
-                    # 사이트 정보 가져오기 (neurophet.sharepoint.com의 team.hr 사이트)
+                    # 사이트 정보 가져오기
                     site_response = requests.get(
                         "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
                         headers=headers
@@ -2550,19 +2548,51 @@ def main():
             # 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_promotion_data():
+                """SharePoint에서 인사발령 내역 데이터를 로드하는 함수"""
                 try:
-                    # 파일 경로를 절대 경로로 변경
-                    import os
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
+
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
                     
-                    # 파일이 존재하는지 확인
-                    if not os.path.exists(file_path):
-                        st.error(f"파일을 찾을 수 없습니다: {file_path}")
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
                         return None
+                        
+                    access_token = result['access_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
                     
-                    # 파일 읽기 (sheet2)
-                    df_promotion = pd.read_excel(file_path, sheet_name=1)
+                    # 사이트 정보 가져오기
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
+                    
+                    # ✅ 정확한 파일 경로 (Shared Documents → General 하위)
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # Sheet2 읽기 (인사발령 내역)
+                    df_promotion = pd.read_excel(BytesIO(file_response.content), sheet_name=1)
                     
                     # 컬럼 이름 재정의
                     df_promotion.columns = df_promotion.columns.str.strip()
