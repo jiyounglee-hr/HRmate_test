@@ -540,11 +540,9 @@ def load_data():
             return None
             
         access_token = result['access_token']
-
-        # SharePoint 사이트 정보 가져오기
         headers = {'Authorization': f'Bearer {access_token}'}
         
-        # 사이트 정보 가져오기 (neurophet.sharepoint.com의 team.hr 사이트)
+        # 사이트 정보 가져오기
         site_response = requests.get(
             "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
             headers=headers
@@ -552,7 +550,7 @@ def load_data():
         site_response.raise_for_status()
         site_info = site_response.json()
         
-        # 파일 경로로 파일 검색 (Shared Documents → General 하위)
+        # 파일 경로 (Shared Documents → General 하위)
         file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
         drive_items = requests.get(
             f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
@@ -566,7 +564,7 @@ def load_data():
         file_response = requests.get(download_url)
         file_response.raise_for_status()
 
-        # BytesIO로 읽어 DataFrame 반환
+        # Sheet1 읽기
         df = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet1")
         
         # '0' 값 필터링
@@ -1924,8 +1922,50 @@ def main():
 
                 if submitted:
                     try:                      
-                        # salary_table.xlsx 파일 읽기
-                        salary_table = pd.read_excel("salary_table.xlsx")
+                        # salary_table.xlsx 파일을 SharePoint에서 읽기
+                        # MSAL 설정
+                        authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                        app = msal.ConfidentialClientApplication(
+                            client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                            client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                            authority=authority
+                        )
+
+                        # 토큰 받기
+                        scopes = ["https://graph.microsoft.com/.default"]
+                        result = app.acquire_token_for_client(scopes=scopes)
+                        
+                        if "access_token" not in result:
+                            st.error("토큰을 받아오는데 실패했습니다.")
+                            st.stop()
+                            
+                        access_token = result['access_token']
+                        headers = {'Authorization': f'Bearer {access_token}'}
+                        
+                        # 사이트 정보 가져오기
+                        site_response = requests.get(
+                            "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                            headers=headers
+                        )
+                        site_response.raise_for_status()
+                        site_info = site_response.json()
+                        
+                        # 파일 경로 (Shared Documents → General 하위)
+                        file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/salary_table.xlsx"
+                        drive_items = requests.get(
+                            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                            headers=headers
+                        )
+                        drive_items.raise_for_status()
+                        file_info = drive_items.json()
+                        
+                        # 파일 다운로드
+                        download_url = file_info['@microsoft.graph.downloadUrl']
+                        file_response = requests.get(download_url)
+                        file_response.raise_for_status()
+
+                        # 파일 읽기
+                        salary_table = pd.read_excel(BytesIO(file_response.content))
                         
                         # 숫자 컬럼들을 float 타입으로 변환
                         numeric_columns = ['최소연봉', '평균연봉', '최대연봉', '연차']
