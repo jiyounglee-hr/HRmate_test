@@ -40,14 +40,14 @@ BACK_LOGO_URL = "assets/BACKLOGO.png"
 
 
 # 환경 변수 로드
-load_dotenv()
+load_dotenv() 
 
 # Microsoft Azure AD 설정
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+REDIRECT_URI = "https://hrmate.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -535,6 +535,14 @@ def load_data():
         
         # 엑셀 파일 읽기
         df = pd.read_excel(file_path)
+        
+        # '0' 값 필터링
+        df = df[
+            (df['구분1'].astype(str) != '0') &
+            (df['구분2'].astype(str) != '0') &
+            (df['구분3'].astype(str) != '0') &
+            (df['성명'].astype(str) != '0')
+        ].copy()
         
         # 데이터 로드 시간 표시 (한국 시간대 적용)
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
@@ -1577,23 +1585,22 @@ def main():
                 
                 
                 # 조회 기준일 설정
-                current_year = datetime.now().year
-                current_month = datetime.now().month
-                years = list(range(2016, current_year + 1))
-                years.sort(reverse=True)  # 내림차순 정렬
-                
-                col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+                current_date = datetime.now()
+                col1, col2 = st.columns([0.3, 0.7])
                 with col1:
-                    selected_year = st.selectbox("조회년도", years, index=0)
+                    selected_date = st.date_input(
+                        "조회기준일",
+                        value=current_date,
+                        min_value=datetime(2016, 1, 1).date(),
+                        max_value=current_date.date(),
+                        format="YYYY-MM-DD"
+                    )
                 with col2:
-                    months = list(range(1, 13))
-                    selected_month = st.selectbox("조회월", months, index=current_month-1)
-                with col3:
                     st.write("")  # 공백 컬럼
                 
-                # 선택된 년월의 마지막 날짜 계산
-                last_day = pd.Timestamp(f"{selected_year}-{selected_month:02d}-01") + pd.offsets.MonthEnd(0)
-                               
+                # 선택된 날짜를 timestamp로 변환
+                last_day = pd.Timestamp(selected_date)
+                
                 # 기준일에 재직중인 직원 필터링
                 current_employees = df[
                     (df['입사일'].notna()) & 
@@ -1602,7 +1609,13 @@ def main():
                      (df['퇴사일'] == pd.Timestamp('2050-12-31')) | 
                      (df['퇴사일'] >= last_day))
                 ]
-                
+                # '구분1', '구분2', '구분3', '성명'이 '0'인 행 제외
+                current_employees = current_employees[
+                    (current_employees['구분1'] != '0') &
+                    (current_employees['구분2'] != '0') &
+                    (current_employees['구분3'] != '0') &
+                    (current_employees['성명'] != '0')
+                ].copy()
                 st.markdown("---")
                 
                 if not df[df['입사일'] <= last_day].empty:
@@ -1712,7 +1725,7 @@ def main():
                     st.download_button(
                         label="📥 엑셀 다운로드",
                         data=excel_data,
-                        file_name=f"기관제출용_인원현황_{selected_year}{selected_month:02d}.xlsx",
+                        file_name=f"기관제출용_인원현황_{selected_date.strftime('%Y%m%d')}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                 else:
