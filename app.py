@@ -3103,13 +3103,51 @@ def main():
             # 채용현황 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_recruitment_data():
+                """SharePoint에서 채용 공고 현황 데이터를 로드하는 함수"""
                 try:
-                    # 현재 디렉토리에서 엑셀 파일 경로 설정
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
+
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
                     
-                    # 엑셀 파일에서 "채용-공고현황" 시트 읽기 
-                    df = pd.read_excel(file_path, sheet_name="채용-공고현황")
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
+                        return None
+                        
+                    access_token = result['access_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    
+                    # 사이트 정보 가져오기
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
+                    
+                    # 파일 경로 설정
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # "채용-공고현황" 시트 읽기
+                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="채용-공고현황")
                     
                     # 채용진행년도를 문자열로 변환
                     if '채용진행년도' in df.columns:
@@ -3136,6 +3174,7 @@ def main():
                         df = df.drop('공고게시일자_원본', axis=1)
                     
                     return df
+
                 except Exception as e:
                     st.error(f"채용현황 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None
@@ -3278,48 +3317,67 @@ def main():
             # 면접 현황 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_interview_data():
+                """SharePoint에서 면접 현황 데이터를 로드하는 함수"""
                 try:
-                    # 현재 디렉토리에서 엑셀 파일 경로 설정
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
-                    
-                    # 엑셀 파일에서 "채용-면접" 시트 읽기
-                    df = pd.read_excel(file_path, sheet_name="채용-면접")
-                    
-                    # 면접일자가 비어있는 행 제거
-                    df = df.dropna(subset=['면접일자'])
-                    
-                    # 성명이 0인 행 제거
-                    df = df[df['성명'] != 0]
-                    df = df[df['성명'] != '0']
-                    
-                    # 면접일자를 datetime으로 변환
-                    def convert_to_datetime(x):
-                        try:
-                            if pd.isna(x):
-                                return None
-                            elif isinstance(x, (datetime, pd.Timestamp)):
-                                return x
-                            elif isinstance(x, date):
-                                return datetime.combine(x, time())
-                            elif isinstance(x, time):
-                                return datetime.combine(datetime.now().date(), x)
-                            elif isinstance(x, str):
-                                return pd.to_datetime(x)
-                            elif isinstance(x, (int, float)):
-                                # 엑셀 날짜 숫자 처리
-                                return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
-                            else:
-                                return None
-                        except:
-                            return None
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
 
-                    df['면접일자'] = df['면접일자'].apply(convert_to_datetime)
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
+                    
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
+                        return None
+                        
+                    access_token = result['access_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    
+                    # 사이트 정보 가져오기
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
+                    
+                    # 파일 경로 설정
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # "채용-면접" 시트 읽기
+                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="채용-면접")
+                    
+                    # 면접일자 컬럼 변환
+                    if '면접일자' in df.columns:
+                        df['면접일자'] = pd.to_datetime(df['면접일자'], errors='coerce')
+                        
+                        # 면접일시 컬럼 생성 (면접일자와 시간 조합)
+                        df['면접일시'] = df.apply(
+                            lambda row: f"{row['면접일자'].strftime('%Y-%m-%d')} {row['시간']}" if pd.notna(row['면접일자']) else '',
+                            axis=1
+                        )
                     
                     # 변환 실패한 데이터 제거
                     df = df.dropna(subset=['면접일자'])
                     
                     return df
+
                 except Exception as e:
                     st.error(f"면접 현황 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None
@@ -3405,29 +3463,68 @@ def main():
             
             # 지원자 통계 데이터 로드
             @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-            def load_applicant_stats():
+            def load_applicant_stats_data():
+                """SharePoint에서 지원자 통계 데이터를 로드하는 함수"""
                 try:
-                    # 현재 디렉토리에서 엑셀 파일 경로 설정
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
+
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
                     
-                    # 엑셀 파일에서 "채용-지원자" 시트 읽기
-                    df = pd.read_excel(file_path, sheet_name="채용-지원자")
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
+                        return None
+                        
+                    access_token = result['access_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
                     
-                    # 성명이 0인 행 제거
-                    df = df[df['성명'] != 0]
-                    df = df[df['성명'] != '0']
+                    # 사이트 정보 가져오기
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
                     
-                    # 등록날짜에서 연도 추출
-                    df['지원연도'] = pd.to_datetime(df['등록날짜']).dt.year
+                    # 파일 경로 설정
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # "채용-지원자" 시트 읽기
+                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="채용-지원자")
+                    
+                    # 지원일자 컬럼 변환
+                    if '지원일자' in df.columns:
+                        df['지원일자'] = pd.to_datetime(df['지원일자'], errors='coerce')
+                    
+                    # 변환 실패한 데이터 제거
+                    df = df.dropna(subset=['지원일자'])
                     
                     return df
+
                 except Exception as e:
                     st.error(f"지원자 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None
 
             # 데이터 로드
-            applicant_df = load_applicant_stats()
+            applicant_df = load_applicant_stats_data()
             
             if applicant_df is not None and len(applicant_df) > 0:
                 # 연도 선택
@@ -3531,7 +3628,7 @@ def main():
             # 지원자 통계
             st.markdown("### 📊 지원자 통계")
             try:
-                applicant_stats_df = load_applicant_stats()
+                applicant_stats_df = load_applicant_stats_data()
                 if applicant_stats_df is not None and not applicant_stats_df.empty:
                     # 지원자 통계 데이터 표시
                     st.dataframe(applicant_stats_df, use_container_width=True)
