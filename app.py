@@ -2306,20 +2306,52 @@ def main():
             # 데이터 로드
             @st.cache_data
             def load_employee_data():
+                """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
                 try:
-                    # 파일 경로를 절대 경로로 변경
-                    import os
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
+                    # MSAL 설정
+                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+                    app = msal.ConfidentialClientApplication(
+                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+                        authority=authority
+                    )
+
+                    # 토큰 받기
+                    scopes = ["https://graph.microsoft.com/.default"]
+                    result = app.acquire_token_for_client(scopes=scopes)
                     
-                    # 파일이 존재하는지 확인
-                    if not os.path.exists(file_path):
-                        st.error(f"파일을 찾을 수 없습니다: {file_path}")
+                    if "access_token" not in result:
+                        st.error("토큰을 받아오는데 실패했습니다.")
                         return None, None
+                        
+                    access_token = result['access_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
                     
-                    # 파일 읽기
-                    df = pd.read_excel(file_path, sheet_name=0)  # 첫 번째 시트 사용
-                    df_history = pd.read_excel(file_path, sheet_name=1)  # 두 번째 시트 사용
+                    # 사이트 정보 가져오기
+                    site_response = requests.get(
+                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+                        headers=headers
+                    )
+                    site_response.raise_for_status()
+                    site_info = site_response.json()
+                    
+                    # 파일 경로 (Shared Documents → General 하위)
+                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
+                    drive_items = requests.get(
+                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+                        headers=headers
+                    )
+                    drive_items.raise_for_status()
+                    file_info = drive_items.json()
+                    
+                    # 파일 다운로드
+                    download_url = file_info['@microsoft.graph.downloadUrl']
+                    file_response = requests.get(download_url)
+                    file_response.raise_for_status()
+
+                    # Sheet1과 Sheet2 읽기
+                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet1")
+                    df_history = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet2")
                     
                     # 컬럼 이름 재정의
                     df.columns = df.columns.str.strip()  # 컬럼 이름의 공백 제거
@@ -2339,7 +2371,7 @@ def main():
                     
                     return df, df_history
                 except Exception as e:
-                    st.error(f"파일을 불러오는 중 오류가 발생했습니다: {str(e)}")
+                    st.error(f"임직원 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None, None
             
             df, df_history = load_employee_data()
