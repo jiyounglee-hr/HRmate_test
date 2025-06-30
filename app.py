@@ -820,7 +820,7 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
+        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
         with col2:
             st.markdown("""
                 <div class="header-container">
@@ -864,7 +864,7 @@ def main():
                 )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.1, 0.5, 0.4])
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
             with col2:
                 # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
