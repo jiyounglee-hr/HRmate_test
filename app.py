@@ -563,11 +563,11 @@ def load_authorized_emails():
         return st.session_state.authorized_emails
         
     try:
-        file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/임직원 기초 데이터.xlsx")
+        file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/hrmate권한.xlsx")
         if not file_bytes:
             return []
             
-        df = pd.read_excel(file_bytes, sheet_name='hrmate권한')
+        df = pd.read_excel(file_bytes)
         authorized_emails = df['이메일'].dropna().tolist()
         st.session_state.authorized_emails = authorized_emails
         return authorized_emails
@@ -587,11 +587,11 @@ def get_user_permission(email):
     :return: 권한명 (권한이 없으면 None)
     """
     try:
-        file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/임직원 기초 데이터.xlsx")
+        file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/hrmate권한.xlsx")
         if not file_bytes:
             return None
             
-        df = pd.read_excel(file_bytes, sheet_name='hrmate권한')
+        df = pd.read_excel(file_bytes)
         user_row = df[df['이메일'].str.lower().str.strip() == email.lower().strip()]
         
         if not user_row.empty and '권한명' in user_row.columns:
