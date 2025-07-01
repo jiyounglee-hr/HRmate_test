@@ -584,17 +584,13 @@ def get_file_last_modified(file_path):
 def get_sharepoint_file_bytes(file_path):
     """SharePoint 파일을 다운로드하는 함수"""
     try:
-        # 파일의 마지막 수정 시각 확인
-        modified_time = get_file_last_modified(file_path)
-        if not modified_time:
-            return None
-            
-        # 캐시 키 생성 (파일 경로와 수정 시각 조합)
-        cache_key = f"{file_path}_{modified_time}"
+        # 세션에 modified_time이 없으면 가져오기
+        if f"{file_path}_modified_time" not in st.session_state:
+            st.session_state[f"{file_path}_modified_time"] = get_file_last_modified(file_path)
         
         # 캐시된 데이터가 있으면 반환
-        if cache_key in st.session_state:
-            return BytesIO(st.session_state[cache_key])
+        if f"{file_path}_data" in st.session_state:
+            return BytesIO(st.session_state[f"{file_path}_data"])
         
         # SharePoint 액세스 토큰 가져오기
         access_token = get_sharepoint_access_token()
@@ -621,12 +617,37 @@ def get_sharepoint_file_bytes(file_path):
         download_response.raise_for_status()
         
         # 세션 상태에 저장
-        st.session_state[cache_key] = download_response.content
+        st.session_state[f"{file_path}_data"] = download_response.content
         
         return BytesIO(download_response.content)
     except Exception as e:
         st.error(f"파일을 가져오는 중 오류가 발생했습니다: {str(e)}")
         return None
+
+def check_file_modified(file_path):
+    """파일 수정 여부를 확인하고 필요한 경우 캐시를 갱신하는 함수"""
+    try:
+        # 현재 수정 시각 확인
+        latest_modified_time = get_file_last_modified(file_path)
+        
+        # 저장된 수정 시각이 없거나 다른 경우
+        if (f"{file_path}_modified_time" not in st.session_state or 
+            latest_modified_time != st.session_state[f"{file_path}_modified_time"]):
+            
+            # 수정 시각 업데이트
+            st.session_state[f"{file_path}_modified_time"] = latest_modified_time
+            
+            # 캐시된 데이터 삭제
+            if f"{file_path}_data" in st.session_state:
+                del st.session_state[f"{file_path}_data"]
+            
+            # 페이지 새로고침
+            st.experimental_rerun()
+            
+        return True
+    except Exception as e:
+        st.error(f"파일 수정 여부를 확인하는 중 오류가 발생했습니다: {str(e)}")
+        return False
 
 def load_authorized_emails():
     """권한이 있는 이메일 목록을 로드하는 함수"""
@@ -4211,6 +4232,21 @@ def load_overtime_base_data():
     except Exception as e:
         st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
+
+def main():
+    # 로그인 처리
+    if not login():
+        st.stop()
+    
+    # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
+    if "initialized" not in st.session_state:
+        important_files = [
+            "General/00_2. HRmate/임직원 기초 데이터.xlsx",
+            "General/00_2. HRmate/hrmate권한.xlsx"
+        ]
+        for file_path in important_files:
+            check_file_modified(file_path)
+        st.session_state["initialized"] = True
 
 if __name__ == "__main__":
     main()
