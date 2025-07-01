@@ -1664,6 +1664,13 @@ def load_yearly_stats_data():
             search_col, space_col = st.columns([0.3, 0.7])
             
             with search_col:
+                st.markdown("""
+                    <style>
+                    div[data-baseweb="input"] input {
+                        background-color: #f5f5f5 !important;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
                 st.markdown('<div class="search-container">', unsafe_allow_html=True)
                 search_name = st.text_input("성명으로 검색", key="contact_search")
                 st.markdown('</div>', unsafe_allow_html=True)
