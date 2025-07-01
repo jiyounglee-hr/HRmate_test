@@ -33,6 +33,7 @@ import msal
 from dotenv import load_dotenv
 import xlsxwriter
 from PIL import Image, ImageDraw, ImageFont
+from urllib.parse import quote
 
 # === ✅ 로고 파일 경로 ===
 FRONT_LOGO_URL = "assets/FRONTLOGO.png"
@@ -4151,27 +4152,35 @@ def load_overtime_base_data():
 def get_file_last_modified(file_path):
     """SharePoint 파일의 마지막 수정 시각을 조회하는 함수"""
     try:
-        # SharePoint 액세스 토큰 가져오기
         access_token = get_sharepoint_access_token()
         site_info = get_sharepoint_site_info()
         
+        if not access_token or not site_info:
+            return None
+            
         headers = {
             'Authorization': f'Bearer {access_token}',
             'Accept': 'application/json'
         }
         
-        # 파일 정보 조회
-        file_response = requests.get(
-            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
-            headers=headers
-        )
-        file_response.raise_for_status()
-        file_info = file_response.json()
+        # SharePoint API 엔드포인트 구성
+        site_id = site_info['id']
+        drive_id = site_info['drive_id']
         
-        # 마지막 수정 시각 반환
-        return file_info.get('lastModifiedDateTime')
+        # 파일 경로를 URL 인코딩
+        encoded_path = quote(file_path)
+        
+        # 파일 메타데이터 조회
+        url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives/{drive_id}/root:/{encoded_path}"
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            file_info = response.json()
+            return file_info.get('lastModifiedDateTime')
+            
+        return None
     except Exception as e:
-        st.error(f"파일의 수정 시각을 조회하는 중 오류가 발생했습니다: {str(e)}")
+        st.error(f"파일 수정 시각을 조회하는 중 오류가 발생했습니다: {str(e)}")
         return None
 
 if __name__ == "__main__":
