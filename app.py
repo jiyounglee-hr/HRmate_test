@@ -1889,8 +1889,9 @@ def main():
             <style>
             /* 입력 필드 스타일 */
             [data-testid="stNumberInput"] input, 
-            [data-testid="stTextInput"] input {
-                background-color: #eee;
+            [data-testid="stTextInput"] input,
+            textarea {
+                background-color: #f5f5f5;
             }
             </style>
             """, unsafe_allow_html=True)
