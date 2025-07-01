@@ -988,7 +988,17 @@ def main():
         
         st.stop()
     
-    # 로그인된 경우 - 기존 메인 로직 실행
+    # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
+    if "initialized" not in st.session_state:
+        important_files = [
+            "General/00_2. HRmate/임직원 기초 데이터.xlsx",
+            "General/00_2. HRmate/hrmate권한.xlsx"
+        ]
+        for file_path in important_files:
+            check_file_modified(file_path)
+        st.session_state["initialized"] = True
+    
+    # 로그인된 경우 - 기존 메인 로직 실행 
     # 데이터 로드
     df = load_data()
     
