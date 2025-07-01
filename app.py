@@ -41,7 +41,7 @@ BACK_LOGO_URL = "assets/BACKLOGO.png"
 
 # 환경 변수 로드
 load_dotenv() 
-
+ 
 # Microsoft Azure AD 설정
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
