@@ -520,23 +520,31 @@ def get_sharepoint_site_info():
         st.error(f"사이트 정보를 가져오는 중 오류가 발생했습니다: {str(e)}")
         return None
 
-@st.cache_data(ttl=3600)  # 1시간 캐시 유지
 def get_sharepoint_file_bytes(file_path):
-    """SharePoint 파일 내용을 바이트로 가져오는 함수"""
-    cache_key = f"file_bytes_{file_path}"
-    if cache_key in st.session_state:
-        return BytesIO(st.session_state[cache_key])
-        
-    access_token = get_sharepoint_access_token()
-    site_info = get_sharepoint_site_info()
-    
-    if not access_token or not site_info:
-        return None
-        
+    """SharePoint 파일을 다운로드하는 함수"""
     try:
-        headers = {'Authorization': f'Bearer {access_token}'}
+        # 파일의 마지막 수정 시각 확인
+        modified_time = get_file_last_modified(file_path)
+        if not modified_time:
+            return None
+            
+        # 캐시 키 생성 (파일 경로와 수정 시각 조합)
+        cache_key = f"{file_path}_{modified_time}"
         
-        # 파일 정보 가져오기
+        # 캐시된 데이터가 있으면 반환
+        if cache_key in st.session_state:
+            return BytesIO(st.session_state[cache_key])
+        
+        # SharePoint 액세스 토큰 가져오기
+        access_token = get_sharepoint_access_token()
+        site_info = get_sharepoint_site_info()
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Accept': 'application/json'
+        }
+        
+        # 파일 정보 조회
         file_response = requests.get(
             f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
             headers=headers
@@ -3275,7 +3283,7 @@ def main():
             st.markdown("##### 🚀 채용현황")
             
             # 채용현황 데이터 로드
-            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            @st.cache_data(ttl=3600)  # 1시간마다 캐시 갱신
             def load_recruitment_data():
                 """SharePoint에서 채용 공고 현황 데이터를 로드하는 함수"""
                 try:
@@ -4339,6 +4347,32 @@ def load_overtime_base_data():
 
     except Exception as e:
         st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
+
+def get_file_last_modified(file_path):
+    """SharePoint 파일의 마지막 수정 시각을 조회하는 함수"""
+    try:
+        # SharePoint 액세스 토큰 가져오기
+        access_token = get_sharepoint_access_token()
+        site_info = get_sharepoint_site_info()
+        
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Accept': 'application/json'
+        }
+        
+        # 파일 정보 조회
+        file_response = requests.get(
+            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+            headers=headers
+        )
+        file_response.raise_for_status()
+        file_info = file_response.json()
+        
+        # 마지막 수정 시각 반환
+        return file_info.get('lastModifiedDateTime')
+    except Exception as e:
+        st.error(f"파일의 수정 시각을 조회하는 중 오류가 발생했습니다: {str(e)}")
         return None
 
 if __name__ == "__main__":
