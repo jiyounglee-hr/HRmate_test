@@ -1698,6 +1698,16 @@ def main():
         elif menu == "🏦 기관제출용 인원현황":
             st.markdown("##### 🏦 기관제출용 인원현황")
             
+            # 스타일 추가
+            st.markdown("""
+                <style>
+                div[data-baseweb="input"] input,
+                div[data-baseweb="calendar"] input {
+                    background-color: #f5f5f5 !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
             # 데이터 로드
             df = load_data()
             if df is not None:
@@ -1763,7 +1773,6 @@ def main():
                     (current_employees['구분3'] != '0') &
                     (current_employees['성명'] != '0')
                 ].copy()
-                st.markdown("---")
                 
                 if not df[df['입사일'] <= last_day].empty:
                     # 구분별 인원 현황 계산 및 표시
