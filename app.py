@@ -4243,20 +4243,6 @@ def load_overtime_base_data():
         st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
 
-def main():
-    # 로그인 처리
-    if not login():
-        st.stop()
-    
-    # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
-    if "initialized" not in st.session_state:
-        important_files = [
-            "General/00_2. HRmate/임직원 기초 데이터.xlsx",
-            "General/00_2. HRmate/hrmate권한.xlsx"
-        ]
-        for file_path in important_files:
-            check_file_modified(file_path)
-        st.session_state["initialized"] = True
 
 if __name__ == "__main__":
     main()
