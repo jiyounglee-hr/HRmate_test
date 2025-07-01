@@ -1890,8 +1890,10 @@ def main():
             /* 입력 필드 스타일 */
             [data-testid="stNumberInput"] input, 
             [data-testid="stTextInput"] input,
-            textarea {
-                background-color: #f5f5f5;
+            textarea,
+            [data-testid="stTextArea"] textarea,
+            div[data-baseweb="textarea"] textarea {
+                background-color: #f5f5f5 !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -1919,7 +1921,8 @@ def main():
             # 경력입력 폼 생성
             with st.form("experience_form"):
                 experience_text = st.text_area("경력기간 입력 (이력서의 날짜 부분을 복사해서 붙여주세요.)", 
-                                             help="# 날짜 패턴 : # 날짜 패턴 : 2023. 04, 2024.05.01, 2024.05, 2024-05, 2024-05-01, 2024/05, 2024/05/01, 2023/05, 2015.01.")
+                                             help="# 날짜 패턴 : # 날짜 패턴 : 2023. 04, 2024.05.01, 2024.05, 2024-05, 2024-05-01, 2024/05, 2024/05/01, 2023/05, 2015.01.",
+                                             key="experience_input")
                 
                 # 경력기간 조회 버튼 추가
                 experience_submitted = st.form_submit_button("경력기간 조회")
