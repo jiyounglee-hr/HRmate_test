@@ -1419,13 +1419,14 @@ def main():
             # 연도별 입/퇴사 인원 계산 함수 (get_year_end_headcount 함수 다음에 추가)
             @st.cache_data(ttl=3600)  # 1시간 캐시 유지
             def get_year_employee_stats(df, year):
+                """연도별 입사/퇴사 통계를 계산하는 함수"""
                 # 정규직 입사
                 reg_join = len(df[(df['고용구분'] == '정규직') & 
-                                  (df['입사일'].dt.year == year)])
+                                 (df['입사일'].dt.year == year)])
                 
                 # 정규직 퇴사
                 reg_leave = len(df[(df['고용구분'] == '정규직') & 
-                                   (df['퇴사일'].dt.year == year)])
+                                  (df['퇴사일'].dt.year == year)])
                 
                 # 계약직 입사
                 contract_join = len(df[(df['고용구분'] == '계약직') & 
@@ -1437,8 +1438,7 @@ def main():
                 
                 return reg_join, reg_leave, contract_join, contract_leave
             
-            # SharePoint에서 데이터 로드
-                def load_yearly_stats_data():
+            def load_yearly_stats_data():
                 """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
                 try:
                     file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/임직원 기초 데이터.xlsx")
