@@ -1445,65 +1445,25 @@ def main():
             
             # SharePoint에서 데이터 로드
             @st.cache_data(ttl=3600)  # 1시간 캐시 유지
-def load_yearly_stats_data():
-    """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
-    if 'yearly_stats_data' in st.session_state:
-        return st.session_state.yearly_stats_data
-        
-    try:
-        file_bytes = get_sharepoint_file_bytes("General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx")
-        if not file_bytes:
-            return None
-            
-        df = pd.read_excel(file_bytes)
-        
-        # 날짜 컬럼 변환
-        date_columns = ['입사일', '퇴사일']
-        for col in date_columns:
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], errors='coerce')
-                
-        st.session_state.yearly_stats_data = df
-        return df
+            def load_yearly_stats_data():
+                """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
+                if 'yearly_stats_data' in st.session_state:
+                    return st.session_state.yearly_stats_data
                     
-                    if "access_token" not in result:
-                        st.error("토큰을 받아오는데 실패했습니다.")
+                try:
+                    file_bytes = get_sharepoint_file_bytes("General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx")
+                    if not file_bytes:
                         return None
                         
-                    access_token = result['access_token']
-                    headers = {'Authorization': f'Bearer {access_token}'}
-                    
-                    # 사이트 정보 가져오기
-                    site_response = requests.get(
-                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
-                        headers=headers
-                    )
-                    site_response.raise_for_status()
-                    site_info = site_response.json()
-                    
-                    # 파일 경로로 파일 검색 (Shared Documents → General 하위)
-                    file_path = "General/05. 임직원/000. 임직원 명부/통계자동화/임직원 기초 데이터.xlsx"
-                    drive_items = requests.get(
-                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
-                        headers=headers
-                    )
-                    drive_items.raise_for_status()
-                    file_info = drive_items.json()
-                    
-                    # 파일 다운로드
-                    download_url = file_info['@microsoft.graph.downloadUrl']
-                    file_response = requests.get(download_url)
-                    file_response.raise_for_status()
-
-                    # BytesIO로 읽어 DataFrame 반환
-                    df = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet1")
+                    df = pd.read_excel(file_bytes)
                     
                     # 날짜 컬럼 변환
                     date_columns = ['입사일', '퇴사일']
                     for col in date_columns:
                         if col in df.columns:
                             df[col] = pd.to_datetime(df[col], errors='coerce')
-                    
+                            
+                    st.session_state.yearly_stats_data = df
                     return df
                 except Exception as e:
                     st.error(f"연도별 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
