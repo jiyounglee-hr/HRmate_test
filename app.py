@@ -642,7 +642,7 @@ def check_file_modified(file_path):
                 del st.session_state[f"{file_path}_data"]
             
             # 페이지 새로고침
-            st.experimental_rerun()
+            st.rerun()
             
         return True
     except Exception as e:
