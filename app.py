@@ -1884,6 +1884,17 @@ def main():
         elif menu == "📋 채용 처우협상":
             st.markdown("##### 🔎 처우 기본정보")
             
+            # 입력 필드 스타일 추가
+            st.markdown("""
+            <style>
+            /* 입력 필드 스타일 */
+            [data-testid="stNumberInput"] input, 
+            [data-testid="stTextInput"] input {
+                background-color: #eee;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
             # 직군 매핑 정의
             job_mapping = {
                 "연구직": "직군1",
