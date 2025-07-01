@@ -507,13 +507,39 @@ def get_sharepoint_site_info():
         return None
         
     try:
-        headers = {'Authorization': f'Bearer {access_token}'}
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Accept': 'application/json'
+        }
+        
+        # 사이트 정보 가져오기
         site_response = requests.get(
             "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
             headers=headers
         )
         site_response.raise_for_status()
         site_info = site_response.json()
+        
+        # 드라이브 정보 가져오기
+        drive_response = requests.get(
+            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drives",
+            headers=headers
+        )
+        drive_response.raise_for_status()
+        drives = drive_response.json().get('value', [])
+        
+        # 문서 라이브러리 드라이브 찾기
+        for drive in drives:
+            if drive.get('name') == '문서':
+                site_info['drive_id'] = drive['id']
+                break
+        else:
+            # 첫 번째 드라이브를 기본값으로 사용
+            if drives:
+                site_info['drive_id'] = drives[0]['id']
+            else:
+                st.error("SharePoint 드라이브를 찾을 수 없습니다.")
+                return None
         
         st.session_state.site_info = site_info
         return site_info
