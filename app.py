@@ -932,32 +932,9 @@ def main():
                 <div style="position: absolute; top: 20px; right: 20px;">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
                 </div>
-                        """, unsafe_allow_html=True)
-        
-        with col2:
-            # 데이터 로드
-            df = load_data()
-            
-            # 오늘 날짜 기준으로 재직자 필터링
-            today = datetime.now().strftime('%Y-%m-%d')
-            current_employees = df[
-                (df['재직상태'] == '재직') &
-                (pd.to_datetime(df['입사일']) <= pd.to_datetime(today))
-            ]
-            
-            # 고용형태별 인원 수 계산
-            total_count = len(current_employees)
-            regular_count = len(current_employees[current_employees['고용형태'] == '정규직'])
-            contract_count = len(current_employees[current_employees['고용형태'] == '계약직'])
-            
-            st.markdown(f"""
-                <div style="text-align: left; padding: 20px 0;">
-                    <h3>👥 인원 현황 ({today})</h3>
-                    <p style="font-size: 1.1em;">
-                        전체 : {total_count}명 ㅣ 정규직 : {regular_count}명 ㅣ 계약직 : {contract_count}명
-                    </p>
-                </div>
             """, unsafe_allow_html=True)
+
+        with col2:
             st.markdown("""
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
