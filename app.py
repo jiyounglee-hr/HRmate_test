@@ -988,7 +988,7 @@ def main():
                 
             st.stop()
         else:
-            col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2]])
+            col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
             with col3:
                 # st.link_button을 사용하여 직접 링크로 이동
                 st.link_button(
