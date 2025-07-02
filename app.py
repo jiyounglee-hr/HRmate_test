@@ -1029,7 +1029,7 @@ def main():
                     .link-hover {
                         text-decoration: none !important;
                         color: #1b1b1e;
-                        font-size: 0.8em;
+                        font-size: 0.8em; 
                     }
                     .link-hover:hover {
                         text-decoration: underline;
