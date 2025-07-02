@@ -340,10 +340,6 @@ st.markdown("""
     [data-testid="stMetricLabel"] {
         font-size: 0.8rem !important;
     }
-    .divider {
-        max-width: 500px;
-        margin: 1rem auto;
-    }
     .header-container {
         position: relative;
         max-width: 600px;
