@@ -48,7 +48,7 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmate.streamlit.app/"
+REDIRECT_URI = "https://hrmatetest.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -925,20 +925,58 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-        with col2:
-            st.markdown("""
-                <div class="header-container">
-                    <div class="logo-container">
-                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
-                    </div>
-                    <div class="title-container">
-                        <h1>HRmate</h1>
-                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
-                    </div>
-                </div>
-                <div class="divider"><hr></div>
-            """, unsafe_allow_html=True)
+                 # 스타일 정의
+         st.markdown("""
+             <style>
+                 .main-container {
+                     display: flex;
+                     flex-direction: column;
+                     align-items: center;
+                     justify-content: center;
+                     min-height: 80vh;
+                     position: relative;
+                     padding: 20px;
+                }
+                .logo-container {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                }
+                .content-container {
+                    text-align: center;
+                    margin-top: -100px;
+                }
+                .title {
+                    font-size: 2.5em;
+                    margin-bottom: 20px;
+                    color: #2F2F2F;
+                }
+                .subtitle {
+                    color: #666;
+                    margin-bottom: 10px;
+                }
+                .divider {
+                    width: 100%;
+                    max-width: 400px;
+                    margin: 20px auto;
+                }
+            </style>
+         """, unsafe_allow_html=True)
+         
+         # 메인 컨테이너
+         st.markdown("""
+             <div class="main-container">
+                 <div class="logo-container">
+                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" 
+                          width="100" style="float: right;">
+                 </div>
+                 <div class="content-container">
+                     <h1 class="title">HRmate</h1>
+                     <p class="subtitle">🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                     <p class="subtitle">▶️ 로그인 버튼을 누르면 Microsoft 로그인 창이 새로 열릴 수 있습니다.</p>
+                 </div>
+             </div>
+         """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
@@ -959,14 +997,17 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-            with col2:
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
+                         # 로그인 버튼을 중앙에 배치
+             col1, col2, col3 = st.columns([1, 1, 1])
+             with col2:
+                 st.markdown(f"""
+                     <div style="display: flex; justify-content: center; margin-top: 20px;">
+                         <a href="{auth_url}" style="text-decoration: none; background-color: #2F2F2F; color: white; padding: 12px 24px; border-radius: 5px; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; min-width: 250px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png" style="margin-right: 10px; height: 20px;">
+                             Microsoft 계정으로 로그인
+                         </a>
+                     </div>
+                 """, unsafe_allow_html=True)
             st.stop()
         else:
             col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
