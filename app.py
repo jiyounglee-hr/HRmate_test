@@ -929,16 +929,17 @@ def main():
             <style>
             .header-container {
                 display: flex;
-                justify-content: flex-end;
+                flex-direction: column;
                 align-items: center;
+                justify-content: center;
                 padding: 1rem;
+                text-align: center;
             }
             .logo-container {
-                margin-left: 1rem;
+                margin-bottom: 1rem;
             }
             .title-container {
-                text-align: right;
-                margin-left: 1rem;
+                text-align: center;
             }
             .login-container {
                 display: flex;
