@@ -993,9 +993,6 @@ def main():
                         else:
                             st.info("검색 결과가 없습니다.")
             
-            # 컨테이너 종료
-            st.markdown('</div>', unsafe_allow_html=True)
-        
         with col3:
             # 작은 글씨 스타일 추가
             st.markdown("""
