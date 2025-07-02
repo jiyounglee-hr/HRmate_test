@@ -957,13 +957,14 @@ def main():
         .main .block-container {
             padding-left: 15%;
             padding-right: 15%;
+            padding-top: 0;
             max-width: 100%;
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 2rem 0;
+            padding: 0 0 2rem 0;
             margin-bottom: 2rem;
         }
         .header h1 {
