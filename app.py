@@ -1022,7 +1022,7 @@ def main():
                             window.location.assign("{login_url}");
                             return false;
                         }}
-                    </script>
+                    </script> 
                     
                     <button 
                         onclick="redirectToLogin()"
