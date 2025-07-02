@@ -957,7 +957,6 @@ def main():
                 <div style="border: 1px solid #f2f2f2; padding: 20px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px;">👥 인원 현황 ({today})</h4>
                     <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
-
                     <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
                 </div>
                 """, unsafe_allow_html=True)
