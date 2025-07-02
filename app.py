@@ -958,6 +958,13 @@ def main():
         </style>
     """, unsafe_allow_html=True)
     
+    # Microsoft 로그인 URL 생성
+    auth_url = msal_app.get_authorization_request_url(
+        scopes=["User.Read"],
+        redirect_uri=REDIRECT_URI,
+        state=st.session_state.get("_session_id", "")
+    )
+    
     # 로그인 상태 확인
     is_logged_in = login()
     
