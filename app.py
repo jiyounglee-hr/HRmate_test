@@ -728,11 +728,11 @@ def load_data():
         ].copy()
         
         # 날짜 컬럼 변환
-        date_columns = ['입사일', '퇴사일']
+        date_columns = ['입사일', '퇴사일', '생년월일']
         for col in date_columns:
             if col in df.columns:
-                df[col] = pd.to_datetime(df[col], errors='coerce')
-                
+                df[col] = df[col].apply(convert_date)
+        
         # 데이터 로드 시간 표시 (한국 시간대 적용)
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
         kst_time = datetime.now(pytz.timezone('Asia/Seoul'))
@@ -966,6 +966,16 @@ def main():
         df = load_data()
         
         if df is not None:
+            # 날짜 컬럼 변환
+            date_columns = ['입사일', '퇴사일', '생년월일']
+            for col in date_columns:
+                if col in df.columns:
+                    try:
+                        # Excel 날짜 형식 변환
+                        df[col] = pd.to_datetime(df[col], errors='coerce')
+                    except:
+                        st.error(f"{col} 컬럼의 날짜 형식 변환 중 오류가 발생했습니다.")
+            
             # 현재 날짜 기준으로 재직자 필터링
             today = pd.Timestamp.now().date()
             current_employees = df[
