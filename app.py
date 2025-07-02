@@ -917,7 +917,7 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3, col4 = st.columns([0.1, 0.55, 0.15, 0.2])
+        col1, col2, col3, col4 = st.columns([0.05, 0.55, 0.15, 0.2])
         with col3:
             st.markdown("""
                 <div style="position: absolute; top: 20px; right: 20px;">
@@ -1023,10 +1023,17 @@ def main():
                             
             with st.expander("👇HR 관련 사이트 바로 가기", expanded=True):
                     # 명함처리에 필요한 링크
+                    st.markdown("""
+                        <style>
+                        .link-hover {
+                            text-decoration: none !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
                     st.markdown('<div class="link-container">', unsafe_allow_html=True)
-                    st.markdown('<a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️뉴로웍스 ↗️ ' , unsafe_allow_html=True)
-                    st.markdown('<a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️뉴로핏커리어 ↗️ ' , unsafe_allow_html=True)
-                    st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️면접관용 가이드 및 채용전형 관리 ↗️ ' , unsafe_allow_html=True)
+                    st.markdown('<a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️뉴로웍스 ↗️ </a>' , unsafe_allow_html=True)
+                    st.markdown('<a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️뉴로핏커리어 ↗️ </a>' , unsafe_allow_html=True)
+                    st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️면접관용 가이드 및 채용전형 관리 ↗️ </a>' , unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
         st.stop()
     
