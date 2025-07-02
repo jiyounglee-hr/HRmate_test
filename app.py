@@ -1015,6 +1015,8 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
         
         with col3:
+            st.markdown("---")
+
             st.link_button(
                 "Microsoft 계정으로 로그인",
                 auth_url,
