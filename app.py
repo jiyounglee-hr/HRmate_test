@@ -47,15 +47,19 @@ load_dotenv()
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-# 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+# REDIRECT_URI는 Azure AD에 등록된 URI와 정확히 일치해야 함
+REDIRECT_URI = "https://hrmatetest.streamlit.app"  # 끝의 슬래시 제거
 
 # MSAL 앱 초기화
-msal_app = msal.ConfidentialClientApplication(
-    CLIENT_ID,
-    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
-    client_credential=CLIENT_SECRET
-)
+try:
+    msal_app = msal.ConfidentialClientApplication(
+        CLIENT_ID,
+        authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+        client_credential=CLIENT_SECRET
+    )
+except Exception as e:
+    st.error(f"MSAL 초기화 중 오류 발생: {str(e)}")
+    msal_app = None
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -926,18 +930,28 @@ def main():
     if 'email' not in st.session_state:
         st.session_state.email = None
 
-    # URL 파라미터에서 인증 코드 확인
+    # MSAL 앱이 초기화되지 않은 경우
+    if msal_app is None:
+        st.error("Microsoft 인증 서비스 초기화에 실패했습니다. 관리자에게 문의하세요.")
+        st.stop()
+
+    # URL 파라미터에서 인증 코드와 state 확인
     query_params = st.experimental_get_query_params()
     code = query_params.get("code", [None])[0]
+    state = query_params.get("state", [None])[0]
 
     # 인증 코드가 있으면 토큰 획득 시도
     if code and not st.session_state.user_token:
         try:
+            # 필요한 스코프 정의
+            scopes = ["User.Read", "User.Read.All", "profile", "email", "openid"]
+            
             result = msal_app.acquire_token_by_authorization_code(
                 code,
-                scopes=["User.Read", "User.Read.All"],
+                scopes=scopes,
                 redirect_uri=REDIRECT_URI
             )
+            
             if "access_token" in result:
                 st.session_state.user_token = result
                 # 사용자 정보 가져오기
@@ -945,30 +959,53 @@ def main():
                     "https://graph.microsoft.com/v1.0/me",
                     headers={'Authorization': 'Bearer ' + result['access_token']},
                 ).json()
+                
+                if 'error' in graph_data:
+                    st.error(f"사용자 정보를 가져오는 중 오류가 발생했습니다: {graph_data['error']['message']}")
+                    st.session_state.clear()
+                    st.experimental_rerun()
+                
                 st.session_state.email = graph_data.get("mail") or graph_data.get("userPrincipalName")
                 st.session_state.user_info = graph_data
+                
+                # URL에서 코드 제거
+                st.experimental_set_query_params()
+                st.experimental_rerun()
+            else:
+                if "error" in result:
+                    st.error(f"토큰 획득 실패: {result.get('error_description', '알 수 없는 오류')}")
+                st.session_state.clear()
                 st.experimental_rerun()
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
-            st.session_state.user_token = None
-            st.session_state.user_info = None
-            st.session_state.email = None
+            st.session_state.clear()
+            st.experimental_rerun()
 
     # 토큰이 없으면 로그인 페이지로 리디렉션
     if not st.session_state.user_token:
-        auth_url = msal_app.get_authorization_request_url(
-            scopes=["User.Read", "User.Read.All"],
-            redirect_uri=REDIRECT_URI
-        )
-        st.markdown(f'<meta http-equiv="refresh" content="0;URL={auth_url}">', unsafe_allow_html=True)
-        st.stop()
+        try:
+            # 필요한 스코프 정의
+            scopes = ["User.Read", "User.Read.All", "profile", "email", "openid"]
+            
+            # state 파라미터 생성
+            state = st.session_state.get("_state", base64.b64encode(os.urandom(32)).decode('utf-8'))
+            st.session_state["_state"] = state
+            
+            auth_url = msal_app.get_authorization_request_url(
+                scopes=scopes,
+                redirect_uri=REDIRECT_URI,
+                state=state
+            )
+            st.markdown(f'<meta http-equiv="refresh" content="0;URL={auth_url}">', unsafe_allow_html=True)
+            st.stop()
+        except Exception as e:
+            st.error(f"로그인 URL 생성 중 오류가 발생했습니다: {str(e)}")
+            st.stop()
 
     # 이메일 권한 확인
     if not check_authorization(st.session_state.email):
         st.error("접근 권한이 없습니다. 관리자에게 문의하세요.")
-        st.session_state.user_token = None
-        st.session_state.user_info = None
-        st.session_state.email = None
+        st.session_state.clear()
         st.stop()
 
     # 메인 앱 UI 시작
