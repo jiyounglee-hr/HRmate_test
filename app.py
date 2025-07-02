@@ -951,6 +951,7 @@ def main():
         
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col2:
+            st.markdown("---")
             # 스타일 추가
             st.markdown("""
                 <style>
