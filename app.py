@@ -1028,7 +1028,7 @@ def main():
                         <p> HR 관련 사이트 바로 가기</p>
                         <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
                         <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
-                        <p><a href="#" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
+                        <p><a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
                     </div>
 
                     <style>
