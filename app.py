@@ -937,7 +937,8 @@ def main():
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            
+        
+        st.markdown("---")
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
             scopes=["User.Read"],
@@ -951,7 +952,7 @@ def main():
         
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col2:
-            st.markdown("---")
+
             # 스타일 추가
             st.markdown("""
                 <style>
@@ -1015,8 +1016,6 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
         
         with col3:
-            st.markdown("---")
-
             st.link_button(
                 "Microsoft 계정으로 로그인",
                 auth_url,
