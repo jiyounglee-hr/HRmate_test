@@ -942,52 +942,50 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
-        with col2:
-            # 데이터 로드
-                df = load_data()
-            
-                if df is not None:
-                    # 재직자 필터링
-                    current_employees = df[df['재직상태'] == '재직']
-                    
-                    # 고용구분별 인원 수 계산
-                    regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
-                    contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
-                    total_count = regular_count + contract_count
-                    
-                    # 오늘 날짜
-                    today = datetime.now().strftime('%Y-%m-%d')
-                    
-                    st.write(f"👥 인원 현황 ({today})")
-                    st.write(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
-                    
-                    st.write("")  # 공백 추가
-                    st.write("🔎 연락처 검색")
-                    
-                    # text_input 스타일 추가
-                    st.markdown("""
-                        <style>
-                        div[data-baseweb="input"] {
-                            width: 30% !important;
-                        }
-                        div[data-baseweb="input"] input {
-                            background-color: #f5f5f5 !important;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
-                    
-                    search_name = st.text_input("성명으로 검색", key="contact_search")
-                    
-                    if search_name:
-                        # 이름으로 검색
-                        search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
-                        
-                        if not search_result.empty:
-                            # Sheet1의 컬럼 선택
-                            result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
-                            st.dataframe(result_df, hide_index=True)
-                        else:
-                            st.info("검색 결과가 없습니다.")
+with col2:
+    df = load_data()
+    
+    if df is not None:
+        current_employees = df[df['재직상태'] == '재직']
+        regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
+        contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
+        total_count = regular_count + contract_count
+        today = datetime.now().strftime('%Y-%m-%d')
+
+        # 🎨 테두리 박스 스타일 추가
+        st.markdown("""
+        <div style="border: 1px solid #f2f2f2; padding: 20px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
+            <h4>👥 인원 현황 (""" + today + """)</h4>
+            <p>정규직: """ + str(regular_count) + """명 | 계약직: """ + str(contract_count) + """명 | 전체: """ + str(total_count) + """명</p>
+
+            <h5>🔎 연락처 검색</h5>
+        """, unsafe_allow_html=True)
+
+        # 검색창 스타일
+        st.markdown("""
+            <style>
+            div[data-baseweb="input"] {
+                width: 40% !important;
+            }
+            div[data-baseweb="input"] input {
+                background-color: #f5f5f5 !important;
+                border-radius: 6px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        search_name = st.text_input("성명으로 검색", key="contact_search")
+
+        if search_name:
+            search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
+            if not search_result.empty:
+                result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
+                st.dataframe(result_df, hide_index=True)
+            else:
+                st.info("검색 결과가 없습니다.")
+
+        # 마무리 박스 닫기
+        st.markdown("</div>", unsafe_allow_html=True)
             
         with col4:
             # 작은 글씨 스타일 추가
