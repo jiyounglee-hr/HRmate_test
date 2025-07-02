@@ -1010,20 +1010,31 @@ def main():
             )
             
                         # 로그인 화면 구성
-            st.markdown("### Microsoft 계정으로 로그인")
-            st.info("Microsoft 계정으로 로그인을 진행합니다...")
-
-            # 중앙 정렬을 위한 컬럼 사용
-            col1, col2, col3 = st.columns([1, 2, 1])
-            
-            with col2:
-                # 로그인 버튼
-                if st.button(
-                    "Microsoft 로그인",
-                    key="ms_login_button",
-                    use_container_width=True,
-                ):
-                    st.switch_page(auth_url)  # 로그인 페이지로 이동
+            st.markdown("""
+                <h3 style='text-align: center;'>Microsoft 계정으로 로그인</h3>
+                <p style='text-align: center; color: #1e88e5;'>Microsoft 계정으로 로그인을 진행합니다...</p>
+                
+                <div style='display: flex; justify-content: center; margin-top: 2rem;'>
+                    <a href='{}' style='
+                        text-decoration: none;
+                        background-color: #2F2F2F;
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 200px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        transition: all 0.3s ease;
+                    '>
+                        <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png'
+                             style='margin-right: 10px; height: 20px;'>
+                        Microsoft 로그인
+                    </a>
+                </div>
+            """.format(auth_url), unsafe_allow_html=True)
             
             # 디버그 정보 (접힌 상태로 표시)
             with st.expander("디버그 정보", expanded=False):
