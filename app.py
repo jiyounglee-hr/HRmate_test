@@ -48,7 +48,7 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+REDIRECT_URI = "https://hrmate.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -925,154 +925,20 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        st.markdown("""
-            <style>
-            .header-container {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1rem;
-                margin-bottom: 2rem;
-            }
-            .logo-container {
-                display: flex;
-                align-items: center;
-            }
-            .title-container h1 {
-                font-size: 2.5rem;
-                margin: 0;
-                padding: 0;
-            }
-            .stats-container {
-                background-color: #f8f9fa;
-                padding: 2rem;
-                border-radius: 8px;
-                margin-bottom: 2rem;
-            }
-            .stats-header {
-                font-weight: bold;
-                margin-bottom: 1rem;
-            }
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-                text-align: center;
-            }
-            .stats-item {
-                padding: 1rem;
-                background-color: white;
-                border-radius: 4px;
-            }
-            .stats-number {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #242424;
-            }
-            .stats-label {
-                color: #666;
-                margin-top: 0.5rem;
-            }
-            .search-container {
-                background-color: #f8f9fa;
-                padding: 2rem;
-                border-radius: 8px;
-            }
-            .search-header {
-                font-weight: bold;
-                margin-bottom: 1rem;
-                display: flex;
-                align-items: center;
-            }
-            .search-icon {
-                margin-right: 0.5rem;
-            }
-            .table-container {
-                width: 100%;
-                overflow-x: auto;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 1rem;
-            }
-            th {
-                background-color: #f1f3f5;
-                padding: 0.75rem;
-                text-align: center;
-                border: 1px solid #dee2e6;
-            }
-            td {
-                padding: 0.75rem;
-                text-align: center;
-                border: 1px solid #dee2e6;
-            }
-            .login-container {
-                position: fixed;
-                top: 2rem;
-                right: 2rem;
-                text-align: right;
-            }
-            .login-button {
-                width: 300px !important;
-            }
-            </style>
-            <div class="header-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+        with col2:
+            st.markdown("""
+                <div class="header-container">
+                    <div class="logo-container">
+                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                    </div>
                     <div class="title-container">
                         <h1>HRmate</h1>
+                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
                     </div>
                 </div>
-            </div>
-
-            <div class="stats-container">
-                <div class="stats-header">📊 현재 인원 (2025-07-02)</div>
-                <div class="stats-grid">
-                    <div class="stats-item">
-                        <div class="stats-number">139</div>
-                        <div class="stats-label">전체인원</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-number">138</div>
-                        <div class="stats-label">정규직</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-number">1</div>
-                        <div class="stats-label">계약직</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="search-container">
-                <div class="search-header">
-                    <span class="search-icon">🔍</span>
-                    연차차/성별 검색
-                </div>
-                <div class="sub-text">성명으로 검색</div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>성명</th>
-                                <th>본부</th>
-                                <th>팀</th>
-                                <th>직위</th>
-                                <th>E-mail</th>
-                                <th>핸드폰</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- 빈 테이블 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="login-container">
-                <p>🔐 로그인 버튼을 눌러 더 많은 정보를 볼 수 있어요.</p>
-            </div>
-        """, unsafe_allow_html=True)
+                <div class="divider"><hr></div>
+            """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
@@ -1093,41 +959,32 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            st.markdown("""
-                <div class="login-container">
-                    <div class="login-button">
-            """, unsafe_allow_html=True)
-            
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
-            st.markdown("</div></div>", unsafe_allow_html=True)
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
             st.stop()
         else:
-            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-            if has_error:
-                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-            else:
-                st.warning("로그인이 필요합니다.") 
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
             
-            st.markdown("""
-                <div class="login-container">
-                    <div class="login-button">
-            """, unsafe_allow_html=True)
-            
-            # st.link_button을 사용하여 직접 링크로 이동
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
-            st.markdown("</div></div>", unsafe_allow_html=True)
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
         
         st.stop()
     
