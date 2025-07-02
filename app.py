@@ -942,7 +942,8 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
-        with col2:
+
+        with col2:  
             df = load_data()
 
             if df is not None:
@@ -952,14 +953,21 @@ def main():
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 인원현황 + 검색창 박스 시작
+                # 전체 박스 시작 (인원현황 + 연락처 헤더까지만 포함)
                 st.markdown(f"""
-                <div style="border: 1px solid #f2f2f2; padding: 20px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
-                    <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">👥 인원 현황 ({today})</p>
+                <div style="border: 1px solid #f2f2f2; padding: 20px 25px 10px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 0px;">
+                    <p style="font-weight: 600; font-size: 16px;">👥 인원 현황 ({today})</p>
                     <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
+
                     <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
                 </div>
                 """, unsafe_allow_html=True)
+
+                # 검색창 + 결과를 바로 이어 붙여서 시각적 통일성 확보
+                st.markdown("""
+                    <div style="border: 1px solid #f2f2f2; border-top: none; padding: 15px 25px 25px 25px; border-radius: 0 0 10px 10px; background-color: #ffffff; margin-bottom: 20px;">
+                """, unsafe_allow_html=True)
+
                 # 검색창 스타일
                 st.markdown("""
                     <style>
@@ -973,8 +981,10 @@ def main():
                     }
                     </style>
                 """, unsafe_allow_html=True)
-                # 검색창 입력
+
+                # 검색창
                 search_name = st.text_input("성명으로 검색", key="contact_search")
+
                 if search_name:
                     search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
                     if not search_result.empty:
@@ -982,6 +992,9 @@ def main():
                         st.dataframe(result_df, hide_index=True)
                     else:
                         st.info("검색 결과가 없습니다.")
+
+                # 박스 닫기
+                st.markdown("</div>", unsafe_allow_html=True)
             
         with col4:
             # 작은 글씨 스타일 추가
