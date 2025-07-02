@@ -925,16 +925,18 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+        st.markdown("""
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([0.1, 0.4, 0.6])
         with col2:
             st.markdown("""
                 <div class="header-container">
-                    <div class="logo-container">
-                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
-                    </div>
-                    <div class="title-container">
+                    <div class="title-container" style="text-align: left;">
                         <h1>HRmate</h1>
-                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
                     </div>
                 </div>
                 <div class="divider"><hr></div>
