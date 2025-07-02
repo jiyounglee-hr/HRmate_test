@@ -970,8 +970,8 @@ def main():
                 )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-            with col2:
+            col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
+            with col3:
                 # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                 if has_error:
                     st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
