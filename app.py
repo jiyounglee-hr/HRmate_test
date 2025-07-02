@@ -993,7 +993,7 @@ def main():
                         else:
                             st.info("검색 결과가 없습니다.")
             
-        with col3:
+        with col4:
             # 작은 글씨 스타일 추가
             st.markdown("""
                 <style>
