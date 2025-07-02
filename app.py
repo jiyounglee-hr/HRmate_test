@@ -917,7 +917,7 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3, col4 = st.columns([0.05, 0.6, 0.15, 0.2])
+        col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
         with col3:
             st.markdown("""
                 <div style="position: absolute; top: 20px; right: 20px;">
@@ -927,11 +927,7 @@ def main():
         
         with col2:
             st.markdown("""
-                <div class="header-container">
-                    <div class="title-container" style="text-align: left;">
-                        <h1>HRmate</h1>
-                    </div>
-                </div>
+                <h1>HRmate</h1>
             """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
@@ -945,7 +941,7 @@ def main():
         query_params = st.query_params
         has_error = query_params.get("error", None) is not None
         
-        col1, col2, col3, col4, col5 = st.columns([0.2, 0.35, 0.05, 0.2,0.2])
+        col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
         with col2:
             # 데이터 로드
                 df = load_data()
