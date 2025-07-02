@@ -929,10 +929,6 @@ def main():
             <style>
             .login-container {
                 position: relative;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
                 padding: 2rem;
                 margin: 0 auto;
                 max-width: 1200px;
@@ -942,11 +938,22 @@ def main():
                 top: 2rem;
                 right: 2rem;
             }
-            .login-content {
+            .login-layout {
+                display: flex;
+                margin-top: 100px;
+            }
+            .login-left {
+                flex: 2;
+                padding: 2rem;
+                border-right: 1px solid #eee;
+            }
+            .login-right {
+                flex: 1;
+                padding: 2rem;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                margin-top: 100px;
+                justify-content: flex-start;
             }
             .login-title {
                 font-size: 2rem;
@@ -958,17 +965,42 @@ def main():
                 margin-bottom: 2rem;
                 text-align: center;
             }
+            .login-box {
+                background: #fff;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                padding: 2rem;
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+            .login-box-title {
+                font-size: 1rem;
+                color: #333;
+                margin-bottom: 1.5rem;
+            }
             .stButton > button {
-                width: 300px !important;
+                width: 100% !important;
+                background-color: #FF4B4B !important;
+                color: white !important;
+                border: none !important;
+                padding: 0.5rem 1rem !important;
+                border-radius: 4px !important;
             }
             </style>
             <div class="login-container">
                 <div class="login-logo">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
                 </div>
-                <div class="login-content">
-                    <h1 class="login-title">HRmate</h1>
-                    <p class="login-subtitle">🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                <div class="login-layout">
+                    <div class="login-left">
+                        <h1 class="login-title">개발예정</h1>
+                    </div>
+                    <div class="login-right">
+                        <div class="login-box">
+                            <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
