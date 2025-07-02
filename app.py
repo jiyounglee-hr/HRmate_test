@@ -1024,12 +1024,18 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
+            st.markdown("""
+                <div class="login-box">
+                    <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                    <div style="margin-top: 1rem;">
+                """, unsafe_allow_html=True)
             st.link_button(
                 "Microsoft 계정으로 로그인",
                 auth_url,
                 type="primary",
-                use_container_width=False
+                use_container_width=True
             )
+            st.markdown("</div>", unsafe_allow_html=True)
             st.stop()
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
@@ -1039,12 +1045,18 @@ def main():
                 st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
         
             # st.link_button을 사용하여 직접 링크로 이동
+            st.markdown("""
+                <div class="login-box">
+                    <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                    <div style="margin-top: 1rem;">
+                """, unsafe_allow_html=True)
             st.link_button(
                 "Microsoft 계정으로 로그인",
                 auth_url,
                 type="primary",
-                use_container_width=False
+                use_container_width=True
             )
+            st.markdown("</div>", unsafe_allow_html=True)
                 
         
         st.stop()
