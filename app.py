@@ -1018,7 +1018,7 @@ def main():
                             
             with st.container():
                 st.markdown("""
-                    <div style="border: 1px solid #cccccc; padding: 16px; border-radius: 10px; background-color: #f9f9f9;">
+                    <div style="border: 1px solid #cccccc; padding: 12px; border-radius: 10px; background-color: #ffffff;">
                         <p> HR 관련 사이트 바로 가기</p>
                         <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
                         <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
@@ -1028,8 +1028,8 @@ def main():
                     <style>
                     .link-hover {
                         text-decoration: none !important;
-                        font-weight: 500;
                         color: #1b1b1e;
+                        font-size: 0.8em;
                     }
                     .link-hover:hover {
                         text-decoration: underline;
