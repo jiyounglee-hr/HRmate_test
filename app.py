@@ -48,14 +48,19 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # REDIRECT_URI는 Azure AD에 등록된 URI와 정확히 일치해야 함
-REDIRECT_URI = "https://hrmatetest.streamlit.app"  # 끝의 슬래시 제거
+REDIRECT_URI = "https://hrmatetest.streamlit.app/"  # 슬래시 다시 추가
 
 # MSAL 앱 초기화
 try:
+    authority = f"https://login.microsoftonline.com/{TENANT_ID}"
     msal_app = msal.ConfidentialClientApplication(
-        CLIENT_ID,
-        authority=f"https://login.microsoftonline.com/{TENANT_ID}",
-        client_credential=CLIENT_SECRET
+        client_id=CLIENT_ID,
+        client_credential=CLIENT_SECRET,
+        authority=authority,
+        token_cache=None,  # 토큰 캐시 비활성화
+        validate_authority=True,  # 권한 검증 활성화
+        app_name="HRmate",  # 앱 이름 설정
+        app_version="1.0.0"  # 앱 버전 설정
     )
 except Exception as e:
     st.error(f"MSAL 초기화 중 오류 발생: {str(e)}")
@@ -984,22 +989,50 @@ def main():
     # 토큰이 없으면 로그인 페이지로 리디렉션
     if not st.session_state.user_token:
         try:
-            # 필요한 스코프 정의
-            scopes = ["User.Read", "User.Read.All", "profile", "email", "openid"]
+            # 필요한 스코프 정의 (최소한의 스코프만 요청)
+            scopes = ["User.Read"]
             
             # state 파라미터 생성
             state = st.session_state.get("_state", base64.b64encode(os.urandom(32)).decode('utf-8'))
             st.session_state["_state"] = state
             
+            # 추가 매개변수 설정
+            params = {
+                "prompt": "select_account",  # 계정 선택 프롬프트 표시
+                "response_type": "code",     # authorization code flow 사용
+                "response_mode": "query"     # 응답을 쿼리 파라미터로 받기
+            }
+            
+            # 디버그 정보 출력
+            st.sidebar.markdown("### 디버그 정보")
+            st.sidebar.markdown(f"**Client ID**: {CLIENT_ID[:5]}...{CLIENT_ID[-5:]}")
+            st.sidebar.markdown(f"**Redirect URI**: {REDIRECT_URI}")
+            st.sidebar.markdown(f"**Scopes**: {', '.join(scopes)}")
+            
             auth_url = msal_app.get_authorization_request_url(
                 scopes=scopes,
                 redirect_uri=REDIRECT_URI,
-                state=state
+                state=state,
+                prompt=params["prompt"],
+                response_type=params["response_type"],
+                response_mode=params["response_mode"]
             )
-            st.markdown(f'<meta http-equiv="refresh" content="0;URL={auth_url}">', unsafe_allow_html=True)
+            
+            # 로그인 URL 디버그 출력
+            st.sidebar.markdown(f"**Auth URL**: {auth_url[:50]}...")
+            
+            # JavaScript를 사용하여 리디렉션 (더 안정적인 방법)
+            js = f"""
+                <script>
+                    window.location.href = "{auth_url}";
+                </script>
+            """
+            st.markdown(js, unsafe_allow_html=True)
             st.stop()
         except Exception as e:
             st.error(f"로그인 URL 생성 중 오류가 발생했습니다: {str(e)}")
+            import traceback
+            st.error(f"상세 에러: {traceback.format_exc()}")
             st.stop()
 
     # 이메일 권한 확인
