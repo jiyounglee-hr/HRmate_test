@@ -1023,6 +1023,12 @@ def main():
                         .link-hover {
                             text-decoration: none !important;
                         }
+                        .link-container {
+                            border: 1px solid #e0e0e0;
+                            border-radius: 5px;
+                            padding: 15px;
+                            margin: 10px 0;
+                        }
                         </style>
                     """, unsafe_allow_html=True)
                     st.markdown('<div class="link-container">', unsafe_allow_html=True)
