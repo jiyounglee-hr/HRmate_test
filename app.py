@@ -968,23 +968,23 @@ def main():
                 if 'error' in graph_data:
                     st.error(f"사용자 정보를 가져오는 중 오류가 발생했습니다: {graph_data['error']['message']}")
                     st.session_state.clear()
-                    st.experimental_rerun()
+                    st.rerun()
                 
                 st.session_state.email = graph_data.get("mail") or graph_data.get("userPrincipalName")
                 st.session_state.user_info = graph_data
                 
                 # URL에서 코드 제거
-                st.experimental_set_query_params()
-                st.experimental_rerun()
+                st.query_params.clear()
+                st.rerun()
             else:
                 if "error" in result:
                     st.error(f"토큰 획득 실패: {result.get('error_description', '알 수 없는 오류')}")
                 st.session_state.clear()
-                st.experimental_rerun()
+                st.rerun()
         except Exception as e:
             st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
             st.session_state.clear()
-            st.experimental_rerun()
+            st.rerun()
 
     # 토큰이 없으면 로그인 페이지로 리디렉션
     if not st.session_state.user_token:
