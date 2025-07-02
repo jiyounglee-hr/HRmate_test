@@ -930,7 +930,7 @@ def main():
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
                         <h1>HRmate</h1>
-                    </div><div class="divider"><hr></div>
+                    </div><hr>
                 </div>
             """, unsafe_allow_html=True)
         
