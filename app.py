@@ -948,23 +948,8 @@ def main():
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col2:
 
-            # 스타일 추가
-            st.markdown("""
-                <style>
-                [data-testid="column"]:nth-of-type(2) {
-                    background-color: #f0f0f0 !important;
-                    border: 1px solid #e0e0e0 !important;
-                    padding: 20px !important;
-                    border-radius: 5px !important;
-                    margin: 10px 0 !important;
-                }
-                div.stMarkdown {
-                    background-color: #f0f0f0;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            # 데이터 로드
+            with st.container():
+                # 데이터 로드
             df = load_data()
             
             if df is not None:
