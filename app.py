@@ -925,20 +925,60 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-        with col2:
-            st.markdown("""
-                <div class="header-container">
-                    <div class="logo-container">
-                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
-                    </div>
-                    <div class="title-container">
-                        <h1>HRmate</h1>
-                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
-                    </div>
+        st.markdown("""
+            <style>
+            .header-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                margin: 2rem auto;
+                max-width: 800px;
+            }
+            .logo-container {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .logo-container img {
+                width: 200px;
+                height: auto;
+            }
+            .title-container {
+                text-align: center;
+            }
+            .title-container h1 {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                color: #333;
+            }
+            .title-container p {
+                font-size: 1.2rem;
+                color: #666;
+                margin-bottom: 2rem;
+            }
+            .divider {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .login-button-container {
+                width: 100%;
+                max-width: 400px;
+                margin: 2rem auto;
+            }
+            </style>
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                    <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
                 </div>
                 <div class="divider"><hr></div>
-            """, unsafe_allow_html=True)
+            </div>
+        """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
@@ -959,31 +999,33 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-            with col2:
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
+            with st.container():
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    st.link_button(
+                        "Microsoft 계정으로 로그인",
+                        auth_url,
+                        type="primary",
+                        use_container_width=True
+                    )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-            with col2:
-                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                if has_error:
-                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                else:
-                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
-            
-                # st.link_button을 사용하여 직접 링크로 이동
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
+            with st.container():
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                    if has_error:
+                        st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                    else:
+                        st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+                
+                    # st.link_button을 사용하여 직접 링크로 이동
+                    st.link_button(
+                        "Microsoft 계정으로 로그인",
+                        auth_url,
+                        type="primary",
+                        use_container_width=True
+                    )
                 
         
         st.stop()
