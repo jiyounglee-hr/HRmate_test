@@ -1010,30 +1010,56 @@ def main():
             )
             
             # 로그인 버튼 생성
+            login_url = auth_url  # URL을 JavaScript에서 사용하기 위해 변수로 저장
+            
             st.markdown(
                 f'''
-                <div style="display: flex; justify-content: center; margin-top: 20px;">
-                    <button onclick="window.location.href='{auth_url}'" style="
-                        border: none;
-                        background-color: #2F2F2F;
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        font-size: 16px;
-                        cursor: pointer;
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 200px;
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                    <script>
+                        function redirectToLogin() {{
+                            console.log("로그인 시도...");
+                            console.log("리디렉션 URL: {login_url}");
+                            window.location.assign("{login_url}");
+                            return false;
+                        }}
+                    </script>
+                    
+                    <button 
+                        onclick="redirectToLogin()"
+                        style="
+                            border: none;
+                            background-color: #2F2F2F;
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            font-size: 16px;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            min-width: 200px;
+                            margin-top: 20px;
                         ">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png" 
                              style="margin-right: 10px; height: 20px;">
                         Microsoft 로그인
                     </button>
+                    
+                    <div id="loginMessage" style="color: #666; font-size: 14px;"></div>
                 </div>
                 ''',
                 unsafe_allow_html=True
             )
+            
+            # 디버그 정보를 페이지에 직접 표시
+            st.markdown("---")
+            st.markdown("### 로그인 디버그 정보")
+            st.code(f"로그인 URL: {login_url}", language="text")
+            
+            # 직접 링크도 제공
+            st.markdown("아래 링크를 통해 직접 로그인할 수도 있습니다:")
+            st.markdown(f"[Microsoft 로그인 링크]({login_url})")
+            
             
             # 디버그 정보 (접힌 상태로 표시)
             with st.expander("디버그 정보", expanded=False):
