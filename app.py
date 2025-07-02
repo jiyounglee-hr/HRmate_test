@@ -947,45 +947,40 @@ def main():
             df = load_data()
 
             if df is not None:
-                # 1. 재직자 필터링
                 current_employees = df[df['재직상태'] == '재직']
                 regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
                 contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 2. 상단 요약 박스 (인원 현황 + 연락처 검색 타이틀까지)
+                # 🧱 전체 컨테이너 시작 (인원 현황 + 연락처 검색 헤더 + 입력창 포함)
                 st.markdown(f"""
-                <div style="border: 1px solid #f2f2f2; padding: 20px 25px 10px 25px; border-radius: 10px 10px 0 0; background-color: #ffffff;">
-                    <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">👥 인원 현황 ({today})</p>
+                <div style="border: 1px solid #f2f2f2; padding: 20px 25px 15px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
+                    <p style="font-weight: 600; font-size: 16px;">👥 인원 현황 ({today})</p>
                     <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
+
                     <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
-                </div>
                 """, unsafe_allow_html=True)
 
-                # 3. 하단 검색 박스 (입력창 및 결과)
-                st.markdown("""
-                <div style="border: 1px solid #f2f2f2; border-top: none; padding: 15px 25px 25px 25px; border-radius: 0 0 10px 10px; background-color: #ffffff;">
-                """, unsafe_allow_html=True)
+                # 👉 입력창을 박스 안에 자연스럽게 넣기 위한 여백 조정용 컨테이너
+                col_spacer, col_input = st.columns([0.02, 0.98])
+                with col_input:
+                    st.markdown("""
+                        <style>
+                        div[data-baseweb="input"] {
+                            width: 40% !important;
+                        }
+                        div[data-baseweb="input"] input {
+                            background-color: #f5f5f5 !important;
+                            border-radius: 6px;
+                            padding: 6px 10px;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
 
-                # 4. 입력창 스타일 커스터마이징
-                st.markdown("""
-                <style>
-                div[data-baseweb="input"] {
-                    width: 40% !important;
-                }
-                div[data-baseweb="input"] input {
-                    background-color: #f5f5f5 !important;
-                    border-radius: 6px;
-                    padding: 6px 10px;
-                }
-                </style>
-                """, unsafe_allow_html=True)
+                    search_name = st.text_input("성명으로 검색", key="contact_search")
 
-                # 5. 검색 입력창
-                search_name = st.text_input("성명으로 검색", key="contact_search")
-
-                # 6. 검색 결과 표시
+                # 결과 표시도 같은 박스 안에
                 if search_name:
                     search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
                     if not search_result.empty:
@@ -994,7 +989,7 @@ def main():
                     else:
                         st.info("검색 결과가 없습니다.")
 
-                # 7. 하단 박스 닫기
+                # 📦 박스 닫기
                 st.markdown("</div>", unsafe_allow_html=True)
             
         with col4:
