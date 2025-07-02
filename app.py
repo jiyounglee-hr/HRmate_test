@@ -1020,7 +1020,7 @@ def main():
             with st.container():
                 st.markdown("""
                     <div style="border: 1px solid #cccccc; padding: 16px; border-radius: 10px; background-color: #f9f9f9;">
-                        <h5> HR 관련 사이트 바로 가기</h5>
+                        <p> HR 관련 사이트 바로 가기</p>
                         <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
                         <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
                         <p><a href="#" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
