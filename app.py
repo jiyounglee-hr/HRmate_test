@@ -733,10 +733,6 @@ def load_data():
             if col in df.columns:
                 df[col] = pd.to_datetime(df[col], errors='coerce')
                 
-        # 데이터 로드 시간 표시 (한국 시간대 적용)
-        st.sidebar.markdown("<br>", unsafe_allow_html=True)
-        kst_time = datetime.now(pytz.timezone('Asia/Seoul'))
-        st.sidebar.markdown(f"*마지막 데이터 업데이트: {kst_time.strftime('%Y년 %m월 %d일 %H:%M')}*")
         
         return df
     except Exception as e:
