@@ -924,95 +924,53 @@ def main():
     is_logged_in = login()
     
     if not is_logged_in:
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        st.markdown("""
+            <style>
+            .header-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                padding: 1rem;
+            }
+            .logo-container {
+                margin-left: 1rem;
+            }
+            .title-container {
+                text-align: right;
+                margin-left: 1rem;
+            }
+            .login-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin-top: 2rem;
+            }
+            .login-button {
+                width: 300px !important;
+                margin: 0 auto;
+            }
+            </style>
+            <div class="header-container">
+                <div class="logo-container">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                </div>
+                <div class="title-container">
+                    <h1>HRmate</h1>
+                </div>
+            </div>
+            <div class="login-container">
+                <p style="text-align: center;">🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
             scopes=["User.Read"],
             redirect_uri=REDIRECT_URI,
             state=st.session_state.get("_session_id", "")
         )
-        
-        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        st.markdown("""
-            <style>
-            .main-container {
-                position: relative;
-                width: 100%;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 2rem;
-                text-align: center;
-            }
-            .logo-container {
-                position: absolute;
-                top: 2rem;
-                right: 2rem;
-            }
-            .content-container {
-                margin-top: 4rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .title {
-                font-size: 2.5rem;
-                color: #333;
-                margin-bottom: 1rem;
-            }
-            .subtitle {
-                font-size: 1.1rem;
-                color: #666;
-                margin-bottom: 2rem;
-            }
-            .login-button {
-                width: 100%;
-                max-width: 400px;
-                margin: 0 auto;
-            }
-            div[data-testid="stLinkButton"] > div {
-                width: 100% !important;
-            }
-            div[data-testid="stLinkButton"] > div > a {
-                width: 100% !important;
-                background-color: #FF4B4B !important;
-                color: white !important;
-                border: none !important;
-                padding: 0.75rem 1rem !important;
-                border-radius: 4px !important;
-                font-weight: 500 !important;
-                text-align: center !important;
-                text-decoration: none !important;
-                display: inline-block !important;
-                cursor: pointer !important;
-                transition: background-color 0.2s !important;
-            }
-            div[data-testid="stLinkButton"] > div > a:hover {
-                background-color: #ff3333 !important;
-            }
-            div[data-testid="stAlert"] {
-                width: 100% !important;
-                max-width: 400px !important;
-                margin: 1rem auto !important;
-                padding: 0.75rem 1rem !important;
-                border-radius: 4px !important;
-            }
-            </style>
-            <div class="main-container">
-                <div class="logo-container">
-                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="130">
-                </div>
-                <div class="content-container">
-                    <h1 class="title">HRmate</h1>
-                    <p class="subtitle">&#128274; 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
-                    <div class="login-button">
-                        <div data-testid="stLinkButton">
-                            <div>
-                                <a href="{auth_url}" target="_self">Microsoft 계정으로 로그인</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
         
         # 자동 리디렉션 시도 여부 확인
         if 'auto_redirect_attempted' not in st.session_state:
@@ -1025,6 +983,20 @@ def main():
         if not st.session_state.auto_redirect_attempted and not has_error:
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
+            
+            st.markdown("""
+                <div class="login-container">
+                    <div class="login-button">
+            """, unsafe_allow_html=True)
+            
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            
+            st.markdown("</div></div>", unsafe_allow_html=True)
             st.stop()
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
@@ -1032,6 +1004,21 @@ def main():
                 st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
             else:
                 st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+            
+            st.markdown("""
+                <div class="login-container">
+                    <div class="login-button">
+            """, unsafe_allow_html=True)
+            
+            # st.link_button을 사용하여 직접 링크로 이동
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            
+            st.markdown("</div></div>", unsafe_allow_html=True)
         
         st.stop()
     
