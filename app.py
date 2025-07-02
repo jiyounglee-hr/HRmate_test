@@ -950,38 +950,38 @@ def main():
         has_error = query_params.get("error", None) is not None
             
         col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
+        
+        with col2:
+            # 데이터 로드
+            df = load_data()
             
-            with col2:
-                # 데이터 로드
-                df = load_data()
+            if df is not None:
+                # 재직자 필터링
+                current_employees = df[df['재직상태'] == '재직']
                 
-                if df is not None:
-                    # 재직자 필터링
-                    current_employees = df[df['재직상태'] == '재직']
-                    
-                    # 고용구분별 인원 수 계산
-                    regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
-                    contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
-                    total_count = regular_count + contract_count
-                    
-                    # 오늘 날짜
-                    today = datetime.now().strftime('%Y-%m-%d')
-                    
-                    st.write(f"👥 인원 현황 ({today})")
-                    st.write(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
-            
-            with col3:
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
-                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                if has_error:
-                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                else:
-                    st.warning("위에 버튼을 클릭해서 로그인을 먼저 해주세요.")
+                # 고용구분별 인원 수 계산
+                regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
+                contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
+                total_count = regular_count + contract_count
+                
+                # 오늘 날짜
+                today = datetime.now().strftime('%Y-%m-%d')
+                
+                st.write(f"👥 인원 현황 ({today})")
+                st.write(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
+        
+        with col3:
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+            if has_error:
+                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+            else:
+                st.warning("위에 버튼을 클릭해서 로그인을 먼저 해주세요.")
                             
         
         st.stop()
