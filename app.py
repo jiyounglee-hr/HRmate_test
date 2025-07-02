@@ -917,7 +917,7 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        col1, col2, col3, col4 = st.columns([0.1, 0.5, 0.3, 0.2])
+        col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col3:
             st.markdown("""
                 <div style="position: absolute; top: 20px; right: 20px;">
@@ -930,7 +930,7 @@ def main():
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
                         <h1>HRmate</h1>
-                    </div>
+                    </div><hr>
                 </div>
             """, unsafe_allow_html=True)
         
@@ -947,8 +947,7 @@ def main():
         
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col2:
-            with st.container():
-                # 데이터 로드
+            # 데이터 로드
                 df = load_data()
             
                 if df is not None:
