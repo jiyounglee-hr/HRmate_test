@@ -938,9 +938,19 @@ def main():
                 top: 2rem;
                 right: 2rem;
             }
+            .login-header {
+                text-align: left;
+                margin-bottom: 2rem;
+            }
+            .login-header h1 {
+                font-size: 2.5rem;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
             .login-layout {
                 display: flex;
-                margin-top: 100px;
+                margin-top: 50px;
             }
             .login-left {
                 flex: 2;
@@ -953,17 +963,12 @@ def main():
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: flex-start;
+                justify-content: center;
             }
             .login-title {
                 font-size: 2rem;
                 margin: 1rem 0;
                 color: #333;
-            }
-            .login-subtitle {
-                color: #666;
-                margin-bottom: 2rem;
-                text-align: center;
             }
             .login-box {
                 background: #fff;
@@ -971,26 +976,44 @@ def main():
                 border-radius: 8px;
                 padding: 2rem;
                 width: 100%;
-                max-width: 300px;
+                max-width: 400px;
                 text-align: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
             .login-box-title {
                 font-size: 1rem;
                 color: #333;
                 margin-bottom: 1.5rem;
             }
-            .stButton > button {
+            div[data-testid="stLinkButton"] > div {
                 width: 100% !important;
+                max-width: none !important;
+            }
+            div[data-testid="stLinkButton"] > div > a {
+                width: 100% !important;
+                max-width: none !important;
                 background-color: #FF4B4B !important;
                 color: white !important;
                 border: none !important;
-                padding: 0.5rem 1rem !important;
+                padding: 0.75rem 1rem !important;
                 border-radius: 4px !important;
+                font-weight: 500 !important;
+                text-align: center !important;
+                text-decoration: none !important;
+                display: inline-block !important;
+                cursor: pointer !important;
+                transition: background-color 0.2s !important;
+            }
+            div[data-testid="stLinkButton"] > div > a:hover {
+                background-color: #ff3333 !important;
             }
             </style>
             <div class="login-container">
                 <div class="login-logo">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                </div>
+                <div class="login-header">
+                    <h1>HRmate</h1>
                 </div>
                 <div class="login-layout">
                     <div class="login-left">
@@ -999,6 +1022,13 @@ def main():
                     <div class="login-right">
                         <div class="login-box">
                             <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                            <div style="margin-top: 20px;">
+                                <div data-testid="stLinkButton">
+                                    <div>
+                                        <a href="{auth_url}" target="_self">Microsoft 계정으로 로그인</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
