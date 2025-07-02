@@ -934,11 +934,10 @@ def main():
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
                         <h1>HRmate</h1>
-                    </div>
+                    </div><div class="divider"><hr></div>
                 </div>
             """, unsafe_allow_html=True)
         
-        st.markdown("---")
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
             scopes=["User.Read"],
