@@ -938,31 +938,6 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
             
-            # 데이터 로드
-            df = load_data()
-            
-            if df is not None:
-                # 재직자 필터링
-                current_employees = df[df['재직상태'] == '재직']
-                
-                # 고용구분별 인원 수 계산
-                regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
-                contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
-                total_count = regular_count + contract_count
-                
-                # 오늘 날짜
-                today = datetime.now().strftime('%Y-%m-%d')
-                
-                st.markdown(f"""
-                    <div style="text-align: left; padding: 10px 0;">
-                        <h3 style="margin-bottom: 5px;">👥 인원 현황 ({today})</h3>
-                        <p style="font-size: 1.1em; margin: 0;">
-                            정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-        
         # Microsoft 로그인 URL 생성
         auth_url = msal_app.get_authorization_request_url(
             scopes=["User.Read"],
