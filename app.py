@@ -922,38 +922,85 @@ menu = st.session_state.menu
 def main():
     # 로그인 처리
     
-    # 버튼 스타일 추가
+    # 스타일 추가
     st.markdown("""
         <style>
         div[data-testid="stLinkButton"] {
             width: 300px !important;
             margin: 0 auto;
         }
-        .login-container {
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #333;
+        }
+        .header img {
+            height: 40px;
+            width: auto;
+        }
+        .main-container {
             display: flex;
             gap: 2rem;
+            padding: 0 2rem;
         }
         .data-section {
             flex: 2;
-            padding: 1rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .login-section {
             flex: 1;
-            padding: 1rem;
+            padding: 2rem;
             background-color: #f8f9fa;
             border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .hr-links {
             margin-top: 2rem;
         }
+        .hr-links h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
         .hr-links a {
             display: block;
-            padding: 0.5rem 0;
+            padding: 0.8rem 1rem;
             color: #333;
             text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            background-color: white;
         }
         .hr-links a:hover {
             color: #ff4b4b;
+            background-color: #f0f0f0;
+        }
+        .metric-container {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .search-container {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .birthday-container {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -969,20 +1016,18 @@ def main():
     is_logged_in = login()
     
     if not is_logged_in:
+        # 헤더 (로고와 제목)
+        st.markdown("""
+            <div class="header">
+                <h1>HRmate</h1>
+                <img src="https://career.neurophet.com/static/media/logo.2a4e84d0.svg" alt="Neurophet Logo">
+            </div>
+        """, unsafe_allow_html=True)
+        
         # 기초 데이터 로드
         df = load_data()
         
         if df is not None:
-            # 날짜 컬럼 변환
-            date_columns = ['입사일', '퇴사일', '생년월일']
-            for col in date_columns:
-                if col in df.columns:
-                    try:
-                        # Excel 날짜 형식 변환
-                        df[col] = pd.to_datetime(df[col], errors='coerce')
-                    except:
-                        st.error(f"{col} 컬럼의 날짜 형식 변환 중 오류가 발생했습니다.")
-            
             # 현재 날짜 기준으로 재직자 필터링
             today = pd.Timestamp.now().date()
             current_employees = df[
@@ -990,13 +1035,14 @@ def main():
                 ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > today))
             ]
             
-            # 컨테이너 시작
-            st.markdown('<div class="login-container">', unsafe_allow_html=True)
+            # 메인 컨테이너 시작
+            st.markdown('<div class="main-container">', unsafe_allow_html=True)
             
             # 왼쪽 섹션 (데이터 표시)
             st.markdown('<div class="data-section">', unsafe_allow_html=True)
             
             # 현재 인원 현황
+            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
             st.subheader("📊 현재 인원")
             total = len(current_employees)
             regular = len(current_employees[current_employees['고용구분'] == '정규직'])
@@ -1009,8 +1055,10 @@ def main():
                 st.metric("정규직", f"{regular}명")
             with cols[2]:
                 st.metric("계약직", f"{contract}명")
+            st.markdown('</div>', unsafe_allow_html=True)
             
             # 연락처/생일 검색
+            st.markdown('<div class="search-container">', unsafe_allow_html=True)
             st.subheader("🔍 연락처/생일 검색")
             search_name = st.text_input("성명으로 검색")
             
@@ -1023,8 +1071,10 @@ def main():
                     )
                 else:
                     st.info("검색 결과가 없습니다.")
+            st.markdown('</div>', unsafe_allow_html=True)
             
             # 이달의 생일
+            st.markdown('<div class="birthday-container">', unsafe_allow_html=True)
             st.subheader("🎂 이달의 생일")
             current_month = pd.Timestamp.now().month
             birthday_employees = current_employees[
@@ -1038,6 +1088,7 @@ def main():
                 )
             else:
                 st.info("이번 달 생일인 직원이 없습니다.")
+            st.markdown('</div>', unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
@@ -1066,7 +1117,7 @@ def main():
             
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # 컨테이너 종료
+            # 메인 컨테이너 종료
             st.markdown('</div>', unsafe_allow_html=True)
             
         st.stop()
