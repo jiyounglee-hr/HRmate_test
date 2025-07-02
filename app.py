@@ -929,7 +929,7 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
         
-        with col2:
+        with col1:
             st.markdown("""
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
