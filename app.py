@@ -931,7 +931,7 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
+        col1, col2, col3, col4 = st.columns([0.1, 0.6, 0.3, 0.1])
         with col2:
             st.markdown("""
                 <div class="header-container">
@@ -970,14 +970,8 @@ def main():
                 )
             st.stop()
         else:
-            col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
+            col1, col2, col3, col4 = st.columns([0.1, 0.6, 0.3, 0.1])
             with col3:
-                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                if has_error:
-                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                else:
-                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
-            
                 # st.link_button을 사용하여 직접 링크로 이동
                 st.link_button(
                     "Microsoft 계정으로 로그인",
@@ -985,7 +979,12 @@ def main():
                     type="primary",
                     use_container_width=True
                 )
-                
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("위에 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+                            
         
         st.stop()
     
