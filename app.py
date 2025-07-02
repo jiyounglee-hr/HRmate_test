@@ -952,6 +952,9 @@ def main():
                 width: 300px !important;
                 margin: 0 auto;
             }
+            .stButton > button {
+                width: 300px !important;
+            }
             </style>
             <div class="header-container">
                 <div class="logo-container">
