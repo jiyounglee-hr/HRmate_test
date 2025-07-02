@@ -971,6 +971,19 @@ def main():
                 
                 st.write("")  # 공백 추가
                 st.write("🔎 연락처 검색")
+                
+                # text_input 스타일 추가
+                st.markdown("""
+                    <style>
+                    div[data-baseweb="input"] {
+                        width: 30% !important;
+                    }
+                    div[data-baseweb="input"] input {
+                        background-color: #f5f5f5 !important;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
+                
                 search_name = st.text_input("성명으로 검색", key="contact_search")
                 
                 if search_name:
