@@ -996,38 +996,52 @@ def main():
             state = st.session_state.get("_state", base64.b64encode(os.urandom(32)).decode('utf-8'))
             st.session_state["_state"] = state
             
-            # 추가 매개변수 설정
-            params = {
-                "prompt": "select_account",  # 계정 선택 프롬프트 표시
-                "response_type": "code",     # authorization code flow 사용
-                "response_mode": "query"     # 응답을 쿼리 파라미터로 받기
-            }
+            # 로그인 중임을 표시
+            st.markdown("### Microsoft 계정으로 로그인")
+            st.info("Microsoft 계정으로 로그인을 진행합니다...")
             
-            # 디버그 정보 출력
-            st.sidebar.markdown("### 디버그 정보")
-            st.sidebar.markdown(f"**Client ID**: {CLIENT_ID[:5]}...{CLIENT_ID[-5:]}")
-            st.sidebar.markdown(f"**Redirect URI**: {REDIRECT_URI}")
-            st.sidebar.markdown(f"**Scopes**: {', '.join(scopes)}")
-            
+            # 로그인 URL 생성
             auth_url = msal_app.get_authorization_request_url(
                 scopes=scopes,
                 redirect_uri=REDIRECT_URI,
                 state=state,
-                prompt=params["prompt"],
-                response_type=params["response_type"],
-                response_mode=params["response_mode"]
+                prompt="select_account",
+                response_type="code"
             )
             
-            # 로그인 URL 디버그 출력
-            st.sidebar.markdown(f"**Auth URL**: {auth_url[:50]}...")
+            # 로그인 버튼 생성
+            st.markdown(
+                f'''
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button onclick="window.location.href='{auth_url}'" style="
+                        border: none;
+                        background-color: #2F2F2F;
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 200px;
+                        ">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png" 
+                             style="margin-right: 10px; height: 20px;">
+                        Microsoft 로그인
+                    </button>
+                </div>
+                ''',
+                unsafe_allow_html=True
+            )
             
-            # JavaScript를 사용하여 리디렉션 (더 안정적인 방법)
-            js = f"""
-                <script>
-                    window.location.href = "{auth_url}";
-                </script>
-            """
-            st.markdown(js, unsafe_allow_html=True)
+            # 디버그 정보 (접힌 상태로 표시)
+            with st.expander("디버그 정보", expanded=False):
+                st.markdown(f"**Client ID**: {CLIENT_ID[:5]}...{CLIENT_ID[-5:]}")
+                st.markdown(f"**Redirect URI**: {REDIRECT_URI}")
+                st.markdown(f"**Scopes**: {', '.join(scopes)}")
+                st.markdown(f"**Auth URL**: {auth_url[:50]}...")
+            
             st.stop()
         except Exception as e:
             st.error(f"로그인 URL 생성 중 오류가 발생했습니다: {str(e)}")
