@@ -953,21 +953,22 @@ def main():
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 🧱 전체 컨테이너 시작 (인원 현황 + 연락처 검색 헤더 + 입력창 포함)
-                st.markdown(f"""
-                <div style="border: 1px solid #f2f2f2; padding: 20px 25px 15px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
-                    <p style="font-weight: 600; font-size: 16px;">👥 인원 현황 ({today})</p>
-                    <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
-                    <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
-                """, unsafe_allow_html=True)
+                # 전체 박스 시작 (모든 내용을 하나로 묶는다)
+                with st.container():
+                    st.markdown(f"""
+                        <div style="border: 1px solid #f2f2f2; padding: 25px 25px 10px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
+                            <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">👥 인원 현황 ({today})</p>
+                            <p style="margin: 0 0 15px 0;">정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
+                            <p style="font-weight: 600; font-size: 16px;">🔎 연락처 검색</p>
+                        </div>
+                    """, unsafe_allow_html=True)
 
-                # 👉 입력창을 박스 안에 자연스럽게 넣기 위한 여백 조정용 컨테이너
-                col_spacer, col_input = st.columns([0.02, 0.98])
-                with col_input:
+                    # 검색창 스타일 커스터마이즈
                     st.markdown("""
                         <style>
                         div[data-baseweb="input"] {
                             width: 40% !important;
+                            margin-bottom: 15px;
                         }
                         div[data-baseweb="input"] input {
                             background-color: #f5f5f5 !important;
@@ -979,17 +980,14 @@ def main():
 
                     search_name = st.text_input("성명으로 검색", key="contact_search")
 
-                # 결과 표시도 같은 박스 안에
-                if search_name:
-                    search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
-                    if not search_result.empty:
-                        result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
-                        st.dataframe(result_df, hide_index=True)
-                    else:
-                        st.info("검색 결과가 없습니다.")
-
-                # 📦 박스 닫기
-                st.markdown("</div>", unsafe_allow_html=True)
+                    # 결과 테이블도 한 박스 안에
+                    if search_name:
+                        search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
+                        if not search_result.empty:
+                            result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
+                            st.dataframe(result_df, hide_index=True)
+                        else:
+                            st.info("검색 결과가 없습니다.")
             
         with col4:
             # 작은 글씨 스타일 추가
