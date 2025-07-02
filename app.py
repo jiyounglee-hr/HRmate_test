@@ -927,7 +927,8 @@ def main():
         
         with col2:
             st.markdown("""
-                <h1>HRmate</h1>
+                <h1 style="margin-bottom: 0.2em;">HRmate</h1>
+                <hr style="border: none; height: 1px; background-color: #e5e5e5; margin-top: 0.2em; margin-bottom: 1em;">
             """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
