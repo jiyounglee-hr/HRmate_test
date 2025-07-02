@@ -994,9 +994,9 @@ def main():
             st.markdown("""
                 <style>
                 .small-text {
-                    font-size: 1em;
+                    font-size: 0.8em;
                     color: #666;
-                    text-align: center;
+                    text-align: left;
                     margin-bottom: 5px;
                 }
                 </style>
@@ -1014,8 +1014,7 @@ def main():
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
             if has_error:
                 st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-            else:
-                st.warning("위에 버튼을 클릭해서 로그인을 먼저 해주세요.")
+
                             
             with st.container():
                 st.markdown("""
