@@ -951,6 +951,21 @@ def main():
         
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
         with col2:
+            # 스타일 추가
+            st.markdown("""
+                <style>
+                .custom-container {
+                    border: 1px solid #e0e0e0;
+                    border-radius: 5px;
+                    padding: 20px;
+                    margin: 10px 0;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
+            # 컨테이너 시작
+            st.markdown('<div class="custom-container">', unsafe_allow_html=True)
+            
             # 데이터 로드
             df = load_data()
             
@@ -996,6 +1011,9 @@ def main():
                         st.dataframe(result_df, hide_index=True)
                     else:
                         st.info("검색 결과가 없습니다.")
+            
+            # 컨테이너 종료
+            st.markdown('</div>', unsafe_allow_html=True)
         
         with col3:
             st.link_button(
