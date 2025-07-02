@@ -1017,6 +1017,22 @@ def main():
                 type="primary",
                 use_container_width=True
             )
+            
+            # 작은 글씨 스타일 추가
+            st.markdown("""
+                <style>
+                .small-text {
+                    font-size: 0.8em;
+                    color: #666;
+                    text-align: center;
+                    margin-top: 5px;
+                }
+                </style>
+                <div class="small-text">
+                    🔐 로그인 후 상세 HR정보를 확인하실 수 있습니다.
+                </div>
+            """, unsafe_allow_html=True)
+            
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
             if has_error:
                 st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
