@@ -986,7 +986,7 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.1, 0.5, 0.3, 0.2])
+            col1, col2, col3, col4 = st.columns([0.1, 0.5, 0.3, 0.2])
             with col3:
                 st.link_button(
                     "Microsoft 계정으로 로그인",
