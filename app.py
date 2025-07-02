@@ -945,19 +945,11 @@ def main():
             state=st.session_state.get("_session_id", "")
         )
         
-        # 자동 리디렉션 시도 여부 확인
-        if 'auto_redirect_attempted' not in st.session_state:
-            st.session_state.auto_redirect_attempted = False
-        
         # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
         query_params = st.query_params
         has_error = query_params.get("error", None) is not None
-        
-        if not st.session_state.auto_redirect_attempted and not has_error:
-            # 로그인 시도 상태 업데이트
-            st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
+        col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
             
             with col2:
                 # 데이터 로드
