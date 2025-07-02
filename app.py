@@ -709,6 +709,9 @@ def check_user_permission(required_permissions):
 def load_data():
     """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
     try:
+        # 캐시 키 생성 (현재 시간 기준)
+        cache_key = datetime.now().strftime('%Y%m%d%H%M')
+        
         file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/임직원 기초 데이터.xlsx")
         if not file_bytes:
             return None
@@ -975,6 +978,8 @@ def main():
 
                     st.markdown(f"###### 👥 인원 현황 ({today})")
                     st.markdown(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
+                    st.markdown("<br>", unsafe_allow_html=True)
+
                     st.markdown("###### 🔎 연락처 검색")
 
                     search_name = st.text_input("성명으로 검색", key="contact_search")
