@@ -979,7 +979,7 @@ def main():
                     
                     if not search_result.empty:
                         # Sheet1의 컬럼 선택
-                        result_df = search_result[['성명', '본부', '팀', '직위', 'E-mail', '핸드폰']]
+                        result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
                         st.dataframe(result_df, hide_index=True)
                     else:
                         st.info("검색 결과가 없습니다.")
