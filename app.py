@@ -48,7 +48,7 @@ CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
 # 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"
+REDIRECT_URI = "https://hrmate.streamlit.app/"
 
 # MSAL 앱 초기화
 msal_app = msal.ConfidentialClientApplication(
@@ -728,11 +728,11 @@ def load_data():
         ].copy()
         
         # 날짜 컬럼 변환
-        date_columns = ['입사일', '퇴사일', '생년월일']
+        date_columns = ['입사일', '퇴사일']
         for col in date_columns:
             if col in df.columns:
-                df[col] = df[col].apply(convert_date)
-        
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+                
         # 데이터 로드 시간 표시 (한국 시간대 적용)
         st.sidebar.markdown("<br>", unsafe_allow_html=True)
         kst_time = datetime.now(pytz.timezone('Asia/Seoul'))
@@ -856,23 +856,6 @@ st.markdown("""
 
 # 로그인된 사용자만 메뉴 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
-    # 사이드바 보이기
-    st.markdown("""
-        <style> 
-        [data-testid="stSidebar"][aria-expanded="true"] {
-            display: block !important;
-        }
-        [data-testid="stSidebar"][aria-expanded="false"] {
-            display: block !important;
-        }
-        section[data-testid="stSidebar"] {
-            width: 250px !important;
-            min-width: 250px !important;
-            margin-right: 20px;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
     # 제목
     st.sidebar.title("👥 HRmate")
     st.sidebar.markdown("---")
@@ -938,235 +921,71 @@ menu = st.session_state.menu
 
 def main():
     # 로그인 처리
-    
-    # 스타일 추가
-    st.markdown("""
-        <style>
-        /* 로그인 전에는 사이드바 숨기기 */
-        [data-testid="stSidebar"][aria-expanded="true"] {
-            display: none;
-        }
-        [data-testid="stSidebar"][aria-expanded="false"] {
-            display: none;
-        }
-        div[data-testid="stLinkButton"] {
-            width: 300px !important;
-            margin: 0 auto;
-        }
-        /* 전체 페이지 여백 조정 */
-        .main .block-container {
-            padding-left: 15%;
-            padding-right: 15%;
-            padding-top: 0;
-            max-width: 100%;
-        }
-        /* 상단 여백 완전 제거 */
-        .stApp > header {
-            display: none;
-        }
-        .main .block-container > div:first-child {
-            padding-top: 0;
-        }
-        div[data-testid="stToolbar"] {
-            display: none;
-        }
-        #MainMenu {
-            display: none;
-        }
-        footer {
-            display: none;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 0 0 2rem 0;
-            margin-bottom: 2rem;
-        }
-        .header h1 {
-            font-size: 2.5rem;
-            margin-top: 1.2rem;
-            color: #333;
-        }
-        .header img {
-            width: 100px;
-            height: auto;
-        }
-        .main-container {
-            display: flex;
-            gap: 2rem;
-            padding: 0 2rem;
-        }
-        .data-section {
-            flex: 2;
-            padding: 2rem;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .login-section {
-            flex: 1;
-            padding: 2rem;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .hr-links {
-            margin-top: 2rem;
-        }
-        .hr-links h3 {
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        .hr-links a {
-            display: block;
-            padding: 0.8rem 1rem;
-            color: #333;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
-            transition: all 0.2s;
-            background-color: white;
-        }
-        .hr-links a:hover {
-            color: #ff4b4b;
-            background-color: #f0f0f0;
-        }
-        .metric-container {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .search-container {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .birthday-container {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # Microsoft 로그인 URL 생성
-    auth_url = msal_app.get_authorization_request_url(
-        scopes=["User.Read"],
-        redirect_uri=REDIRECT_URI,
-        state=st.session_state.get("_session_id", "")
-    )
-    
-    # 로그인 상태 확인
     is_logged_in = login()
     
     if not is_logged_in:
-        # 헤더 (로고와 제목)
-        st.markdown("""
-            <div class="header">
-                <h1>HRmate</h1>
-                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100" alt="Neurophet Logo">
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # 기초 데이터 로드
-        df = load_data()
-        
-        if df is not None:
-            # 현재 날짜 기준으로 재직자 필터링
-            today = pd.Timestamp.now().date()
-            current_employees = df[
-                (df['입사일'].dt.date <= today) & 
-                ((df['퇴사일'].isna()) | (df['퇴사일'].dt.date > today))
-            ]
-            
-            # 메인 컨테이너 시작
-            st.markdown('<div class="main-container">', unsafe_allow_html=True)
-            
-            # 왼쪽 섹션 (데이터 표시)
-            st.markdown('<div class="data-section">', unsafe_allow_html=True)
-            
-            # 현재 인원 현황
-            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
-            st.subheader("📊 현재 인원")
-            total = len(current_employees)
-            regular = len(current_employees[current_employees['고용구분'] == '정규직'])
-            contract = len(current_employees[current_employees['고용구분'] == '계약직'])
-            
-            cols = st.columns(3)
-            with cols[0]:
-                st.metric("전체인원", f"{total}명")
-            with cols[1]:
-                st.metric("정규직", f"{regular}명")
-            with cols[2]:
-                st.metric("계약직", f"{contract}명")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            # 연락처/생일 검색
-            st.markdown('<div class="search-container">', unsafe_allow_html=True)
-            st.subheader("🔍 연락처/생일 검색")
-            search_name = st.text_input("성명으로 검색")
-            
-            if search_name:
-                filtered_df = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
-                if not filtered_df.empty:
-                    st.dataframe(
-                        filtered_df[['성명', '본부', '팀', '직위', 'E-mail', '핸드폰']],
-                        hide_index=True
-                    )
-                else:
-                    st.info("검색 결과가 없습니다.")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            # 이달의 생일
-            st.markdown('<div class="birthday-container">', unsafe_allow_html=True)
-            st.subheader("🎂 이달의 생일")
-            current_month = pd.Timestamp.now().month
-            birthday_employees = current_employees[
-                current_employees['생년월일'].dt.month == current_month
-            ].sort_values('생년월일')
-            
-            if not birthday_employees.empty:
-                st.dataframe(
-                    birthday_employees[['성명', '본부', '팀', '생년월일']],
-                    hide_index=True
-                )
-            else:
-                st.info("이번 달 생일인 직원이 없습니다.")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            # 오른쪽 섹션 (로그인 및 링크)
-            st.markdown('<div class="login-section">', unsafe_allow_html=True)
-            
-            st.warning("로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.")
-            
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
-            # HR 관련 사이트 바로가기
-            st.markdown("### HR 관련 사이트 바로가기")
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+        with col2:
             st.markdown("""
-                <div class="hr-links">
-                    <a href="https://career.neurophet.com/works" target="_blank">뉴로웍스 ↗️</a>
-                    <a href="https://career.neurophet.com/" target="_blank">뉴로핏커리어 ↗️</a>
-                    <a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank">면접관용 가이드 및 채용전형 관리 ↗️</a>
-                    <a href="https://neurophet.sharepoint.com/sites/hr-manager/SitePages/%EC%9E%85%EC%82%AC%EA%B0%80%EC%9D%B4%EB%93%9C.aspx?csf=1&web=1&e=wgCASS" target="_blank">입사/퇴사업무 프로세스 ↗️</a>
+                <div class="header-container">
+                    <div class="logo-container">
+                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                    </div>
+                    <div class="title-container">
+                        <h1>HRmate</h1>
+                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                    </div>
                 </div>
+                <div class="divider"><hr></div>
             """, unsafe_allow_html=True)
+        
+        # Microsoft 로그인 URL 생성
+        auth_url = msal_app.get_authorization_request_url(
+            scopes=["User.Read"],
+            redirect_uri=REDIRECT_URI,
+            state=st.session_state.get("_session_id", "")
+        )
+        
+        # 자동 리디렉션 시도 여부 확인
+        if 'auto_redirect_attempted' not in st.session_state:
+            st.session_state.auto_redirect_attempted = False
+        
+        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        query_params = st.query_params
+        has_error = query_params.get("error", None) is not None
+        
+        if not st.session_state.auto_redirect_attempted and not has_error:
+            # 로그인 시도 상태 업데이트
+            st.session_state.auto_redirect_attempted = True
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+            st.stop()
+        else:
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
             
-            # 메인 컨테이너 종료
-            st.markdown('</div>', unsafe_allow_html=True)
-            
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
+        
         st.stop()
     
     # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
