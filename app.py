@@ -960,6 +960,22 @@ def main():
             padding-top: 0;
             max-width: 100%;
         }
+        /* 상단 여백 완전 제거 */
+        .stApp > header {
+            display: none;
+        }
+        .main .block-container > div:first-child {
+            padding-top: 0;
+        }
+        div[data-testid="stToolbar"] {
+            display: none;
+        }
+        #MainMenu {
+            display: none;
+        }
+        footer {
+            display: none;
+        }
         .header {
             display: flex;
             justify-content: space-between;
