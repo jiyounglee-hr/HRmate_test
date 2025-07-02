@@ -928,16 +928,25 @@ def main():
         st.markdown("""
             <style>
             .login-container {
+                position: relative;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 padding: 2rem;
                 margin: 0 auto;
-                max-width: 400px;
+                max-width: 1200px;
             }
             .login-logo {
-                margin-bottom: 1rem;
+                position: absolute;
+                top: 2rem;
+                right: 2rem;
+            }
+            .login-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 100px;
             }
             .login-title {
                 font-size: 2rem;
@@ -957,8 +966,10 @@ def main():
                 <div class="login-logo">
                     <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
                 </div>
-                <h1 class="login-title">HRmate</h1>
-                <p class="login-subtitle">🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                <div class="login-content">
+                    <h1 class="login-title">HRmate</h1>
+                    <p class="login-subtitle">🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                </div>
             </div>
         """, unsafe_allow_html=True)
         
