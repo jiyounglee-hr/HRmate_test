@@ -954,17 +954,15 @@ def main():
             # 스타일 추가
             st.markdown("""
                 <style>
-                .custom-container {
+                div[data-testid="column"] {
+                    background-color: white;
                     border: 1px solid #e0e0e0;
-                    border-radius: 5px;
                     padding: 20px;
+                    border-radius: 5px;
                     margin: 10px 0;
                 }
                 </style>
             """, unsafe_allow_html=True)
-            
-            # 컨테이너 시작
-            st.markdown('<div class="custom-container">', unsafe_allow_html=True)
             
             # 데이터 로드
             df = load_data()
