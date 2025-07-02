@@ -943,9 +943,9 @@ def main():
         
         # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
         query_params = st.query_params
-        has_error = query_params.get("error", None) is not None
+        has_error = query_params.get("error", None) is no t None
         
-        col1, col2, col3, col4, col5 = st.columns([0.2, 0.35, 0.05, 0.15 0.2])
+        col1, col2, col3, col4, col5 = st.columns([0.2, 0.35, 0.05, 0.2,0.2])
         with col2:
             # 데이터 로드
                 df = load_data()
