@@ -863,49 +863,59 @@ menu = st.session_state.menu
 st.sidebar.title("👥 HRmate")
 st.sidebar.markdown("---")
 
-# 사용자 권한 확인
-user_email = st.session_state.get('email', '')
-user_permission = get_user_permission(user_email)
+# 로그인 상태 확인
+if not st.session_state.get('user_token') or 'user_info' not in st.session_state:
+    st.sidebar.markdown("### 🔄 로그인 중입니다...")
+    st.sidebar.markdown("Microsoft 계정으로 로그인을 진행합니다.")
+elif st.session_state.get('user_info'):
+    # HR Data 섹션
+    st.sidebar.markdown("#### HR Data")
+    
+    # HR, C-LEVEL, Director 권한 메뉴
+    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
+        if st.sidebar.button("📊 인원현황", use_container_width=True):
+            st.session_state.menu = "📊 인원현황"
+        if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
+            st.session_state.menu = "📈 연도별 인원 통계"
+        if st.sidebar.button("🚀 채용현황", use_container_width=True):
+            st.session_state.menu = "🚀 채용현황"
+        if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
+            st.session_state.menu = "🔔 인사팀 업무 공유"
 
-# 기본 메뉴 (모든 사용자)
-st.sidebar.markdown("#### 기본 메뉴")
-if st.sidebar.button("📊 인원현황", use_container_width=True):
-    st.session_state.menu = "📊 인원현황"
+    # HR, C-LEVEL 권한 메뉴
+    if check_user_permission(['HR', 'C-LEVEL']):
+        if st.sidebar.button("😊 임직원 명부", use_container_width=True):
+            st.session_state.menu = "😊 임직원 명부"
+        if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
+            st.session_state.menu = "🏦 기관제출용 인원현황"
+        if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
+            st.session_state.menu = "🔍 연락처/생일 검색"
 
-# HR 권한 메뉴
-if check_user_permission(['HR']):
-    st.sidebar.markdown("#### HR 전용")
-    if st.sidebar.button("📈 인사통계", use_container_width=True):
-        st.session_state.menu = "📈 인사통계"
-    if st.sidebar.button("👥 채용관리", use_container_width=True):
-        st.session_state.menu = "👥 채용관리"
-    if st.sidebar.button("💼 명함신청 관리", use_container_width=True):
-        st.session_state.menu = "💼 명함신청 관리"
-    if st.sidebar.button("⏰ 연장근무 관리", use_container_width=True):
-        st.session_state.menu = "⏰ 연장근무 관리"
+        st.sidebar.markdown("#### HR Support")
+        if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
+            st.session_state.menu = "🚀 채용 전형관리"
+        if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
+            st.session_state.menu = "📋 채용 처우협상"
+        if st.sidebar.button("🎫 명함발급", use_container_width=True): 
+            st.session_state.menu = "🎫 명함발급"
+        if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
+            st.session_state.menu = "📅 인사발령 내역"
+        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
+            st.session_state.menu = "⏰ 초과근무 조회"
+        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True): 
+            st.session_state.menu = "💰 스톡옵션 조회"
 
-# 팀장 권한 메뉴
-if check_user_permission(['Director']):
-    st.sidebar.markdown("#### 팀장 전용")
-    if st.sidebar.button("👥 팀원 관리", use_container_width=True):
-        st.session_state.menu = "👥 팀원 관리"
-    if st.sidebar.button("⏰ 팀 연장근무 관리", use_container_width=True):
-        st.session_state.menu = "⏰ 팀 연장근무 관리"
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("<br>", unsafe_allow_html=True)
+        with st.sidebar.expander("💡 전사지원"):
+            st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
+    
+    st.sidebar.markdown("---")
 
-# 일반 사용자 메뉴
-st.sidebar.markdown("#### 신청")
-if st.sidebar.button("💼 명함신청", use_container_width=True):
-    st.session_state.menu = "💼 명함신청"
-if st.sidebar.button("⏰ 연장근무신청", use_container_width=True):
-    st.session_state.menu = "⏰ 연장근무신청"
-
-st.sidebar.markdown("---")
-
-# 로그인된 사용자 정보 표시
-user_name = st.session_state.user_info.get('displayName', '사용자')
-st.sidebar.markdown(f"**👤 {user_name}**")
-if user_permission:
-    st.sidebar.markdown(f"*권한: {user_permission}*")
+    # 로그인된 사용자 정보 표시
+    if st.session_state.user_info:
+        user_name = st.session_state.user_info.get('displayName', '사용자')
+        st.sidebar.markdown(f"**👤접속자 : {user_name}**")
 
 def main():
     # 세션 상태 초기화
