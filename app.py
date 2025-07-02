@@ -994,7 +994,7 @@ def main():
             st.markdown("""
                 <style>
                 .small-text {
-                    font-size: 0.8em;
+                    font-size: 1em;
                     color: #666;
                     text-align: center;
                     margin-bottom: 5px;
