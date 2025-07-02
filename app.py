@@ -924,63 +924,53 @@ def main():
     is_logged_in = login()
     
     if not is_logged_in:
-        # Microsoft 로그인 URL 생성
-        auth_url = msal_app.get_authorization_request_url(
-            scopes=["User.Read"],
-            redirect_uri=REDIRECT_URI,
-            state=st.session_state.get("_session_id", "")
-        )
-        
-        # 디버그: auth_url 출력
-        st.write("Debug - Login URL:", auth_url)
-        
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        st.markdown(f"""
+        st.markdown("""
             <style>
-            .login-container {{
+            .login-container {
                 position: relative;
                 padding: 2rem;
                 margin: 0 auto;
                 max-width: 1200px;
-            }}
-            .login-logo {{
+            }
+            .login-logo {
                 position: absolute;
                 top: 2rem;
                 right: 2rem;
-            }}
-            .login-header {{
+            }
+            .login-header {
                 text-align: left;
                 margin-bottom: 2rem;
-            }}
-            .login-header h1 {{
+            }
+            .login-header h1 {
                 font-size: 2.5rem;
                 color: #333;
                 margin: 0;
                 padding: 0;
-            }}
-            .login-layout {{
+            }
+            .login-layout {
                 display: flex;
                 margin-top: 50px;
-            }}
-            .login-left {{
+            }
+            .login-left {
                 flex: 2;
                 padding: 2rem;
                 border-right: 1px solid #eee;
-            }}
-            .login-right {{
+            }
+            .login-right {
                 flex: 1;
                 padding: 2rem;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-            }}
-            .login-title {{
+            }
+            .login-title {
                 font-size: 2rem;
                 margin: 1rem 0;
                 color: #333;
-            }}
-            .login-box {{
+            }
+            .login-box {
                 background: #fff;
                 border: 1px solid #eee;
                 border-radius: 8px;
@@ -989,17 +979,17 @@ def main():
                 max-width: 400px;
                 text-align: center;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            }}
-            .login-box-title {{
+            }
+            .login-box-title {
                 font-size: 1rem;
                 color: #333;
                 margin-bottom: 1.5rem;
-            }}
-            div[data-testid="stLinkButton"] > div {{
+            }
+            div[data-testid="stLinkButton"] > div {
                 width: 100% !important;
                 max-width: none !important;
-            }}
-            div[data-testid="stLinkButton"] > div > a {{
+            }
+            div[data-testid="stLinkButton"] > div > a {
                 width: 100% !important;
                 max-width: none !important;
                 background-color: #FF4B4B !important;
@@ -1013,10 +1003,10 @@ def main():
                 display: inline-block !important;
                 cursor: pointer !important;
                 transition: background-color 0.2s !important;
-            }}
-            div[data-testid="stLinkButton"] > div > a:hover {{
+            }
+            div[data-testid="stLinkButton"] > div > a:hover {
                 background-color: #ff3333 !important;
-            }}
+            }
             </style>
             <div class="login-container">
                 <div class="login-logo">
@@ -1035,9 +1025,9 @@ def main():
                             <div style="margin-top: 20px;">
                                 <div data-testid="stLinkButton">
                                     <div>
-                                        <a href="{auth_url}" target="_self">Microsoft 계정으로 로그인</a>
+                                        <a href="{}" target="_self">Microsoft 계정으로 로그인</a>
                                     </div>
-                                </div>
+                                </div>""".format(auth_url)
                             </div>
                         </div>
                     </div>
@@ -1056,6 +1046,19 @@ def main():
         if not st.session_state.auto_redirect_attempted and not has_error:
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
+            
+            st.markdown("""
+                <div class="login-box">
+                    <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                    <div style="margin-top: 1rem;">
+                """, unsafe_allow_html=True)
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
             st.stop()
         else:
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
@@ -1063,6 +1066,21 @@ def main():
                 st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
             else:
                 st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+        
+            # st.link_button을 사용하여 직접 링크로 이동
+            st.markdown("""
+                <div class="login-box">
+                    <p class="login-box-title">🔐 로그인 버튼을 누르면 더 많은 정보를 보실 수 있어요.</p>
+                    <div style="margin-top: 1rem;">
+                """, unsafe_allow_html=True)
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+                
         
         st.stop()
     
