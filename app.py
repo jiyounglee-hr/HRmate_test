@@ -941,7 +941,7 @@ def main():
         st.stop()
 
     # URL 파라미터에서 인증 코드와 state 확인
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
     code = query_params.get("code", [None])[0]
     state = query_params.get("state", [None])[0]
 
