@@ -950,7 +950,6 @@ def main():
         has_error = query_params.get("error", None) is not None
         
         col1, col2, col3, col4 = st.columns([0.15, 0.45, 0.2, 0.2])
-        
         with col2:
             # 데이터 로드
             df = load_data()
@@ -969,6 +968,21 @@ def main():
                 
                 st.write(f"👥 인원 현황 ({today})")
                 st.write(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
+                
+                st.write("")  # 공백 추가
+                st.write("🔎 연락처 검색")
+                search_name = st.text_input("성명으로 검색", key="contact_search")
+                
+                if search_name:
+                    # 이름으로 검색
+                    search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
+                    
+                    if not search_result.empty:
+                        # 필요한 컬럼만 선택
+                        result_df = search_result[['성명', '본부', '팀', '직위', 'E-mail', '핸드폰']]
+                        st.dataframe(result_df, hide_index=True)
+                    else:
+                        st.info("검색 결과가 없습니다.")
         
         with col3:
             st.link_button(
