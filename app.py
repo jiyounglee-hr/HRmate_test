@@ -952,7 +952,7 @@ def main():
             st.markdown("""
                 <style>
                 div[data-testid="column"] {
-                    background-color: white;
+                    background-color: #fafafa;
                     border: 1px solid #e0e0e0;
                     padding: 20px;
                     border-radius: 5px;
