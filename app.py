@@ -858,7 +858,7 @@ st.markdown("""
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
     # 사이드바 보이기
     st.markdown("""
-        <style>
+        <style> 
         [data-testid="stSidebar"][aria-expanded="true"] {
             display: block !important;
         }
