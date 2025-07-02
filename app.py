@@ -952,16 +952,17 @@ def main():
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 💡 인원현황 + 연락처 검색을 테두리 박스에 넣기
+                # 인원현황 + 검색창 박스 시작
                 st.markdown(f"""
                 <div style="border: 1px solid #f2f2f2; padding: 20px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px;">👥 인원 현황 ({today})</h4>
                     <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
 
                     <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
+                </div>
                 """, unsafe_allow_html=True)
 
-                # 검색창 스타일 커스터마이징
+                # 검색창 스타일
                 st.markdown("""
                     <style>
                     div[data-baseweb="input"] {
@@ -975,7 +976,7 @@ def main():
                     </style>
                 """, unsafe_allow_html=True)
 
-                # 검색창
+                # 검색창 입력
                 search_name = st.text_input("성명으로 검색", key="contact_search")
 
                 if search_name:
@@ -985,9 +986,6 @@ def main():
                         st.dataframe(result_df, hide_index=True)
                     else:
                         st.info("검색 결과가 없습니다.")
-
-                # 박스 닫기
-                st.markdown("</div>", unsafe_allow_html=True)
             
         with col4:
             # 작은 글씨 스타일 추가
