@@ -975,6 +975,7 @@ def main():
                 <div class="title-container">
                     <h1>HRmate</h1>
                     <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                    <p>▶️ 로그인 버튼을 누르면 Microsoft 로그인 창이 새로 열립니다.</p>
                 </div>
                 <div class="divider"><hr></div>
             </div>
@@ -1011,7 +1012,7 @@ def main():
             st.stop()
         else:
             with st.container():
-                col1, col2, col3 = st.columns([1, 2, 1])
+                col1, col2, col3 = st.columns([1.5, 1, 1.5])
                 with col2:
                     # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                     if has_error:
