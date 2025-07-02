@@ -856,6 +856,18 @@ st.markdown("""
 
 # 로그인된 사용자만 메뉴 표시
 if 'user_info' in st.session_state and st.session_state.user_info is not None:
+    # 사이드바 보이기
+    st.markdown("""
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] {
+            display: block;
+        }
+        [data-testid="stSidebar"][aria-expanded="false"] {
+            display: block;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # 제목
     st.sidebar.title("👥 HRmate")
     st.sidebar.markdown("---")
@@ -925,6 +937,13 @@ def main():
     # 스타일 추가
     st.markdown("""
         <style>
+        /* 로그인 전에는 사이드바 숨기기 */
+        [data-testid="stSidebar"][aria-expanded="true"] {
+            display: none;
+        }
+        [data-testid="stSidebar"][aria-expanded="false"] {
+            display: none;
+        }
         div[data-testid="stLinkButton"] {
             width: 300px !important;
             margin: 0 auto;
