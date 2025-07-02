@@ -1018,7 +1018,7 @@ def main():
                             
             with st.container():
                 st.markdown("""
-                    <div style="border: 1px solid #cccccc; padding: 12px; border-radius: 10px; background-color: #ffffff;">
+                    <div style="border: 1px solid #f2f2f2; padding: 12px; border-radius: 10px; background-color: #ffffff;">
                         <p> HR 관련 사이트 바로 가기</p>
                         <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
                         <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
