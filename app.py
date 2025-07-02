@@ -1009,56 +1009,25 @@ def main():
                 response_type="code"
             )
             
-            # 로그인 버튼 생성
-            login_url = auth_url  # URL을 JavaScript에서 사용하기 위해 변수로 저장
+                        # 로그인 화면 구성
+            st.markdown("### Microsoft 계정으로 로그인")
+            st.info("Microsoft 계정으로 로그인을 진행합니다...")
+
+            # 중앙 정렬을 위한 컬럼 사용
+            col1, col2, col3 = st.columns([1, 2, 1])
             
-            st.markdown(
-                f'''
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                    <script>
-                        function redirectToLogin() {{
-                            console.log("로그인 시도...");
-                            console.log("리디렉션 URL: {login_url}");
-                            window.location.assign("{login_url}");
-                            return false;
-                        }}
-                    </script> 
-                    
-                    <button 
-                        onclick="redirectToLogin()"
-                        style="
-                            border: none;
-                            background-color: #2F2F2F;
-                            color: white;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            font-size: 16px;
-                            cursor: pointer;
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            min-width: 200px;
-                            margin-top: 20px;
-                        ">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png" 
-                             style="margin-right: 10px; height: 20px;">
-                        Microsoft 로그인
-                    </button>
-                    
-                    <div id="loginMessage" style="color: #666; font-size: 14px;"></div>
-                </div>
-                ''',
-                unsafe_allow_html=True
-            )
+            with col2:
+                # 로그인 버튼
+                if st.button(
+                    "Microsoft 로그인",
+                    key="ms_login_button",
+                    use_container_width=True,
+                ):
+                    st.switch_page(auth_url)  # 로그인 페이지로 이동
             
-            # 디버그 정보를 페이지에 직접 표시
-            st.markdown("---")
-            st.markdown("### 로그인 디버그 정보")
-            st.code(f"로그인 URL: {login_url}", language="text")
-            
-            # 직접 링크도 제공
-            st.markdown("아래 링크를 통해 직접 로그인할 수도 있습니다:")
-            st.markdown(f"[Microsoft 로그인 링크]({login_url})")
+            # 디버그 정보 (접힌 상태로 표시)
+            with st.expander("디버그 정보", expanded=False):
+                st.code(f"로그인 URL: {auth_url}", language="text")
             
             
             # 디버그 정보 (접힌 상태로 표시)
