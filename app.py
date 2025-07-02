@@ -1007,7 +1007,7 @@ def main():
                 }
                 </style>
                 <div class="small-text">
-                    🔐 로그인 후 상세 HR정보를 확인하실 수 있습니다.
+                    🔐 로그인 후 상세 HR상세정보를 확인하실 수 있습니다.
                 </div>
             """, unsafe_allow_html=True)
 
@@ -1034,7 +1034,7 @@ def main():
                     <style>
                     .link-hover {
                         text-decoration: none !important;
-                        color: #1b1b1e;
+                        color: #1b1b1e !important;
                         font-size: 0.8em; 
                     }
                     .link-hover:hover {
