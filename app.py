@@ -953,22 +953,23 @@ def main():
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 전체 박스 시작 (모든 내용을 하나로 묶는다)
+                # 전체 박스를 st.container로 감싸고, 스타일은 CSS로 지정
                 with st.container():
-                    st.markdown(f"""
-                        <div style="border: 1px solid #f2f2f2; padding: 25px 25px 10px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
-                            <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">👥 인원 현황 ({today})</p>
-                            <p style="margin: 0 0 15px 0;">정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
-                            <p style="font-weight: 600; font-size: 16px;">🔎 연락처 검색</p>
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                    # 검색창 스타일 커스터마이즈
                     st.markdown("""
                         <style>
+                        .box {
+                            border: 1px solid #f2f2f2;
+                            border-radius: 10px;
+                            padding: 25px;
+                            background-color: #ffffff;
+                            margin-bottom: 20px;
+                        }
+                        .box h4 {
+                            margin-bottom: 0.5rem;
+                        }
                         div[data-baseweb="input"] {
                             width: 40% !important;
-                            margin-bottom: 15px;
+                            margin-top: 10px;
                         }
                         div[data-baseweb="input"] input {
                             background-color: #f5f5f5 !important;
@@ -976,11 +977,17 @@ def main():
                             padding: 6px 10px;
                         }
                         </style>
+                        <div class="box">
                     """, unsafe_allow_html=True)
+
+                    # 🔼 이 div는 닫지 않고 st 컴포넌트로 계속 이어줌!
+
+                    st.markdown(f"#### 👥 인원 현황 ({today})")
+                    st.markdown(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
+                    st.markdown("#### 🔎 연락처 검색")
 
                     search_name = st.text_input("성명으로 검색", key="contact_search")
 
-                    # 결과 테이블도 한 박스 안에
                     if search_name:
                         search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
                         if not search_result.empty:
@@ -988,7 +995,10 @@ def main():
                             st.dataframe(result_df, hide_index=True)
                         else:
                             st.info("검색 결과가 없습니다.")
-            
+
+                    # 마지막에 닫기
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    
         with col4:
             # 작은 글씨 스타일 추가
             st.markdown("""
