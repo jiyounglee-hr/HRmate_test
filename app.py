@@ -957,16 +957,6 @@ def main():
                 with st.container():
                     st.markdown("""
                         <style>
-                        .box {
-                            border: 1px solid #f2f2f2;
-                            border-radius: 10px;
-                            padding: 25px;
-                            background-color: #ffffff;
-                            margin-bottom: 20px;
-                        }
-                        .box h4 {
-                            margin-bottom: 0.5rem;
-                        }
                         div[data-baseweb="input"] {
                             width: 40% !important;
                             margin-top: 10px;
@@ -982,9 +972,9 @@ def main():
 
                     # 🔼 이 div는 닫지 않고 st 컴포넌트로 계속 이어줌!
 
-                    st.markdown(f"#### 👥 인원 현황 ({today})")
+                    st.markdown(f"###### 👥 인원 현황 ({today})")
                     st.markdown(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
-                    st.markdown("#### 🔎 연락처 검색")
+                    st.markdown("###### 🔎 연락처 검색")
 
                     search_name = st.text_input("성명으로 검색", key="contact_search")
 
