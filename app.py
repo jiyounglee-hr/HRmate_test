@@ -941,9 +941,9 @@ def main():
             # 재직자 필터링
             current_employees = df[df['재직상태'] == '재직']
             
-            # 고용형태별 인원 수 계산
-            regular_count = len(current_employees[current_employees['고용형태'] == '정규직'])
-            contract_count = len(current_employees[current_employees['고용형태'] == '계약직'])
+            # 고용구분별 인원 수 계산
+            regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
+            contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
             total_count = regular_count + contract_count
             
             # 오늘 날짜
