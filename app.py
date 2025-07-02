@@ -944,106 +944,106 @@ def main():
         col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
 
         with col2:
-        df = load_data()
+            df = load_data()
 
-        if df is not None:
-            # 1. 재직자 필터링
-            current_employees = df[df['재직상태'] == '재직']
-            regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
-            contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
-            total_count = regular_count + contract_count
-            today = datetime.now().strftime('%Y-%m-%d')
+            if df is not None:
+                # 1. 재직자 필터링
+                current_employees = df[df['재직상태'] == '재직']
+                regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
+                contract_count = len(current_employees[current_employees['고용구분'] == '계약직'])
+                total_count = regular_count + contract_count
+                today = datetime.now().strftime('%Y-%m-%d')
 
-            # 2. 상단 요약 박스 (인원 현황 + 연락처 검색 타이틀까지)
-            st.markdown(f"""
-            <div style="border: 1px solid #f2f2f2; padding: 20px 25px 10px 25px; border-radius: 10px 10px 0 0; background-color: #ffffff;">
-                <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">👥 인원 현황 ({today})</p>
-                <p style="font-size: 14px;">정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
-                <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # 3. 하단 검색 박스 (입력창 및 결과)
-            st.markdown("""
-            <div style="border: 1px solid #f2f2f2; border-top: none; padding: 15px 25px 25px 25px; border-radius: 0 0 10px 10px; background-color: #ffffff;">
-            """, unsafe_allow_html=True)
-
-            # 4. 입력창 스타일 커스터마이징
-            st.markdown("""
-            <style>
-            div[data-baseweb="input"] {
-                width: 40% !important;
-            }
-            div[data-baseweb="input"] input {
-                background-color: #f5f5f5 !important;
-                border-radius: 6px;
-                padding: 6px 10px;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
-            # 5. 검색 입력창
-            search_name = st.text_input("성명으로 검색", key="contact_search")
-
-            # 6. 검색 결과 표시
-            if search_name:
-                search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
-                if not search_result.empty:
-                    result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
-                    st.dataframe(result_df, hide_index=True)
-                else:
-                    st.info("검색 결과가 없습니다.")
-
-            # 7. 하단 박스 닫기
-            st.markdown("</div>", unsafe_allow_html=True)
-                
-            with col4:
-                # 작은 글씨 스타일 추가
-                st.markdown("""
-                    <style>
-                    .small-text {
-                        font-size: 0.8em; 
-                        color: #666;
-                        text-align: left;
-                        margin-bottom: 5px;
-                    }
-                    </style>
-                    <div class="small-text">
-                        🔐 로그인 후 상세 HR정보를 확인하실 수 있습니다.
-                    </div>
+                # 2. 상단 요약 박스 (인원 현황 + 연락처 검색 타이틀까지)
+                st.markdown(f"""
+                <div style="border: 1px solid #f2f2f2; padding: 20px 25px 10px 25px; border-radius: 10px 10px 0 0; background-color: #ffffff;">
+                    <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">👥 인원 현황 ({today})</p>
+                    <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
+                    <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
+                </div>
                 """, unsafe_allow_html=True)
 
-                st.link_button(
-                    "Microsoft 계정으로 로그인",
-                    auth_url,
-                    type="primary",
-                    use_container_width=True
-                )
-                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                if has_error:
-                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                # 3. 하단 검색 박스 (입력창 및 결과)
+                st.markdown("""
+                <div style="border: 1px solid #f2f2f2; border-top: none; padding: 15px 25px 25px 25px; border-radius: 0 0 10px 10px; background-color: #ffffff;">
+                """, unsafe_allow_html=True)
 
-                                
-                with st.container():
-                    st.markdown("""
-                        <div style="border: 1px solid #f2f2f2; padding: 12px; border-radius: 10px; background-color: #ffffff;">
-                            <p> HR 관련 사이트 바로 가기</p>
-                            <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
-                            <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
-                            <p><a href="#" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
-                        </div>
+                # 4. 입력창 스타일 커스터마이징
+                st.markdown("""
+                <style>
+                div[data-baseweb="input"] {
+                    width: 40% !important;
+                }
+                div[data-baseweb="input"] input {
+                    background-color: #f5f5f5 !important;
+                    border-radius: 6px;
+                    padding: 6px 10px;
+                }
+                </style>
+                """, unsafe_allow_html=True)
 
-                        <style>
-                        .link-hover {
-                            text-decoration: none !important;
-                            color: #1b1b1e;
-                            font-size: 0.8em; 
-                        }
-                        .link-hover:hover {
-                            text-decoration: underline;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
+                # 5. 검색 입력창
+                search_name = st.text_input("성명으로 검색", key="contact_search")
+
+                # 6. 검색 결과 표시
+                if search_name:
+                    search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
+                    if not search_result.empty:
+                        result_df = search_result[['성명', '본부', '팀', '직위', 'E-Mail', '핸드폰']]
+                        st.dataframe(result_df, hide_index=True)
+                    else:
+                        st.info("검색 결과가 없습니다.")
+
+                # 7. 하단 박스 닫기
+                st.markdown("</div>", unsafe_allow_html=True)
+            
+        with col4:
+            # 작은 글씨 스타일 추가
+            st.markdown("""
+                <style>
+                .small-text {
+                    font-size: 0.8em; 
+                    color: #666;
+                    text-align: left;
+                    margin-bottom: 5px;
+                }
+                </style>
+                <div class="small-text">
+                    🔐 로그인 후 상세 HR정보를 확인하실 수 있습니다.
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+            if has_error:
+                st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+
+                            
+            with st.container():
+                st.markdown("""
+                    <div style="border: 1px solid #f2f2f2; padding: 12px; border-radius: 10px; background-color: #ffffff;">
+                        <p> HR 관련 사이트 바로 가기</p>
+                        <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
+                        <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
+                        <p><a href="#" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
+                    </div>
+
+                    <style>
+                    .link-hover {
+                        text-decoration: none !important;
+                        color: #1b1b1e;
+                        font-size: 0.8em; 
+                    }
+                    .link-hover:hover {
+                        text-decoration: underline;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
 
         st.stop()
     
