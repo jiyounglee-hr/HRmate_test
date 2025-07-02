@@ -1022,7 +1022,7 @@ def main():
             st.stop()
         else:
             with st.container():
-                col1, col2, col3 = st.columns([1, 2, 1])
+                col1, col2, col3 = st.columns([1.5, 1, 1.5])
                 with col2:
                     # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
                     if has_error:
