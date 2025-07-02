@@ -944,7 +944,7 @@ def main():
         col1, col2, col3, col4, col5 = st.columns([0.1, 0.45, 0.05, 0.2, 0.1])
         with col2:
             df = load_data()
-            
+
             if df is not None:
                 current_employees = df[df['재직상태'] == '재직']
                 regular_count = len(current_employees[current_employees['고용구분'] == '정규직'])
@@ -952,16 +952,16 @@ def main():
                 total_count = regular_count + contract_count
                 today = datetime.now().strftime('%Y-%m-%d')
 
-                # 🎨 테두리 박스 스타일 추가
-                st.markdown("""
+                # 💡 인원현황 + 연락처 검색을 테두리 박스에 넣기
+                st.markdown(f"""
                 <div style="border: 1px solid #f2f2f2; padding: 20px 25px; border-radius: 10px; background-color: #ffffff; margin-bottom: 20px;">
-                    <h4>👥 인원 현황 (""" + today + """)</h4>
-                    <p>정규직: """ + str(regular_count) + """명 | 계약직: """ + str(contract_count) + """명 | 전체: """ + str(total_count) + """명</p>
+                    <h4 style="margin-bottom: 10px;">👥 인원 현황 ({today})</h4>
+                    <p>정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명</p>
 
-                    <h5>🔎 연락처 검색</h5>
+                    <p style="font-weight: 600; font-size: 16px; margin-top: 20px;">🔎 연락처 검색</p>
                 """, unsafe_allow_html=True)
 
-                # 검색창 스타일
+                # 검색창 스타일 커스터마이징
                 st.markdown("""
                     <style>
                     div[data-baseweb="input"] {
@@ -970,10 +970,12 @@ def main():
                     div[data-baseweb="input"] input {
                         background-color: #f5f5f5 !important;
                         border-radius: 6px;
+                        padding: 6px 10px;
                     }
                     </style>
                 """, unsafe_allow_html=True)
 
+                # 검색창
                 search_name = st.text_input("성명으로 검색", key="contact_search")
 
                 if search_name:
@@ -984,7 +986,7 @@ def main():
                     else:
                         st.info("검색 결과가 없습니다.")
 
-                # 마무리 박스 닫기
+                # 박스 닫기
                 st.markdown("</div>", unsafe_allow_html=True)
             
         with col4:
