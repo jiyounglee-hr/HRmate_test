@@ -860,10 +860,15 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     st.markdown("""
         <style>
         [data-testid="stSidebar"][aria-expanded="true"] {
-            display: block;
+            display: block !important;
         }
         [data-testid="stSidebar"][aria-expanded="false"] {
-            display: block;
+            display: block !important;
+        }
+        section[data-testid="stSidebar"] {
+            width: 250px !important;
+            min-width: 250px !important;
+            margin-right: 20px;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -948,21 +953,27 @@ def main():
             width: 300px !important;
             margin: 0 auto;
         }
+        /* 전체 페이지 여백 조정 */
+        .main .block-container {
+            padding-left: 15%;
+            padding-right: 15%;
+            max-width: 100%;
+        }
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
+            align-items: flex-start;
+            padding: 2rem 0;
             margin-bottom: 2rem;
         }
         .header h1 {
             font-size: 2.5rem;
-            margin: 0;
+            margin-top: 1.2rem;
             color: #333;
         }
         .header img {
-            height: 40px;
-            width: auto;
+            width: 100px;
+            height: auto;
         }
         .main-container {
             display: flex;
@@ -1039,7 +1050,7 @@ def main():
         st.markdown("""
             <div class="header">
                 <h1>HRmate</h1>
-                <img src="https://career.neurophet.com/static/media/logo.2a4e84d0.svg" alt="Neurophet Logo">
+                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100" alt="Neurophet Logo">
             </div>
         """, unsafe_allow_html=True)
         
