@@ -951,12 +951,15 @@ def main():
             # 스타일 추가
             st.markdown("""
                 <style>
-                div[data-testid="column"] {
-                    background-color: #fafafa;
-                    border: 1px solid #e0e0e0;
-                    padding: 20px;
-                    border-radius: 5px;
-                    margin: 10px 0;
+                [data-testid="column"]:nth-of-type(2) {
+                    background-color: #f0f0f0 !important;
+                    border: 1px solid #e0e0e0 !important;
+                    padding: 20px !important;
+                    border-radius: 5px !important;
+                    margin: 10px 0 !important;
+                }
+                div.stMarkdown {
+                    background-color: #f0f0f0;
                 }
                 </style>
             """, unsafe_allow_html=True)
