@@ -47,24 +47,15 @@ load_dotenv()
 CLIENT_ID = st.secrets["AZURE_AD_CLIENT_ID"]
 TENANT_ID = st.secrets["AZURE_AD_TENANT_ID"]
 CLIENT_SECRET = st.secrets["AZURE_AD_CLIENT_SECRET"]
-# REDIRECT_URI는 Azure AD에 등록된 URI와 정확히 일치해야 함
-REDIRECT_URI = "https://hrmatetest.streamlit.app/"  # 슬래시 다시 추가
+# 팀즈 호환성을 위해 REDIRECT_URI를 명확하게 설정
+REDIRECT_URI = "https://hrmate.streamlit.app/"
 
 # MSAL 앱 초기화
-try:
-    authority = f"https://login.microsoftonline.com/{TENANT_ID}"
-    msal_app = msal.ConfidentialClientApplication(
-        client_id=CLIENT_ID,
-        client_credential=CLIENT_SECRET,
-        authority=authority,
-        token_cache=None,  # 토큰 캐시 비활성화
-        validate_authority=True,  # 권한 검증 활성화
-        app_name="HRmate",  # 앱 이름 설정
-        app_version="1.0.0"  # 앱 버전 설정
-    )
-except Exception as e:
-    st.error(f"MSAL 초기화 중 오류 발생: {str(e)}")
-    msal_app = None
+msal_app = msal.ConfidentialClientApplication(
+    CLIENT_ID,
+    authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+    client_credential=CLIENT_SECRET
+)
 
 # 날짜 정규화 함수
 def normalize_date(date_str):
@@ -410,7 +401,68 @@ st.markdown("""
 
 
 
-
+# Microsoft 로그인
+def login():
+    """로그인 처리 함수 - 인증 처리만 담당"""
+    if 'user_info' not in st.session_state:
+        st.session_state.user_info = None
+    
+    # 1. 먼저 세션에 저장된 사용자 정보 확인
+    if st.session_state.user_info is not None:
+        user_email = st.session_state.user_info.get('mail', '')
+        if user_email and check_authorization(user_email):
+            return True  # 이미 로그인되어 있고 권한도 있음
+        else:
+            # 권한이 없거나 이메일이 없는 경우 세션 초기화
+            st.session_state.user_info = None
+    
+    # 2. URL 파라미터에서 인증 코드 확인 (새로운 로그인 시도)
+    query_params = st.query_params
+    code = query_params.get("code", None)
+    
+    if code:
+        try:
+            # 토큰 획득
+            result = msal_app.acquire_token_by_authorization_code(
+                code,
+                scopes=["User.Read"],
+                redirect_uri=REDIRECT_URI
+            )
+             
+            if "access_token" in result:
+                # Microsoft Graph API를 사용하여 사용자 정보 가져오기
+                graph_data = requests.get(
+                    "https://graph.microsoft.com/v1.0/me",
+                    headers={'Authorization': 'Bearer ' + result['access_token']},
+                ).json()
+                
+                if 'mail' in graph_data:
+                    # 권한 확인
+                    if check_authorization(graph_data['mail']):
+                        st.session_state.user_info = graph_data
+                        # 자동 리디렉션 플래그 초기화
+                        st.session_state.auto_redirect_attempted = False
+                        st.success(f"환영합니다, {graph_data.get('displayName', '사용자')}님!")
+                        # 인증 코드를 URL에서 제거하여 리디렉션 루프 방지
+                        st.query_params.clear()
+                        st.rerun()
+                        return True
+                    else:
+                        st.error("권한이 없습니다. 인사팀에 문의하세요.")
+                        st.session_state.user_info = None
+                        return False
+                else:
+                    st.error("사용자 정보를 가져오는데 실패했습니다.")
+                    return False
+            else:
+                st.error("토큰 획득에 실패했습니다.")
+                return False
+        except Exception as e:
+            st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
+            return False
+    
+    # 3. 로그인되지 않은 상태
+    return False
 
 # SharePoint Graph API 공통 함수
 @st.cache_data(ttl=3600)  # 1시간 캐시 유지
@@ -863,209 +915,78 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
         st.rerun()
 
 # 기본 메뉴 설정
-# 메뉴 초기화
 if 'menu' not in st.session_state:
     st.session_state.menu = "📊 인원현황"
 menu = st.session_state.menu
 
-# 사이드바 메뉴
-st.sidebar.title("👥 HRmate")
-st.sidebar.markdown("---")
-
-# 로그인 상태 확인
-if not st.session_state.get('user_token') or 'user_info' not in st.session_state:
-    st.sidebar.markdown("### 🔄 로그인 중입니다...")
-    st.sidebar.markdown("Microsoft 계정으로 로그인을 진행합니다.")
-elif st.session_state.get('user_info'):
-    # HR Data 섹션
-    st.sidebar.markdown("#### HR Data")
-    
-    # HR, C-LEVEL, Director 권한 메뉴
-    if check_user_permission(['HR', 'C-LEVEL', 'Director']):
-        if st.sidebar.button("📊 인원현황", use_container_width=True):
-            st.session_state.menu = "📊 인원현황"
-        if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
-            st.session_state.menu = "📈 연도별 인원 통계"
-        if st.sidebar.button("🚀 채용현황", use_container_width=True):
-            st.session_state.menu = "🚀 채용현황"
-        if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
-            st.session_state.menu = "🔔 인사팀 업무 공유"
-
-    # HR, C-LEVEL 권한 메뉴
-    if check_user_permission(['HR', 'C-LEVEL']):
-        if st.sidebar.button("😊 임직원 명부", use_container_width=True):
-            st.session_state.menu = "😊 임직원 명부"
-        if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
-            st.session_state.menu = "🏦 기관제출용 인원현황"
-        if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
-            st.session_state.menu = "🔍 연락처/생일 검색"
-
-        st.sidebar.markdown("#### HR Support")
-        if st.sidebar.button("🚀 채용 전형관리", use_container_width=True):
-            st.session_state.menu = "🚀 채용 전형관리"
-        if st.sidebar.button("📋 채용 처우협상", use_container_width=True):
-            st.session_state.menu = "📋 채용 처우협상"
-        if st.sidebar.button("🎫 명함발급", use_container_width=True): 
-            st.session_state.menu = "🎫 명함발급"
-        if st.sidebar.button("📅 인사발령 내역", use_container_width=True):
-            st.session_state.menu = "📅 인사발령 내역"
-        if st.sidebar.button("⏰ 초과근무 조회", use_container_width=True):
-            st.session_state.menu = "⏰ 초과근무 조회"
-        if st.sidebar.button("💰 스톡옵션 조회", use_container_width=True): 
-            st.session_state.menu = "💰 스톡옵션 조회"
-
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("<br>", unsafe_allow_html=True)
-        with st.sidebar.expander("💡 전사지원"):
-            st.markdown('<a href="https://neuropr-lwm9mzur3rzbgoqrhzy68n.streamlit.app/" target="_blank" class="sidebar-link" style="text-decoration: none; color: #1b1b1e;">▫️PR(뉴스검색 및 기사초안)</a>', unsafe_allow_html=True)
-    
-    st.sidebar.markdown("---")
-
-    # 로그인된 사용자 정보 표시
-    if st.session_state.user_info:
-        user_name = st.session_state.user_info.get('displayName', '사용자')
-        st.sidebar.markdown(f"**👤접속자 : {user_name}**")
-
 def main():
-    # 세션 상태 초기화
-    if 'user_token' not in st.session_state:
-        st.session_state.user_token = None
-    if 'user_info' not in st.session_state:
-        st.session_state.user_info = None
-    if 'email' not in st.session_state:
-        st.session_state.email = None
-
-    # MSAL 앱이 초기화되지 않은 경우
-    if msal_app is None:
-        st.error("Microsoft 인증 서비스 초기화에 실패했습니다. 관리자에게 문의하세요.")
-        st.stop()
-
-    # URL 파라미터에서 인증 코드와 state 확인
-    query_params = st.query_params
-    code = query_params.get("code", [None])[0]
-    state = query_params.get("state", [None])[0]
-
-    # 인증 코드가 있으면 토큰 획득 시도
-    if code and not st.session_state.user_token:
-        try:
-            # 필요한 스코프 정의
-            scopes = ["User.Read", "User.Read.All", "profile", "email", "openid"]
-            
-            result = msal_app.acquire_token_by_authorization_code(
-                code,
-                scopes=scopes,
-                redirect_uri=REDIRECT_URI
-            )
-            
-            if "access_token" in result:
-                st.session_state.user_token = result
-                # 사용자 정보 가져오기
-                graph_data = requests.get(
-                    "https://graph.microsoft.com/v1.0/me",
-                    headers={'Authorization': 'Bearer ' + result['access_token']},
-                ).json()
-                
-                if 'error' in graph_data:
-                    st.error(f"사용자 정보를 가져오는 중 오류가 발생했습니다: {graph_data['error']['message']}")
-                    st.session_state.clear()
-                    st.rerun()
-                
-                st.session_state.email = graph_data.get("mail") or graph_data.get("userPrincipalName")
-                st.session_state.user_info = graph_data
-                
-                # URL에서 코드 제거
-                st.query_params.clear()
-                st.rerun()
-            else:
-                if "error" in result:
-                    st.error(f"토큰 획득 실패: {result.get('error_description', '알 수 없는 오류')}")
-                st.session_state.clear()
-                st.rerun()
-        except Exception as e:
-            st.error(f"로그인 처리 중 오류가 발생했습니다: {str(e)}")
-            st.session_state.clear()
-            st.rerun()
-
-    # 토큰이 없으면 로그인 페이지로 리디렉션
-    if not st.session_state.user_token:
-        try:
-            # 필요한 스코프 정의 (최소한의 스코프만 요청)
-            scopes = ["User.Read"]
-            
-            # state 파라미터 생성
-            state = st.session_state.get("_state", base64.b64encode(os.urandom(32)).decode('utf-8'))
-            st.session_state["_state"] = state
-            
-            # 로그인 중임을 표시
-            st.markdown("### Microsoft 계정으로 로그인")
-            st.info("Microsoft 계정으로 로그인을 진행합니다...")
-            
-            # 로그인 URL 생성
-            auth_url = msal_app.get_authorization_request_url(
-                scopes=scopes,
-                redirect_uri=REDIRECT_URI,
-                state=state,
-                prompt="select_account",
-                response_type="code"
-            )
-            
-                        # 로그인 화면 구성
-            st.markdown("""
-                <h3 style='text-align: center;'>Microsoft 계정으로 로그인</h3>
-                <p style='text-align: center; color: #1e88e5;'>Microsoft 계정으로 로그인을 진행합니다...</p>
-                
-                <div style='display: flex; justify-content: center; margin-top: 2rem;'>
-                    <a href='{}' style='
-                        text-decoration: none;
-                        background-color: #2F2F2F;
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        font-size: 16px;
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 200px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        transition: all 0.3s ease;
-                    '>
-                        <img src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/20px-Microsoft_logo.svg.png'
-                             style='margin-right: 10px; height: 20px;'>
-                        Microsoft 로그인
-                    </a>
-                </div>
-            """.format(auth_url), unsafe_allow_html=True)
-            
-            # 디버그 정보 (접힌 상태로 표시)
-            with st.expander("디버그 정보", expanded=False):
-                st.code(f"로그인 URL: {auth_url}", language="text")
-            
-            
-            # 디버그 정보 (접힌 상태로 표시)
-            with st.expander("디버그 정보", expanded=False):
-                st.markdown(f"**Client ID**: {CLIENT_ID[:5]}...{CLIENT_ID[-5:]}")
-                st.markdown(f"**Redirect URI**: {REDIRECT_URI}")
-                st.markdown(f"**Scopes**: {', '.join(scopes)}")
-                st.markdown(f"**Auth URL**: {auth_url[:50]}...")
-            
-            st.stop()
-        except Exception as e:
-            st.error(f"로그인 URL 생성 중 오류가 발생했습니다: {str(e)}")
-            import traceback
-            st.error(f"상세 에러: {traceback.format_exc()}")
-            st.stop()
-
-    # 이메일 권한 확인
-    if not check_authorization(st.session_state.email):
-        st.error("접근 권한이 없습니다. 관리자에게 문의하세요.")
-        st.session_state.clear()
-        st.stop()
-
-    # 메인 앱 UI 시작
-    st.title("HR MATE")
+    # 로그인 처리
+    is_logged_in = login()
     
-    # 선택된 메뉴에 따라 세션 상태 업데이트
-    st.session_state.menu = choice
+    if not is_logged_in:
+        # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
+        col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+        with col2:
+            st.markdown("""
+                <div class="header-container">
+                    <div class="logo-container">
+                        <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                    </div>
+                    <div class="title-container">
+                        <h1>HRmate</h1>
+                        <p>🔐 아래 버튼을 눌러 Microsoft 계정으로 로그인해 주세요.</p>
+                    </div>
+                </div>
+                <div class="divider"><hr></div>
+            """, unsafe_allow_html=True)
+        
+        # Microsoft 로그인 URL 생성
+        auth_url = msal_app.get_authorization_request_url(
+            scopes=["User.Read"],
+            redirect_uri=REDIRECT_URI,
+            state=st.session_state.get("_session_id", "")
+        )
+        
+        # 자동 리디렉션 시도 여부 확인
+        if 'auto_redirect_attempted' not in st.session_state:
+            st.session_state.auto_redirect_attempted = False
+        
+        # 로그인 실패 여부 확인 (URL 파라미터에 error가 있는 경우)
+        query_params = st.query_params
+        has_error = query_params.get("error", None) is not None
+        
+        if not st.session_state.auto_redirect_attempted and not has_error:
+            # 로그인 시도 상태 업데이트
+            st.session_state.auto_redirect_attempted = True
+            
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+            st.stop()
+        else:
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
+            with col2:
+                # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                if has_error:
+                    st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                else:
+                    st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
+            
+                # st.link_button을 사용하여 직접 링크로 이동
+                st.link_button(
+                    "Microsoft 계정으로 로그인",
+                    auth_url,
+                    type="primary",
+                    use_container_width=True
+                )
+                
+        
+        st.stop()
     
     # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
     if "initialized" not in st.session_state:
@@ -4317,4 +4238,4 @@ def load_overtime_base_data():
 
 
 if __name__ == "__main__":
-    main()
+    main() 
