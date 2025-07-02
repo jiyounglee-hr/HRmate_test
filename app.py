@@ -975,14 +975,8 @@ def main():
                     # 오늘 날짜
                     today = datetime.now().strftime('%Y-%m-%d')
                     
-                    st.markdown(f"""
-                        <div style="text-align: left; padding: 10px 0;">
-                            <h3 style="margin-bottom: 5px;">👥 인원 현황 ({today})</h3>
-                            <p style="font-size: 1.1em; margin: 0;">
-                                정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명
-                            </p>
-                        </div>
-                    """, unsafe_allow_html=True)
+                    st.write(f"👥 인원 현황 ({today})")
+                    st.write(f"정규직: {regular_count}명 | 계약직: {contract_count}명 | 전체: {total_count}명")
             
             with col3:
                 st.link_button(
