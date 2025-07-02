@@ -1018,7 +1018,7 @@ def main():
                     font-size: 0.8em;
                     color: #666;
                     text-align: center;
-                    margin-top: 5px;
+                    margin-bottom: 5px;
                 }
                 </style>
                 <div class="small-text">
