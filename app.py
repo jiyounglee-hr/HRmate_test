@@ -1017,25 +1017,27 @@ def main():
             else:
                 st.warning("위에 버튼을 클릭해서 로그인을 먼저 해주세요.")
                             
-            with st.expander("👇 HR 관련 사이트 바로 가기", expanded=True):
-                    st.markdown("""
-                        <style>
-                        .link-hover {
-                            text-decoration: none !important;
-                        }
-                        .link-container {
-                            border: 1px solid #e0e0e0;
-                            border-radius: 5px;
-                            padding: 15px;
-                            margin: 10px 0;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
-                    st.markdown('<div class="link-container">', unsafe_allow_html=True)
-                    st.markdown('<a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️뉴로웍스 ↗️ </a>' , unsafe_allow_html=True)
-                    st.markdown('<a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️뉴로핏커리어 ↗️ </a>' , unsafe_allow_html=True)
-                    st.markdown('<a href="https://neurophet.sharepoint.com/sites/HR2/SitePages/%EC%B1%84%EC%9A%A9-%EC%A0%84%ED%98%95%EA%B4%80%EB%A6%AC.aspx" target="_blank" class="link-hover">▫️면접관용 가이드 및 채용전형 관리 ↗️ </a>' , unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+            with st.container():
+                st.markdown("""
+                    <div style="border: 1px solid #cccccc; padding: 16px; border-radius: 10px; background-color: #f9f9f9;">
+                        <h4>👇 HR 관련 사이트 바로 가기</h4>
+                        <p><a href="https://career.neurophet.com/works" target="_blank" class="link-hover">▫️ 뉴로웍스 ↗️</a></p>
+                        <p><a href="https://career.neurophet.com/" target="_blank" class="link-hover">▫️ 뉴로핏커리어 ↗️</a></p>
+                        <p><a href="#" target="_blank" class="link-hover">▫️ 면접관용 가이드 및 채용전형 관리 ↗️</a></p>
+                    </div>
+
+                    <style>
+                    .link-hover {
+                        text-decoration: none;
+                        font-weight: 500;
+                        color: #3366cc;
+                    }
+                    .link-hover:hover {
+                        text-decoration: underline;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
+
         st.stop()
     
     # 주요 파일들의 수정 여부 확인 (첫 페이지 로드시에만)
