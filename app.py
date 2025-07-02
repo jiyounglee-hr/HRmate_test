@@ -931,7 +931,7 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([0.1, 0.4, 0.6])
+        col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
         with col2:
             st.markdown("""
                 <div class="header-container">
@@ -939,7 +939,6 @@ def main():
                         <h1>HRmate</h1>
                     </div>
                 </div>
-                <div class="divider"><hr></div>
             """, unsafe_allow_html=True)
         
         # Microsoft 로그인 URL 생성
@@ -961,8 +960,8 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.2, 0.4, 0.6])
-            with col2:
+            col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
+            with col3:
                 st.link_button(
                     "Microsoft 계정으로 로그인",
                     auth_url,
