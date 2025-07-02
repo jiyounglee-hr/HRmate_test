@@ -978,7 +978,7 @@ def main():
                     search_result = current_employees[current_employees['성명'].str.contains(search_name, na=False)]
                     
                     if not search_result.empty:
-                        # 필요한 컬럼만 선택
+                        # Sheet1의 컬럼 선택
                         result_df = search_result[['성명', '본부', '팀', '직위', 'E-mail', '핸드폰']]
                         st.dataframe(result_df, hide_index=True)
                     else:
