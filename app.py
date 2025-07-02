@@ -945,7 +945,7 @@ def main():
         query_params = st.query_params
         has_error = query_params.get("error", None) is not None
         
-        col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
+        col1, col2, col3, col4 = st.columns([0.2, 0.35, 0.2, 0.25])
         with col2:
             # 데이터 로드
                 df = load_data()
