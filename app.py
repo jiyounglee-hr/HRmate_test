@@ -986,7 +986,7 @@ def main():
                 </div>
                 <div class="title-container">
                     <h1>HRmate</h1>
-                    <p>🔐 로그인 버튼을 누르면 Microsoft 로그인 창이 새로 열립니다.</p>
+                    <p>🔐 로그인 버튼을 누르면 권한에 맞는 창이 새로 열립니다.</p>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -1024,11 +1024,6 @@ def main():
             with st.container():
                 col1, col2, col3 = st.columns([1.5, 1, 1.5])
                 with col2:
-                    # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
-                    if has_error:
-                        st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
-                    else:
-                        st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.") 
                 
                     # st.link_button을 사용하여 직접 링크로 이동
                     st.link_button(
@@ -1037,7 +1032,11 @@ def main():
                         type="primary",
                         use_container_width=True
                     )
-                 
+                    # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
+                    if has_error:
+                        st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
+                    else:
+                        st.warning("아래 버튼을 클릭해서 로그인을 먼저 해주세요.")                  
         
         st.stop()
     
