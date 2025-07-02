@@ -926,7 +926,7 @@ def main():
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
 
-        col1, col2, col3, col4 = st.columns([0.1, 0.6, 0.3, 0.1])
+        col1, col2, col3, col4 = st.columns([0.1, 0.5, 0.3, 0.2])
         with col3:
             st.markdown("""
                 <div style="position: absolute; top: 20px; right: 20px;">
@@ -962,7 +962,7 @@ def main():
             # 로그인 시도 상태 업데이트
             st.session_state.auto_redirect_attempted = True
             
-            col1, col2, col3 = st.columns([0.1, 0.6, 0.4])
+            col1, col2, col3 = st.columns([0.1, 0.5, 0.3, 0.2])
             with col3:
                 st.link_button(
                     "Microsoft 계정으로 로그인",
