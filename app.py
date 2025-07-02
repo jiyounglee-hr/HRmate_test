@@ -988,7 +988,6 @@ def main():
                     <h1>HRmate</h1>
                     <p>🔐 로그인 버튼을 누르면 Microsoft 로그인 창이 새로 열립니다.</p>
                 </div>
-                <div class="divider"><hr></div>
             </div>
         """, unsafe_allow_html=True)
         
