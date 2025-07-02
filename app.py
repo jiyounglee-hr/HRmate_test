@@ -925,13 +925,15 @@ def main():
     
     if not is_logged_in:
         # 로그인되지 않은 경우 - 자동 리디렉션 또는 로그인 버튼 표시
-        st.markdown("""
-            <div style="position: absolute; top: 20px; right: 20px;">
-                <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
-            </div>
-        """, unsafe_allow_html=True)
-        
+
         col1, col2, col3, col4 = st.columns([0.1, 0.6, 0.3, 0.1])
+        with col3:
+            st.markdown("""
+                <div style="position: absolute; top: 20px; right: 20px;">
+                    <img src="https://neurophethr.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe3948c44-a232-43dd-9c54-c4142a1b670b%2Fneruophet_logo.png?table=block&id=893029a6-2091-4dd3-872b-4b7cd8f94384&spaceId=9453ab34-9a3e-45a8-a6b2-ec7f1cefbd7f&width=410&userId=&cache=v2" width="100">
+                </div>
+            """, unsafe_allow_html=True)
+
         with col2:
             st.markdown("""
                 <div class="header-container">
