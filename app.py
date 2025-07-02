@@ -930,7 +930,7 @@ def main():
                 <div class="header-container">
                     <div class="title-container" style="text-align: left;">
                         <h1>HRmate</h1>
-                    </div><hr>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
         
@@ -1011,13 +1011,6 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
         
         with col3:
-            st.link_button(
-                "Microsoft 계정으로 로그인",
-                auth_url,
-                type="primary",
-                use_container_width=True
-            )
-            
             # 작은 글씨 스타일 추가
             st.markdown("""
                 <style>
@@ -1032,6 +1025,14 @@ def main():
                     🔐 로그인 후 상세 HR정보를 확인하실 수 있습니다.
                 </div>
             """, unsafe_allow_html=True)
+
+            st.link_button(
+                "Microsoft 계정으로 로그인",
+                auth_url,
+                type="primary",
+                use_container_width=True
+            )
+            
             
             # 자동 리디렉션이 실패했거나 에러가 있는 경우 수동 버튼 표시
             if has_error:
