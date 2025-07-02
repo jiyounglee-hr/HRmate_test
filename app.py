@@ -988,6 +988,13 @@ def main():
             div[data-testid="stLinkButton"] > div > a:hover {
                 background-color: #ff3333 !important;
             }
+            div[data-testid="stAlert"] {
+                width: 100% !important;
+                max-width: 400px !important;
+                margin: 1rem auto !important;
+                padding: 0.75rem 1rem !important;
+                border-radius: 4px !important;
+            }
             </style>
             <div class="main-container">
                 <div class="logo-container">
