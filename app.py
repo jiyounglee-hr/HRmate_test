@@ -1021,6 +1021,9 @@ def main():
             if has_error:
                 st.error("로그인 중 문제가 발생했습니다. 다시 시도해주세요.")
 
+            st.markdown("""
+                <hr style="border: none; height: 1px; background-color: #e5e5e5; margin-top: 0.2em; margin-bottom: 1em;">
+            """, unsafe_allow_html=True)
                             
             with st.container():
                 st.markdown("""
