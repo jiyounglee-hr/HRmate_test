@@ -2698,13 +2698,7 @@ def main():
             )
             
             # 엑셀 다운로드 버튼
-            @st.cache_data
-            def convert_df_to_excel(df):
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False, sheet_name='임직원명부')
-                processed_data = output.getvalue()
-                return processed_data
+
             
             excel_data = convert_df_to_excel(df_display)
             st.download_button(
@@ -2819,13 +2813,7 @@ def main():
                     st.warning("조회된 데이터가 없습니다.")
                 
                 # 엑셀 다운로드 버튼
-                @st.cache_data
-                def convert_df_to_excel(df):
-                    output = BytesIO()
-                    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                        df.to_excel(writer, index=False, sheet_name='인사발령내역')
-                    processed_data = output.getvalue()
-                    return processed_data
+                # 전역 함수 사용
                 
                 excel_data = convert_df_to_excel(df_display)
                 st.download_button(
