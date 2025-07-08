@@ -3622,25 +3622,46 @@ def main():
             st.markdown("##### 💡 지원자 접수 통계")
             
             # 지원자 통계 데이터 로드
+            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_applicant_stats():
                 try:
-                    # 파일 경로 설정
-                    file_path = "General/00_2. HRmate/임직원 기초 데이터.xlsx"
+                    # 현재 디렉토리에서 엑셀 파일 경로 설정
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
                     
-                    # 파일이 수정되었는지 확인
-                    if not check_file_modified(file_path):
-                        return st.session_state.get('applicant_stats_data', None)
+                    st.write(f"파일 경로: {file_path}")  # 디버깅용
                     
-                    # 파일 데이터 가져오기
-                    file_bytes = get_sharepoint_file_bytes(file_path)
-                    if not file_bytes:
+                    # 파일 존재 여부 확인
+                    if not os.path.exists(file_path):
+                        st.error(f"파일을 찾을 수 없습니다: {file_path}")
                         return None
                     
-                    # 엑셀 파일 읽기
-                    df = pd.read_excel(file_bytes, sheet_name="채용-지원자")
-                    
-                    # 성명이 0이거나 '0'인 행 제거 (타입 체크 추가)
-                    df = df[~((df['성명'].astype(str) == '0') | (pd.to_numeric(df['성명'], errors='coerce') != 0))]
+                    try:
+                        # 엑셀 파일 읽기
+                        df = pd.read_excel(file_path, sheet_name="채용-지원자")
+                        st.write(f"데이터 로드 완료: {len(df)} 행")  # 디버깅용
+                        
+                        if df.empty:
+                            st.warning("데이터가 비어있습니다.")
+                            return None
+                            
+                        # 필수 컬럼 확인
+                        required_columns = ['성명', '등록날짜', '접수방법', '전형 결과']
+                        missing_columns = [col for col in required_columns if col not in df.columns]
+                        if missing_columns:
+                            st.error(f"필수 컬럼이 없습니다: {', '.join(missing_columns)}")
+                            return None
+                        
+                        # 성명이 0이거나 '0'인 행 제거 (타입 체크 추가)
+                        df = df[~((df['성명'].astype(str) == '0') | (pd.to_numeric(df['성명'], errors='coerce') != 0))]
+                        
+                        if len(df) == 0:
+                            st.warning("유효한 데이터가 없습니다.")
+                            return None
+                            
+                    except Exception as e:
+                        st.error(f"엑셀 파일 읽기 오류: {str(e)}")
+                        return None
                     
                     # 등록날짜 처리
                     try:
