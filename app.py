@@ -4140,11 +4140,16 @@ def main():
             df, df_history = load_employee_data()
             salary_df = load_salary_data()
             
+            # 연봉 데이터 처리
             if salary_df is not None:
                 # 연봉 데이터와 병합
                 df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
                 # 급여 계산 (연봉/12, 소수점 한자리에서 올림)
-                df['급여'] = np.ceil(df['계약 연봉'] / 12)
+                df['급여'] = np.ceil(df['계약 연봉'].fillna(0) / 12)
+            else:
+                # 연봉 데이터가 없는 경우 빈 컬럼 추가
+                df['계약 연봉'] = np.nan
+                df['급여'] = np.nan
             
             # 조회일자 기준으로 재직중인 직원 필터링
             df = df[
@@ -4383,9 +4388,22 @@ def load_salary_data():
         if not file_bytes:
             return None
             
-        # 연봉 시트 읽기
-        df = pd.read_excel(file_bytes, sheet_name="연봉")
-        return df
+        # 엑셀 파일의 모든 시트 이름 확인
+        xls = pd.ExcelFile(BytesIO(file_bytes))
+        sheet_names = xls.sheet_names
+        
+        # 시트 이름 로깅
+        print("Available sheets:", sheet_names)
+        
+        # 연봉 시트 읽기 (시트 이름이 정확하지 않을 수 있으므로 첫 번째 시트 사용)
+        df = pd.read_excel(file_bytes, sheet_name=0)
+        
+        # 필요한 컬럼이 있는지 확인
+        if '성명' not in df.columns or '계약 연봉' not in df.columns:
+            st.warning("연봉 데이터에 필요한 컬럼(성명, 계약 연봉)이 없습니다.")
+            return None
+            
+        return df[['성명', '계약 연봉']]
     except Exception as e:
         st.error(f"연봉 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
