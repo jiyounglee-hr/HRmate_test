@@ -3643,37 +3643,50 @@ def main():
                     df = df[~((df['성명'].astype(str) == '0') | (pd.to_numeric(df['성명'], errors='coerce') != 0))]
                     
                     # 등록날짜 처리
-                    def convert_to_datetime(x):
-                        if pd.isna(x):
-                            return pd.NaT
-                        try:
-                            # 엑셀 숫자 형식의 날짜 처리
-                            if isinstance(x, (int, float)):
-                                return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
-                            elif isinstance(x, datetime.time):
-                                # time 형식인 경우 오늘 날짜와 결합
-                                return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
-                            elif isinstance(x, (datetime, pd.Timestamp)):
-                                return pd.Timestamp(x)
-                            
-                            # 문자열로 변환
-                            date_str = str(x)
-                            
-                            # 여러 날짜 형식 시도
-                            formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
-                            for fmt in formats:
+                    try:
+                        # 먼저 pd.to_datetime으로 직접 변환 시도
+                        df['등록날짜'] = pd.to_datetime(df['등록날짜'], errors='coerce')
+                        
+                        # 변환 실패한 값들에 대해 추가 처리
+                        mask = df['등록날짜'].isna()
+                        if mask.any():
+                            def convert_to_datetime(x):
+                                if pd.isna(x):
+                                    return pd.NaT
                                 try:
-                                    return pd.to_datetime(date_str, format=fmt)
+                                    # 엑셀 숫자 형식의 날짜 처리
+                                    if isinstance(x, (int, float)):
+                                        return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
+                                    elif isinstance(x, datetime.time):
+                                        # time 형식인 경우 오늘 날짜와 결합
+                                        return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
+                                    elif isinstance(x, (datetime, pd.Timestamp)):
+                                        return pd.Timestamp(x)
+                                    
+                                    # 문자열로 변환
+                                    date_str = str(x)
+                                    
+                                    # 여러 날짜 형식 시도
+                                    formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
+                                    for fmt in formats:
+                                        try:
+                                            return pd.to_datetime(date_str, format=fmt)
+                                        except:
+                                            continue
+                                    
+                                    return pd.NaT
                                 except:
-                                    continue
+                                    return pd.NaT
                             
-                            # 모든 형식이 실패하면 기본 변환 시도
-                            return pd.to_datetime(date_str, errors='coerce')
-                        except:
-                            return pd.NaT
-                    
-                    df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
-                    df['지원연도'] = df['등록날짜'].dt.year.fillna(0).astype(int)
+                            # NaN 값만 추가 처리
+                            df.loc[mask, '등록날짜'] = df.loc[mask, '등록날짜'].apply(convert_to_datetime)
+                        
+                        # 연도 추출 (NaN 값은 0으로 처리)
+                        df['지원연도'] = df['등록날짜'].dt.year.fillna(0).astype(int)
+                    except Exception as e:
+                        st.error(f"날짜 변환 중 오류 발생: {str(e)}")
+                        # 오류 발생 시 빈 연도 컬럼 생성
+                        df['지원연도'] = 0
                     
                     # 데이터를 세션에 저장
                     st.session_state['applicant_stats_data'] = df
