@@ -869,9 +869,10 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
         if st.sidebar.button("🔔 인사팀 업무 공유", use_container_width=True):
             st.session_state.menu = "🔔 인사팀 업무 공유"
     # HR, C-LEVEL 권한 메뉴
-    if check_user_permission(['HR', 'C-LEVEL']):
+    if check_user_permission(['HR', 'C-LEVEL', '경영지원']):
         if st.sidebar.button("😊 임직원 명부", use_container_width=True):
             st.session_state.menu = "😊 임직원 명부"
+    if check_user_permission(['HR', 'C-LEVEL']):
         if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
             st.session_state.menu = "🏦 기관제출용 인원현황"
         if st.sidebar.button("🔍 연락처/생일 검색", use_container_width=True):
@@ -2667,12 +2668,15 @@ def main():
             df_history_filtered = df_history_filtered.sort_values('발령일').groupby('성명').last().reset_index()
             
             # 기본 컬럼 설정
-            se_columns = [
+            base_columns = [
                 "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
                 "재직기간", "정규직전환일", "고용구분", "재직상태", "생년월일", 
-                "남/여", "만나이", "퇴사일", "학력", "최종학교", "전공", 
-                "경력사항", "휴직상태"
+                "남/여", "만나이", "퇴사일", "휴직상태"
             ]
+            
+            # 권한에 따른 컬럼 설정
+            additional_columns = ["학력", "최종학교", "전공", "경력사항"]
+            se_columns = base_columns + ([] if st.session_state.user_permission == "경영지원" else additional_columns)
             
             history_columns = [
                 "발령일", "구분", "성명", "변경후_본부",  "변경후_팀", "변경후_직책"
