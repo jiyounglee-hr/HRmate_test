@@ -2676,7 +2676,8 @@ def main():
             
             # 권한에 따른 컬럼 설정
             additional_columns = ["학력", "최종학교", "전공", "경력사항"]
-            se_columns = base_columns + ([] if st.session_state.user_permission == "경영지원" else additional_columns)
+            user_permission = get_user_permission(st.session_state.email)
+            se_columns = base_columns + ([] if user_permission == "경영지원" else additional_columns)
             
             history_columns = [
                 "발령일", "구분", "성명", "변경후_본부",  "변경후_팀", "변경후_직책"
