@@ -3639,9 +3639,8 @@ def main():
                     # 엑셀 파일 읽기
                     df = pd.read_excel(file_bytes, sheet_name="채용-지원자")
                     
-                    # 성명이 0인 행 제거
-                    df = df[df['성명'] != 0]
-                    df = df[df['성명'] != '0']
+                    # 성명이 0이거나 '0'인 행 제거 (타입 체크 추가)
+                    df = df[~((df['성명'].astype(str) == '0') | (pd.to_numeric(df['성명'], errors='coerce') != 0))]
                     
                     # 등록날짜 처리
                     def convert_to_datetime(x):
