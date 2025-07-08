@@ -4271,7 +4271,7 @@ def main():
             
             # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
             row_height = 35  # 각 행의 예상 높이
-            min_height = 50  # 최소 높이
+            min_height = 0 # 최소 높이
             max_height = 800  # 최대 높이
             calculated_height = min(max(min_height, len(df_display) * row_height), max_height)
             
@@ -4281,7 +4281,7 @@ def main():
                 use_container_width=True,
                 hide_index=True
             )
-            
+            st.markdown("<br>", unsafe_allow_html=True)                
             # 엑셀 다운로드 버튼
             if not df_display.empty:
                 excel_data = convert_df_to_excel(df_display)
