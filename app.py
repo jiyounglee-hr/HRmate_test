@@ -4400,6 +4400,10 @@ def load_salary_data():
         # 연봉 시트 읽기
         df = pd.read_excel(file_bytes, sheet_name='연봉')
         
+        # 디버깅을 위한 데이터 확인
+        st.write("연봉 시트의 컬럼:", df.columns.tolist())
+        st.write("연봉 시트의 처음 5행:", df.head())
+        
         # 필요한 컬럼이 있는지 확인
         if '성명' not in df.columns or '계약 연봉' not in df.columns:
             st.warning("연봉 데이터에 필요한 컬럼(성명, 계약 연봉)이 없습니다.")
