@@ -3658,9 +3658,7 @@ def main():
                             (df['성명'].astype(str).str.strip() != '') &  # 빈 문자열이 아닌 값
                             (df['성명'].astype(str).str.strip() != '0')  # '0'이 아닌 값
                         ]
-                        
-                        st.write(f"필터링 후 데이터: {len(df)} 행")
-                        
+                                                
                         if len(df) == 0:
                             st.warning("유효한 데이터가 없습니다.")
                             return None
