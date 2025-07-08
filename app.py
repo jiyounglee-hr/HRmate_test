@@ -856,7 +856,7 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     st.sidebar.markdown("#### HR Data")
     
     # HR, C-LEVEL, Director 권한 메뉴
-    if check_user_permission(['HR', 'C-LEVEL', 'Director', '경영지원']):
+    if check_user_permission(['HR', 'C-LEVEL', 'Director', '경영지원', '과제담당']):
         if st.sidebar.button("📊 인원현황", use_container_width=True):
             st.session_state.menu = "📊 인원현황"
         if st.sidebar.button("📈 연도별 인원 통계", use_container_width=True):
