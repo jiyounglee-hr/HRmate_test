@@ -4143,7 +4143,7 @@ def main():
             # 연봉 데이터 처리
             if salary_df is not None:
                 # 연봉 데이터와 병합
-                df = pd.merge(df, salary_df[['이름', '계약 연봉']], on='성명', how='left')
+                df = pd.merge(df, salary_df[['이름', '계약 연봉']], on='이름', how='left')
                 # 급여 계산 (연봉/12, 소수점 한자리에서 올림)
                 df['급여'] = np.ceil(df['계약 연봉'].fillna(0) / 12)
             else:
