@@ -4392,11 +4392,13 @@ def load_salary_data():
         xls = pd.ExcelFile(file_bytes)
         sheet_names = xls.sheet_names
         
-        # 시트 이름 로깅
-        print("Available sheets:", sheet_names)
+        # '연봉' 시트가 있는지 확인
+        if '연봉' not in sheet_names:
+            st.warning("연봉 시트를 찾을 수 없습니다.")
+            return None
         
-        # 연봉 시트 읽기 (시트 이름이 정확하지 않을 수 있으므로 첫 번째 시트 사용)
-        df = pd.read_excel(file_bytes, sheet_name=0)
+        # 연봉 시트 읽기
+        df = pd.read_excel(file_bytes, sheet_name='연봉')
         
         # 필요한 컬럼이 있는지 확인
         if '성명' not in df.columns or '계약 연봉' not in df.columns:
