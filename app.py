@@ -4137,7 +4137,6 @@ def main():
                   selected_research_labs = st.multiselect(
                       "기업부설연구소구분",
                       options=research_lab_options,
-                      default=['전체']
                   )
               
             with col6:
@@ -4146,6 +4145,20 @@ def main():
             # 데이터 로드
             df, df_history = load_employee_data()
             salary_df = load_salary_data()
+            
+            # 필터링 적용
+            if name:
+                df = df[df['성명'].str.contains(name, na=False)]
+            
+            if employment_type != "전체":
+                df = df[df['고용구분'] == employment_type]
+                
+            if employment_status != "전체":
+                df = df[df['재직상태'] == employment_status]
+            
+            # 기업부설연구소 구분 필터링
+            if selected_research_labs and '전체' not in selected_research_labs:
+                df = df[df['기업부설연구소구분'].isin(selected_research_labs)]
             
             # 연봉 데이터 처리
             if salary_df is not None:
