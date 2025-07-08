@@ -3622,14 +3622,13 @@ def main():
             st.markdown("##### 💡 지원자 접수 통계")
             
             # 지원자 통계 데이터 로드
-            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
+            @st.cache_data
             def load_applicant_stats():
                 try:
                     # 현재 디렉토리에서 엑셀 파일 경로 설정
                     current_dir = os.path.dirname(os.path.abspath(__file__))
                     file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
                     
-                    st.write(f"파일 경로: {file_path}")  # 디버깅용
                     
                     # 파일 존재 여부 확인
                     if not os.path.exists(file_path):
@@ -3643,7 +3642,6 @@ def main():
                         
                         # 엑셀 파일 읽기
                         df = pd.read_excel(file_path, sheet_name="채용-지원자")
-                        st.write(f"데이터 로드 완료: {len(df)} 행")  # 디버깅용
                         
                         if df.empty:
                             st.warning("데이터가 비어있습니다.")
@@ -4131,40 +4129,6 @@ def main():
             else:
                 st.info("엑셀 파일을 업로드해주세요. ('스톡옵션안내'와 'ST코드' 시트가 필요합니다)")
 
-
-
-
-
-        elif menu == "📊 인사 통계":
-            st.markdown("##### 📊 인사 통계")
-            
-            # 인사 통계 데이터 로드
-            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
-            def load_hr_stats():
-                try:
-                    # 현재 디렉토리에서 엑셀 파일 경로 설정
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    file_path = os.path.join(current_dir, "임직원 기초 데이터.xlsx")
-                    
-                    # 엑셀 파일에서 "인사-통계" 시트 읽기
-                    df = pd.read_excel(file_path, sheet_name="인사-통계")
-                    
-                    # 컬럼 이름 재정의
-                    df.columns = df.columns.str.strip()
-                    
-                    return df
-                except Exception as e:
-                    st.error(f"인사 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-                    return None
-
-            # 데이터 로드
-            hr_stats_df = load_hr_stats()
-            
-            if hr_stats_df is not None and not hr_stats_df.empty:
-                # 인사 통계 데이터 표시
-                st.dataframe(hr_stats_df, use_container_width=True)
-            else:
-                st.warning("인사 통계 데이터를 불러올 수 없습니다.")
 
         elif menu == "😊 임직원 명부(과제용)":
             st.markdown("##### 😊 임직원 명부(과제용)")
