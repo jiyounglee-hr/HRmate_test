@@ -3714,15 +3714,22 @@ def main():
                     
                     # 등록날짜 처리
                     def convert_to_datetime(x):
-                        if pd.isna(x):
+                        try:
+                            if pd.isna(x):
+                                return None
+                            if isinstance(x, time):
+                                # time 형식인 경우 오늘 날짜와 결합
+                                return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
+                            if isinstance(x, (datetime, pd.Timestamp)):
+                                return x
+                            # 문자열이나 다른 형식의 경우 None 반환
                             return None
-                        if isinstance(x, time):
-                            # time 형식인 경우 오늘 날짜와 결합
-                            return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
-                        return pd.to_datetime(x)
+                        except:
+                            return None
                     
                     df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
-                    df['지원연도'] = df['등록날짜'].dt.year
+                    # None 값은 제외하고 연도 계산
+                    df['지원연도'] = df['등록날짜'].apply(lambda x: x.year if pd.notna(x) else None)
                     
                     # 데이터를 세션에 저장
                     st.session_state['applicant_stats_data'] = df
