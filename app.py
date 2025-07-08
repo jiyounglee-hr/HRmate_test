@@ -2579,7 +2579,6 @@ def main():
             
             with col5:
                 show_department_history = st.checkbox("해당 시점부서 추가")
-            
             # 데이터 로드            
             df, df_history = load_employee_data()
             
@@ -4139,6 +4138,13 @@ def main():
             
             # 데이터 로드
             df, df_history = load_employee_data()
+            salary_df = load_salary_data()
+            
+            if salary_df is not None:
+                # 연봉 데이터와 병합
+                df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
+                # 급여 계산 (연봉/12, 소수점 한자리에서 올림)
+                df['급여'] = np.ceil(df['계약 연봉'] / 12)
             
             # 조회일자 기준으로 재직중인 직원 필터링
             df = df[
@@ -4157,11 +4163,11 @@ def main():
             
                                       # 기본 컬럼 설정
             base_columns = [
-                 "성명", "본부", "실", "팀", "직무", "직위", "입사일", "주민등록번호", 
-                 "남/여", "E-Mail", "학력", "최종학교", "전공", "학위번호", "졸업연도", 
-                 "핸드폰",  "본점/지점", "국가기술인번호", 
-                 "고용구분", "영문이름", "한자"
-             ]         
+                "성명", "본부", "실", "팀", "직무", "직위", "입사일", "주민등록번호", 
+                "남/여", "E-Mail", "학력", "최종학교", "전공", "학위번호", "졸업연도", 
+                "핸드폰",  "본점/지점", "국가기술인번호", 
+                "고용구분", "영문이름", "한자", "계약 연봉", "급여"
+            ]         
              # 권한에 따른 컬럼 설정
             se_columns = base_columns
                         
@@ -4368,6 +4374,21 @@ def load_business_card_application_data():
     except Exception as e:
         st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None 
+
+# 연봉 데이터 로드
+def load_salary_data():
+    """SharePoint에서 연봉 데이터를 로드하는 함수"""
+    try:
+        file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/hrmate권한.xlsx")
+        if not file_bytes:
+            return None
+            
+        # 연봉 시트 읽기
+        df = pd.read_excel(file_bytes, sheet_name="연봉")
+        return df
+    except Exception as e:
+        st.error(f"연봉 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 # 초과근무 데이터 로드
 def load_overtime_base_data():
