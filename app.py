@@ -4143,7 +4143,7 @@ def main():
             # 연봉 데이터 처리
             if salary_df is not None:
                 # 연봉 데이터와 병합
-                df = pd.merge(df, salary_df[['이름', '계약 연봉']], on='이름', how='left')
+                df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
                 # 급여 계산 (연봉/12, 소수점 한자리에서 올림)
                 df['급여'] = np.ceil(df['계약 연봉'].fillna(0) / 12)
             else:
@@ -4401,11 +4401,11 @@ def load_salary_data():
         df = pd.read_excel(file_bytes, sheet_name='연봉')
         
         # 필요한 컬럼이 있는지 확인
-        if '이름' not in df.columns or '계약 연봉' not in df.columns:
+        if '성명' not in df.columns or '계약 연봉' not in df.columns:
             st.warning("연봉 데이터에 필요한 컬럼(성명, 계약 연봉)이 없습니다.")
             return None
             
-        return df[['이름', '계약 연봉']]
+        return df[['성명', '계약 연봉']]
     except Exception as e:
         st.error(f"연봉 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
