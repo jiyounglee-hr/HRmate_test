@@ -4401,7 +4401,7 @@ def load_salary_data():
         df = pd.read_excel(file_bytes, sheet_name='연봉')
         
         # 필요한 컬럼이 있는지 확인
-        if '성명' not in df.columns or '계약 연봉' not in df.columns:
+        if '이름' not in df.columns or '계약 연봉' not in df.columns:
             st.warning("연봉 데이터에 필요한 컬럼(성명, 계약 연봉)이 없습니다.")
             return None
             
