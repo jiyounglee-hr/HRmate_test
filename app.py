@@ -4167,12 +4167,20 @@ def main():
             
             # 연봉 데이터 처리
             if salary_df is not None:
-                # 연봉 데이터와 병합
-                  df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
-                  # 천 단위 구분자로 연봉 표시
-                  df['계약 연봉'] = df['계약 연봉'].fillna(0).apply(lambda x: '{:,.0f}'.format(x))
-                  # 급여 계산 (연봉/12, 소수점 한자리에서 올림) 및 천 단위 구분자 표시
-                  df['급여'] = df['계약 연봉'].str.replace(',', '').astype(float).apply(lambda x: '{:,.0f}'.format(np.ceil(x / 12)))
+                # 연봉 데이터와 병합 전에 성명이 있는지 확인
+                df['계약 연봉'] = 0  # 기본값 설정
+                df['급여'] = 0  # 기본값 설정
+                
+                # salary_df에 있는 성명만 연봉 정보 업데이트
+                for idx, row in df.iterrows():
+                    if row['성명'] in salary_df['성명'].values:
+                        salary_info = salary_df[salary_df['성명'] == row['성명']].iloc[0]
+                        df.at[idx, '계약 연봉'] = salary_info['계약 연봉']
+                        df.at[idx, '급여'] = np.ceil(salary_info['계약 연봉'] / 12)
+                
+                # 천 단위 구분자로 표시
+                df['계약 연봉'] = df['계약 연봉'].apply(lambda x: '{:,.0f}'.format(x))
+                df['급여'] = df['급여'].apply(lambda x: '{:,.0f}'.format(x))
             else:
                 # 연봉 데이터가 없는 경우 빈 컬럼 추가
                 df['계약 연봉'] = np.nan
