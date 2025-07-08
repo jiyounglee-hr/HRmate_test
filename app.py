@@ -3691,6 +3691,8 @@ def main():
             # 지원자 통계 데이터 로드
             def load_applicant_stats():
                 try:
+                    from datetime import datetime, time
+                    
                     # 파일 경로 설정
                     file_path = "General/00_2. HRmate/임직원 기초 데이터.xlsx"
                     
@@ -3714,7 +3716,7 @@ def main():
                     def convert_to_datetime(x):
                         if pd.isna(x):
                             return None
-                        if isinstance(x, datetime.time):
+                        if isinstance(x, time):
                             # time 형식인 경우 오늘 날짜와 결합
                             return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
                         return pd.to_datetime(x)
