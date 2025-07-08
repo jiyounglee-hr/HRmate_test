@@ -4136,6 +4136,8 @@ def main():
 
 
 
+
+
         elif menu == "📊 인사 통계":
             st.markdown("##### 📊 인사 통계")
             
@@ -4444,6 +4446,77 @@ def load_overtime_base_data():
     except Exception as e:
         st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
+
+# 임직원 데이터 로드
+@st.cache_data
+def load_employee_data():
+    """SharePoint에서 임직원 기초 데이터를 로드하는 함수"""
+    try:
+        # MSAL 설정
+        authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
+        app = msal.ConfidentialClientApplication(
+            client_id=st.secrets['AZURE_AD_CLIENT_ID'],
+            client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
+            authority=authority
+        )
+
+        # 토큰 받기
+        scopes = ["https://graph.microsoft.com/.default"]
+        result = app.acquire_token_for_client(scopes=scopes)
+        
+        if "access_token" not in result:
+            st.error("토큰을 받아오는데 실패했습니다.")
+            return None, None
+            
+        access_token = result['access_token']
+        headers = {'Authorization': f'Bearer {access_token}'}
+        
+        # 사이트 정보 가져오기
+        site_response = requests.get(
+            "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
+            headers=headers
+        )
+        site_response.raise_for_status()
+        site_info = site_response.json()
+        
+        # 파일 경로 (Shared Documents → General 하위)
+        file_path = "General/00_2. HRmate/임직원 기초 데이터.xlsx"
+        drive_items = requests.get(
+            f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive/root:/{file_path}",
+            headers=headers
+        )
+        drive_items.raise_for_status()
+        file_info = drive_items.json()
+        
+        # 파일 다운로드
+        download_url = file_info['@microsoft.graph.downloadUrl']
+        file_response = requests.get(download_url)
+        file_response.raise_for_status()
+
+        # Sheet1과 Sheet2 읽기
+        df = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet1")
+        df_history = pd.read_excel(BytesIO(file_response.content), sheet_name="Sheet2")
+        
+        # 컬럼 이름 재정의
+        df.columns = df.columns.str.strip()  # 컬럼 이름의 공백 제거
+        df_history.columns = df_history.columns.str.strip()  # 컬럼 이름의 공백 제거
+        
+        # 날짜 컬럼 형식 통일
+        date_columns = ['입사일', '퇴사일', '발령일']
+        for col in date_columns:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+            if col in df_history.columns:
+                df_history[col] = pd.to_datetime(df_history[col], errors='coerce')
+        
+        # None 값 처리
+        df = df.fillna('')
+        df_history = df_history.fillna('')
+        
+        return df, df_history
+    except Exception as e:
+        st.error(f"임직원 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None, None
 
 if __name__ == "__main__":
     main() 
