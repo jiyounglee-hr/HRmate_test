@@ -461,7 +461,6 @@ def login():
     return False
 
 # SharePoint Graph API 공통 함수
-@st.cache_data(ttl=3600)  # 1시간 캐시 유지
 def get_sharepoint_access_token():
     """SharePoint 액세스 토큰을 가져오는 함수"""
     if 'access_token' in st.session_state and 'token_expiry' in st.session_state:
@@ -492,7 +491,6 @@ def get_sharepoint_access_token():
         st.error(f"액세스 토큰을 가져오는 중 오류가 발생했습니다: {str(e)}")
         return None
 
-@st.cache_data(ttl=3600)  # 1시간 캐시 유지
 def get_sharepoint_site_info():
     """SharePoint 사이트 정보를 가져오는 함수"""
     if 'site_info' in st.session_state:
@@ -765,7 +763,6 @@ def convert_date(date_value):
         return pd.NaT
 
 # 엑셀 다운로드 함수 캐싱
-@st.cache_data(ttl=3600)  # 1시간 캐시 유지
 def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
