@@ -4153,10 +4153,17 @@ def main():
             
             # 필터링 적용
             if name:
-                df = df[df['성명'].str.contains(name, na=False)]
+                # 이름 검색 전에 데이터가 있는지 확인
+                if not df.empty and '성명' in df.columns:
+                    # 성명 컬럼의 값을 문자열로 변환하고 빈 값을 처리
+                    df['성명'] = df['성명'].fillna('').astype(str)
+                    df = df[df['성명'].str.contains(name, na=False)]
+                else:
+                    df = pd.DataFrame()  # 빈 데이터프레임 반환
             
             if employment_type != "전체":
-                df = df[df['고용구분'] == employment_type]
+                if not df.empty and '고용구분' in df.columns:
+                    df = df[df['고용구분'] == employment_type]
                 
             if employment_status != "전체":
                 df = df[df['재직상태'] == employment_status]
