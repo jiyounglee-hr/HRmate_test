@@ -870,6 +870,9 @@ if 'user_info' in st.session_state and st.session_state.user_info is not None:
     if check_user_permission(['HR', 'C-LEVEL', '경영지원']):
         if st.sidebar.button("😊 임직원 명부", use_container_width=True):
             st.session_state.menu = "😊 임직원 명부"
+    if check_user_permission(['HR', '과제담당']):
+        if st.sidebar.button("😊 임직원 명부(과제용)", use_container_width=True):
+            st.session_state.menu = "😊 임직원 명부(과제용)"
     if check_user_permission(['HR', 'C-LEVEL']):
         if st.sidebar.button("🏦 기관제출용 인원현황", use_container_width=True):
             st.session_state.menu = "🏦 기관제출용 인원현황"
@@ -4288,6 +4291,143 @@ def load_overtime_base_data():
     except Exception as e:
         st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
         return None
+
+
+        elif menu == "😊 임직원 명부(과제용)":
+            st.markdown("##### 😊 임직원 명부(과제용)")
+            # 조회 조건
+            col1, col2, col3, col4, col5 = st.columns(5)
+            
+            with col1:
+                query_date = st.date_input("조회일자", datetime.now())
+            
+            with col2:
+                name = st.text_input("성명")
+            
+            with col3:
+                employment_type = st.selectbox(
+                    "고용구분",
+                    ["전체", "정규직", "계약직"]
+                )
+            
+            with col4:
+                employment_status = st.selectbox(
+                    "재직상태",
+                    ["전체", "재직", "퇴직"]
+                )
+            
+            with col5:
+                show_department_history = st.checkbox("해당 시점부서 추가")
+            
+            # 데이터 로드
+            df, df_history = load_employee_data()
+            
+            # 조회일자 기준으로 재직중인 직원 필터링
+            df = df[
+                (df['입사일'] <= pd.Timestamp(query_date)) &  # 입사일이 조회일자 이전
+                (
+                    (df['퇴사일'].isna()) |  # 퇴사일이 없는 경우
+                    (df['퇴사일'] >= pd.Timestamp(query_date))  # 퇴사일이 조회일자 이후
+                )
+            ]
+            
+            # 조회일자 기준으로 인사발령 데이터 필터링
+            df_history_filtered = df_history[df_history['발령일'] <= pd.Timestamp(query_date)]
+            
+            # 각 직원별 가장 최근 발령 데이터만 선택
+            df_history_filtered = df_history_filtered.sort_values('발령일').groupby('성명').last().reset_index()
+            
+            # 기본 컬럼 설정
+            base_columns = [
+                "사번", "성명", "본부", "팀", "직무", "직위", "직책", "입사일", 
+                "재직기간", "정규직전환일", "고용구분", "재직상태", "생년월일", 
+                "남/여", "만나이", "퇴사일", "휴직상태"
+            ]
+            
+            # 권한에 따른 컬럼 설정
+            additional_columns = ["학력", "최종학교", "전공", "경력사항"]
+            se_columns = base_columns + ([] if check_user_permission(['경영지원']) else additional_columns)
+            
+            history_columns = [
+                "발령일", "구분", "성명", "변경후_본부",  "변경후_팀", "변경후_직책"
+            ]
+            
+            # 재직기간 계산 함수
+            def calculate_employment_period(row):
+                if pd.isna(row['입사일']):
+                    return None
+                
+                start_date = pd.to_datetime(row['입사일'])
+                
+                # 재직상태가 '퇴직'인 경우 퇴사일을 기준으로 계산
+                if row['재직상태'] == '퇴직' and pd.notna(row['퇴사일']):
+                    end_date = pd.to_datetime(row['퇴사일'])
+                else:
+                    # 그 외의 경우 조회일자를 기준으로 계산
+                    end_date = pd.Timestamp(query_date)
+                
+                years = (end_date - start_date).days // 365
+                months = ((end_date - start_date).days % 365) // 30
+                
+                return f"{years}년 {months}개월"
+            
+            # 데이터 필터링
+            if name:
+                df = df[df['성명'].str.contains(name, na=False)]
+            
+            if employment_type != "전체":
+                df = df[df['고용구분'] == employment_type]
+            
+            if employment_status != "전체":
+                df = df[df['재직상태'] == employment_status]
+            
+            # 재직기간 계산
+            df['재직기간'] = df.apply(calculate_employment_period, axis=1)
+            
+            # 부서 이력 데이터 처리
+            if show_department_history:
+                # 인사발령 데이터와 조인
+                df_merged = pd.merge(
+                    df, 
+                    df_history_filtered, 
+                    left_on='성명', 
+                    right_on='성명', 
+                    how='left',
+                    suffixes=('', '_history')  # 중복 컬럼에 접미사 추가
+                )
+                
+                # 발령이 없는 경우 기본값 설정
+                df_merged['변경후_본부'] = df_merged['변경후_본부'].fillna(df_merged['본부'])
+                df_merged['변경후_팀'] = df_merged['변경후_팀'].fillna(df_merged['팀'])
+                df_merged['변경후_직책'] = df_merged['변경후_직책'].fillna(df_merged['직책'])
+                
+                # 컬럼 순서 조정
+                display_columns = se_columns + [col for col in history_columns if col not in se_columns]
+                df_display = df_merged[display_columns]
+            else:
+                df_display = df[se_columns]
+            
+            # 데이터 표시
+            df_display = df_display.reset_index(drop=True)
+            df_display.index = df_display.index + 1
+            df_display = df_display.reset_index()
+            df_display = df_display.rename(columns={'index': 'No'})
+            
+            # 날짜 컬럼의 시간 제거
+            date_columns = ['정규직전환일', '입사일', '퇴사일', '생년월일', '발령일']
+            for col in date_columns:
+                if col in df_display.columns:
+                    df_display[col] = pd.to_datetime(df_display[col]).dt.date
+            
+            # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
+            row_height = 35  # 각 행의 예상 높이
+            dynamic_height = min(len(df_display) * row_height + 40, 600)  # 헤더 높이 추가, 최대 600픽셀로 제한
+            
+            st.dataframe(
+                df_display,
+                height=dynamic_height,
+                hide_index=True
+            )
 
 
 if __name__ == "__main__":
