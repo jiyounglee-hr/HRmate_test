@@ -4116,28 +4116,29 @@ def main():
             col1, col2, col3, col4, col5, col6 = st.columns(6)
             
             with col1:
-                query_date = st.date_input("조회일자", datetime.now())
-            
-            with col2:
-                name = st.text_input("성명")
-            
-            with col3:
-                employment_type = st.selectbox(
-                    "고용구분",
-                    ["전체", "정규직", "계약직"]
-                )
-            
-            with col4:
-                employment_status = st.selectbox(
-                    "재직상태",
-                    ["전체", "재직", "퇴직"]
-                )
-            with col5:
                   research_lab_options = ['전체', '연구소장', '전담요원', '보조원', '관리직원']
                   selected_research_labs = st.multiselect(
                       "기업부설연구소구분",
                       options=research_lab_options,
                   )
+
+            with col2:
+                query_date = st.date_input("조회일자", datetime.now())
+            
+            with col3:
+                name = st.text_input("성명")
+            
+            with col4:
+                employment_type = st.selectbox(
+                    "고용구분",
+                    ["전체", "정규직", "계약직"]
+                )
+            
+            with col5:
+                employment_status = st.selectbox(
+                    "재직상태",
+                    ["전체", "재직", "퇴직"]
+                )
               
             with col6:
                 show_department_history = st.checkbox("해당 시점부서 추가")
@@ -4145,6 +4146,10 @@ def main():
             # 데이터 로드
             df, df_history = load_employee_data()
             salary_df = load_salary_data()
+            
+            # 기업부설연구소구분의 빈 값과 '0' 값을 '-'로 변경
+            df['기업부설연구소구분'] = df['기업부설연구소구분'].fillna('-')
+            df.loc[df['기업부설연구소구분'].isin(['0', '0.0', '', ' ']), '기업부설연구소구분'] = '-'
             
             # 필터링 적용
             if name:
