@@ -3689,73 +3689,43 @@ def main():
             st.markdown("##### 💡 지원자 접수 통계")
             
             # 지원자 통계 데이터 로드
-            @st.cache_data(ttl=300)  # 5분마다 캐시 갱신
             def load_applicant_stats():
                 try:
-                    # MSAL 설정
-                    authority = f"https://login.microsoftonline.com/{st.secrets['AZURE_AD_TENANT_ID']}"
-                    app = msal.ConfidentialClientApplication(
-                        client_id=st.secrets['AZURE_AD_CLIENT_ID'],
-                        client_credential=st.secrets['AZURE_AD_CLIENT_SECRET'],
-                        authority=authority
-                    )
-
-                    # 토큰 받기
-                    scopes = ["https://graph.microsoft.com/.default"]
-                    result = app.acquire_token_for_client(scopes=scopes)
-                    
-                    if "access_token" not in result:
-                        st.error("토큰을 받아오는데 실패했습니다.")
-                        return None
-                        
-                    access_token = result['access_token']
-                    headers = {'Authorization': f'Bearer {access_token}'}
-                    
-                    # 사이트 정보 가져오기
-                    site_response = requests.get(
-                        "https://graph.microsoft.com/v1.0/sites/neurophet.sharepoint.com:/sites/team.hr",
-                        headers=headers
-                    )
-                    site_response.raise_for_status()
-                    site_info = site_response.json()
-                    
                     # 파일 경로 설정
                     file_path = "General/00_2. HRmate/임직원 기초 데이터.xlsx"
                     
-                    # 파일 정보 가져오기
-                    drive_response = requests.get(
-                        f"https://graph.microsoft.com/v1.0/sites/{site_info['id']}/drive",
-                        headers=headers
-                    )
-                    drive_response.raise_for_status()
-                    drive_info = drive_response.json()
+                    # 파일이 수정되었는지 확인
+                    if not check_file_modified(file_path):
+                        return st.session_state.get('applicant_stats_data', None)
                     
-                    # 파일 다운로드 URL 가져오기
-                    file_response = requests.get(
-                        f"https://graph.microsoft.com/v1.0/drives/{drive_info['id']}/root:/{file_path}",
-                        headers=headers
-                    )
-                    file_response.raise_for_status()
-                    file_info = file_response.json()
-                    
-                    # 파일 다운로드
-                    download_response = requests.get(
-                        file_info['@microsoft.graph.downloadUrl']
-                    )
-                    download_response.raise_for_status()
+                    # 파일 데이터 가져오기
+                    file_bytes = get_sharepoint_file_bytes(file_path)
+                    if not file_bytes:
+                        return None
                     
                     # 엑셀 파일 읽기
-                    excel_data = io.BytesIO(download_response.content)
-                    df = pd.read_excel(excel_data, sheet_name="채용-지원자")
+                    df = pd.read_excel(file_bytes, sheet_name="채용-지원자")
                     
                     # 성명이 0인 행 제거
                     df = df[df['성명'] != 0]
                     df = df[df['성명'] != '0']
                     
-                    # 등록날짜에서 연도 추출
-                    df['지원연도'] = pd.to_datetime(df['등록날짜']).dt.year
+                    # 등록날짜 처리
+                    def convert_to_datetime(x):
+                        if pd.isna(x):
+                            return None
+                        if isinstance(x, datetime.time):
+                            # time 형식인 경우 오늘 날짜와 결합
+                            return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
+                        return pd.to_datetime(x)
                     
+                    df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
+                    df['지원연도'] = df['등록날짜'].dt.year
+                    
+                    # 데이터를 세션에 저장
+                    st.session_state['applicant_stats_data'] = df
                     return df
+                    
                 except Exception as e:
                     st.error(f"지원자 통계 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
                     return None
