@@ -4113,7 +4113,7 @@ def main():
         elif menu == "😊 임직원 명부(과제용)":
             st.markdown("##### 😊 임직원 명부(과제용)")
             # 조회 조건
-            col1, col2, col3, col4, col5 = st.columns(5)
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
             
             with col1:
                 query_date = st.date_input("조회일자", datetime.now())
@@ -4132,8 +4132,15 @@ def main():
                     "재직상태",
                     ["전체", "재직", "퇴직"]
                 )
-            
             with col5:
+                  research_lab_options = ['전체', '연구소장', '전담요원', '보조원원', '관리직원']
+                  selected_research_labs = st.multiselect(
+                      "기업부설연구소구분",
+                      options=research_lab_options,
+                      default=['전체']
+                  )
+              
+            with col6:
                 show_department_history = st.checkbox("해당 시점부서 추가")
             
             # 데이터 로드
