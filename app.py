@@ -3691,8 +3691,6 @@ def main():
             # 지원자 통계 데이터 로드
             def load_applicant_stats():
                 try:
-                    from datetime import datetime, time
-                    
                     # 파일 경로 설정
                     file_path = "General/00_2. HRmate/임직원 기초 데이터.xlsx"
                     
@@ -3714,29 +3712,15 @@ def main():
                     
                     # 등록날짜 처리
                     def convert_to_datetime(x):
-                        try:
-                            if pd.isna(x):
-                                return None
-                            if isinstance(x, time):
-                                # time 형식인 경우 오늘 날짜와 결합
-                                return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
-                            if isinstance(x, (datetime, pd.Timestamp)):
-                                return x
-                            if isinstance(x, str) and x.strip():  # 문자열이고 비어있지 않은 경우
-                                try:
-                                    return pd.to_datetime(x)
-                                except:
-                                    return None
+                        if pd.isna(x):
                             return None
-                        except:
-                            return None
+                        if isinstance(x, datetime.time):
+                            # time 형식인 경우 오늘 날짜와 결합
+                            return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
+                        return pd.to_datetime(x)
                     
                     df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
-                    # None 값은 제외하고 연도 계산 (정수형으로 변환)
-                    df['지원연도'] = df['등록날짜'].apply(lambda x: int(x.year) if pd.notna(x) else None)
-                    
-                    # 결측치 제거
-                    df = df.dropna(subset=['지원연도'])
+                    df['지원연도'] = df['등록날짜'].dt.year
                     
                     # 데이터를 세션에 저장
                     st.session_state['applicant_stats_data'] = df
