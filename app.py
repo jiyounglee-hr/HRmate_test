@@ -4385,21 +4385,18 @@ def load_salary_data():
     """SharePoint에서 연봉 데이터를 로드하는 함수"""
     try:
         file_bytes = get_sharepoint_file_bytes("General/00_2. HRmate/hrmate권한.xlsx")
-        if not file_bytes:
+        if file_bytes is None:
             return None
             
-        # BytesIO 객체 생성
-        excel_file = BytesIO(file_bytes)
-            
         # 엑셀 파일의 모든 시트 이름 확인
-        xls = pd.ExcelFile(excel_file)
+        xls = pd.ExcelFile(file_bytes)
         sheet_names = xls.sheet_names
         
         # 시트 이름 로깅
         print("Available sheets:", sheet_names)
         
         # 연봉 시트 읽기 (시트 이름이 정확하지 않을 수 있으므로 첫 번째 시트 사용)
-        df = pd.read_excel(excel_file, sheet_name=0)
+        df = pd.read_excel(file_bytes, sheet_name=0)
         
         # 필요한 컬럼이 있는지 확인
         if '성명' not in df.columns or '계약 연봉' not in df.columns:
