@@ -4167,132 +4167,6 @@ def main():
             else:
                 st.warning("인사 통계 데이터를 불러올 수 없습니다.")
 
-        elif menu == "🎫 명함발급":
-            st.markdown("##### 🎫 명함발급")
-            
-            # 명함 신청서 데이터 로드
-            application_df = load_business_card_application_data()
-            
-            if application_df is not None:
-                
-                # 표시할 컬럼 선택
-                columns_to_display = [
-                    'Id',
-                    '완료 시간',
-                    '발급확인',
-                    '명함에 들어갈 성명(한글)을 입력해 주세요',
-                    '명함 신청 사유를 선택해 주세요.',
-                    '명함 수량을 선택해주세요.',
-                    '기존 명함에서 변경사항이 있나요?',
-                    '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
-                    '명함 수령 소요 기간을 선택해주세요.',
-                    '추가 요청사항이 있다면 적어주세요.\n'
-                ] 
-                
-                # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
-                display_df = application_df[columns_to_display].copy()
-                display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
-                display_df = display_df.sort_values('완료 시간', ascending=False)
-                with st.expander("👇 링크 바로가기 ", expanded=True):
-                    # 명함처리에 필요한 링크
-                    st.markdown('<div class="link-container">', unsafe_allow_html=True)
-                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️[엑셀] 명함신청 및 명함 DB</a> : 명함신청내용 및 현재 명함상태를 확인해 주세요. ' , unsafe_allow_html=True)
-                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️[피그마] 명함 디자인</a> : 이름을 검색해서 명함을 인쇄할 대상을 선택하고 Export를 3배사이즈로 해서 업체 주문 ', unsafe_allow_html=True)
-                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️[구글시트] 피그마 자동 싱크</a> : 명함 DB가 변경된 경우 구글에 업데이트 후 피그마에서 싱크를 진행합니다. ', unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
-
-                st.markdown("<br>", unsafe_allow_html=True)                
-                # 명함 신청서 리스트 표시
-                st.markdown("##### 📋 명함 신청서 리스트")
-                st.dataframe(
-                    display_df,
-                    use_container_width=True,
-                    hide_index=True,
-                    column_config={
-                        "Id": st.column_config.NumberColumn(
-                            "ID",
-                            width=5
-                        ),
-                        "완료 시간": st.column_config.DatetimeColumn(
-                            "신청일시",
-                            width=40,
-                            format="YYYY-MM-DD HH:mm"
-                        ),
-                        "발급확인": st.column_config.TextColumn(
-                            "발급확인",
-                            width=20
-                        ),
-                        "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
-                            "신청자",
-                            width=10
-                        ),
-                        "명함 신청 사유를 선택해 주세요.": st.column_config.TextColumn(
-                            "신청사유",
-                            width="small"
-                        ),
-                        "명함 수량을 선택해주세요.": st.column_config.TextColumn(
-                            "수량",
-                            width="small"
-                        ),
-                        "기존 명함에서 변경사항이 있나요?": st.column_config.TextColumn(
-                            "변경여부",
-                            width="small"
-                        ),
-
-                        "내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.": st.column_config.TextColumn(
-                            "내선번호",
-                            width="small"
-                        ),
-                        "명함 수령 소요 기간을 선택해주세요.": st.column_config.TextColumn(
-                            "수령기간",
-                            width="small"
-                        ),
-                        "추가 요청사항이 있다면 적어주세요.\n": st.column_config.TextColumn(
-                            "추가요청",
-                            width="medium"
-                        )
-                    }
-                )
-                
-                st.markdown("---")  # 구분선 추가
-            else:
-                st.error("명함 신청서 데이터를 불러올 수 없습니다.")
-            
-
-
-def load_business_card_application_data():
-    """SharePoint에서 명함 신청서 데이터를 로드하는 함수"""
-    try:
-        file_bytes = get_sharepoint_file_bytes("명함 신청.xlsx")
-        if not file_bytes:
-            return None
-            
-        # BytesIO로 읽어 DataFrame 반환
-        df = pd.read_excel(file_bytes, sheet_name="신청리스트_폼즈")
-        
-        return df
-    except Exception as e:
-        st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None 
-
-# 초과근무 데이터 로드
-def load_overtime_base_data():
-    """SharePoint '초과근무기초데이터.xlsx'의 '근태신청관리 다운로드' 시트 로딩"""
-    try:
-        file_bytes = get_sharepoint_file_bytes("General/07. 근태관리/초과근무기초데이터.xlsx")
-        if not file_bytes:
-            return None
-            
-        # 시트 읽기
-        df = pd.read_excel(file_bytes, sheet_name="근태신청관리 다운로드")
-        
-        return df
-
-    except Exception as e:
-        st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
-        return None
-
-
         elif menu == "😊 임직원 명부(과제용)":
             st.markdown("##### 😊 임직원 명부(과제용)")
             # 조회 조건
@@ -4421,14 +4295,155 @@ def load_overtime_base_data():
             
             # 데이터 수에 따라 높이 동적 조정 (행당 35픽셀)
             row_height = 35  # 각 행의 예상 높이
-            dynamic_height = min(len(df_display) * row_height + 40, 600)  # 헤더 높이 추가, 최대 600픽셀로 제한
+            min_height = 400  # 최소 높이
+            max_height = 800  # 최대 높이
+            calculated_height = min(max(min_height, len(df_display) * row_height), max_height)
             
             st.dataframe(
                 df_display,
-                height=dynamic_height,
+                height=calculated_height,
+                use_container_width=True,
                 hide_index=True
             )
+            
+            # 엑셀 다운로드 버튼
+            if not df_display.empty:
+                excel_data = convert_df_to_excel(df_display)
+                download_filename = f"임직원명부_{query_date.strftime('%Y%m%d')}.xlsx"
+                
+                st.download_button(
+                    label="📥 엑셀 다운로드",
+                    data=excel_data,
+                    file_name=download_filename,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            
+            st.markdown("---")  # 구분선 추가
 
+        elif menu == "🎫 명함발급":
+            st.markdown("##### 🎫 명함발급")
+            
+            # 명함 신청서 데이터 로드
+            application_df = load_business_card_application_data()
+            
+            if application_df is not None:
+                
+                # 표시할 컬럼 선택
+                columns_to_display = [
+                    'Id',
+                    '완료 시간',
+                    '발급확인',
+                    '명함에 들어갈 성명(한글)을 입력해 주세요',
+                    '명함 신청 사유를 선택해 주세요.',
+                    '명함 수량을 선택해주세요.',
+                    '기존 명함에서 변경사항이 있나요?',
+                    '내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.',
+                    '명함 수령 소요 기간을 선택해주세요.',
+                    '추가 요청사항이 있다면 적어주세요.\n'
+                ] 
+                
+                # 선택한 컬럼만 포함하는 데이터프레임 생성 및 정렬
+                display_df = application_df[columns_to_display].copy()
+                display_df['완료 시간'] = pd.to_datetime(display_df['완료 시간'])
+                display_df = display_df.sort_values('완료 시간', ascending=False)
+                with st.expander("👇 링크 바로가기 ", expanded=True):
+                    # 명함처리에 필요한 링크
+                    st.markdown('<div class="link-container">', unsafe_allow_html=True)
+                    st.markdown('<a href="https://neurophet.sharepoint.com/:x:/r/sites/team.hr/_layouts/15/Doc.aspx?sourcedoc=%7B60F4F599-B216-4DEA-B71E-A9F944670929%7D&file=%EB%AA%85%ED%95%A8%20%EC%8B%A0%EC%B2%AD.xlsx&action=default&mobileredirect=true" target="_blank" class="link-hover">▫️[엑셀] 명함신청 및 명함 DB</a> : 명함신청내용 및 현재 명함상태를 확인해 주세요. ' , unsafe_allow_html=True)
+                    st.markdown('<a href="https://www.figma.com/design/UhSxGkUptjMwBv9tKBaQeL/HR-Branding?node-id=0-1&p=f&t=SSggzLCn4B9XuvX3-0" target="_blank" class="link-hover">▫️[피그마] 명함 디자인</a> : 이름을 검색해서 명함을 인쇄할 대상을 선택하고 Export를 3배사이즈로 해서 업체 주문 ', unsafe_allow_html=True)
+                    st.markdown('<a href="https://docs.google.com/spreadsheets/d/1Ses2I0A0oZ2Womneq6u6WjxeJ3gWcnOMYta_WDWUYPg/edit?gid=0#gid=0" target="_blank" class="link-hover">▫️[구글시트] 피그마 자동 싱크</a> : 명함 DB가 변경된 경우 구글에 업데이트 후 피그마에서 싱크를 진행합니다. ', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                st.markdown("<br>", unsafe_allow_html=True)                
+                # 명함 신청서 리스트 표시
+                st.markdown("##### 📋 명함 신청서 리스트")
+                st.dataframe(
+                    display_df,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        "Id": st.column_config.NumberColumn(
+                            "ID",
+                            width=5
+                        ),
+                        "완료 시간": st.column_config.DatetimeColumn(
+                            "신청일시",
+                            width=40,
+                            format="YYYY-MM-DD HH:mm"
+                        ),
+                        "발급확인": st.column_config.TextColumn(
+                            "발급확인",
+                            width=20
+                        ),
+                        "명함에 들어갈 성명(한글)을 입력해 주세요": st.column_config.TextColumn(
+                            "신청자",
+                            width=10
+                        ),
+                        "명함 신청 사유를 선택해 주세요.": st.column_config.TextColumn(
+                            "신청사유",
+                            width="small"
+                        ),
+                        "명함 수량을 선택해주세요.": st.column_config.TextColumn(
+                            "수량",
+                            width="small"
+                        ),
+                        "기존 명함에서 변경사항이 있나요?": st.column_config.TextColumn(
+                            "변경여부",
+                            width="small"
+                        ),
+
+                        "내선번호가 있다면 적어주세요. 없는 경우 회사 대표전화로 기입됩니다.": st.column_config.TextColumn(
+                            "내선번호",
+                            width="small"
+                        ),
+                        "명함 수령 소요 기간을 선택해주세요.": st.column_config.TextColumn(
+                            "수령기간",
+                            width="small"
+                        ),
+                        "추가 요청사항이 있다면 적어주세요.\n": st.column_config.TextColumn(
+                            "추가요청",
+                            width="medium"
+                        )
+                    }
+                )
+                
+                st.markdown("---")  # 구분선 추가
+            else:
+                st.error("명함 신청서 데이터를 불러올 수 없습니다.")
+            
+
+
+def load_business_card_application_data():
+    """SharePoint에서 명함 신청서 데이터를 로드하는 함수"""
+    try:
+        file_bytes = get_sharepoint_file_bytes("명함 신청.xlsx")
+        if not file_bytes:
+            return None
+            
+        # BytesIO로 읽어 DataFrame 반환
+        df = pd.read_excel(file_bytes, sheet_name="신청리스트_폼즈")
+        
+        return df
+    except Exception as e:
+        st.error(f"명함 신청서 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None 
+
+# 초과근무 데이터 로드
+def load_overtime_base_data():
+    """SharePoint '초과근무기초데이터.xlsx'의 '근태신청관리 다운로드' 시트 로딩"""
+    try:
+        file_bytes = get_sharepoint_file_bytes("General/07. 근태관리/초과근무기초데이터.xlsx")
+        if not file_bytes:
+            return None
+            
+        # 시트 읽기
+        df = pd.read_excel(file_bytes, sheet_name="근태신청관리 다운로드")
+        
+        return df
+
+    except Exception as e:
+        st.error(f"초과근무 데이터를 불러오는 중 오류가 발생했습니다: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     main() 
