@@ -3645,14 +3645,35 @@ def main():
                     # 등록날짜 처리
                     def convert_to_datetime(x):
                         if pd.isna(x):
-                            return None
-                        if isinstance(x, datetime.time):
-                            # time 형식인 경우 오늘 날짜와 결합
-                            return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
-                        return pd.to_datetime(x)
+                            return pd.NaT
+                        try:
+                            # 엑셀 숫자 형식의 날짜 처리
+                            if isinstance(x, (int, float)):
+                                return pd.Timestamp('1899-12-30') + pd.Timedelta(days=int(x))
+                            elif isinstance(x, datetime.time):
+                                # time 형식인 경우 오늘 날짜와 결합
+                                return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
+                            elif isinstance(x, (datetime, pd.Timestamp)):
+                                return pd.Timestamp(x)
+                            
+                            # 문자열로 변환
+                            date_str = str(x)
+                            
+                            # 여러 날짜 형식 시도
+                            formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y%m%d']
+                            for fmt in formats:
+                                try:
+                                    return pd.to_datetime(date_str, format=fmt)
+                                except:
+                                    continue
+                            
+                            # 모든 형식이 실패하면 기본 변환 시도
+                            return pd.to_datetime(date_str, errors='coerce')
+                        except:
+                            return pd.NaT
                     
                     df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
-                    df['지원연도'] = df['등록날짜'].dt.year
+                    df['지원연도'] = df['등록날짜'].dt.year.fillna(0).astype(int)
                     
                     # 데이터를 세션에 저장
                     st.session_state['applicant_stats_data'] = df
