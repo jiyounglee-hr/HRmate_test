@@ -3638,13 +3638,11 @@ def main():
                     try:
                         # 시트 목록 확인
                         xls = pd.ExcelFile(file_path)
-                        st.write("사용 가능한 시트:", xls.sheet_names)
                         
                         # 엑셀 파일 읽기
                         df = pd.read_excel(file_path, sheet_name="채용-지원자")
                         
                         if df.empty:
-                            st.warning("데이터가 비어있습니다.")
                             return None
                             
                         # 필수 컬럼 확인
@@ -3653,9 +3651,6 @@ def main():
                         if missing_columns:
                             st.error(f"필수 컬럼이 없습니다: {', '.join(missing_columns)}")
                             return None
-                        
-                        # 데이터 필터링 전 상태 확인
-                        st.write("데이터 필터링 전 성명 값 예시:", df['성명'].head())
                         
                         # 성명이 유효하지 않은 행 제거
                         df = df[
