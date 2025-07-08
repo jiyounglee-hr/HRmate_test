@@ -3637,6 +3637,10 @@ def main():
                         return None
                     
                     try:
+                        # 시트 목록 확인
+                        xls = pd.ExcelFile(file_path)
+                        st.write("사용 가능한 시트:", xls.sheet_names)
+                        
                         # 엑셀 파일 읽기
                         df = pd.read_excel(file_path, sheet_name="채용-지원자")
                         st.write(f"데이터 로드 완료: {len(df)} 행")  # 디버깅용
@@ -3652,8 +3656,17 @@ def main():
                             st.error(f"필수 컬럼이 없습니다: {', '.join(missing_columns)}")
                             return None
                         
-                        # 성명이 0이거나 '0'인 행 제거 (타입 체크 추가)
-                        df = df[~((df['성명'].astype(str) == '0') | (pd.to_numeric(df['성명'], errors='coerce') != 0))]
+                        # 데이터 필터링 전 상태 확인
+                        st.write("데이터 필터링 전 성명 값 예시:", df['성명'].head())
+                        
+                        # 성명이 유효하지 않은 행 제거
+                        df = df[
+                            (df['성명'].notna()) &  # null이 아닌 값
+                            (df['성명'].astype(str).str.strip() != '') &  # 빈 문자열이 아닌 값
+                            (df['성명'].astype(str).str.strip() != '0')  # '0'이 아닌 값
+                        ]
+                        
+                        st.write(f"필터링 후 데이터: {len(df)} 행")
                         
                         if len(df) == 0:
                             st.warning("유효한 데이터가 없습니다.")
