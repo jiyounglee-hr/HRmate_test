@@ -3722,14 +3722,21 @@ def main():
                                 return pd.Timestamp.combine(pd.Timestamp.today().date(), x)
                             if isinstance(x, (datetime, pd.Timestamp)):
                                 return x
-                            # 문자열이나 다른 형식의 경우 None 반환
+                            if isinstance(x, str) and x.strip():  # 문자열이고 비어있지 않은 경우
+                                try:
+                                    return pd.to_datetime(x)
+                                except:
+                                    return None
                             return None
                         except:
                             return None
                     
                     df['등록날짜'] = df['등록날짜'].apply(convert_to_datetime)
-                    # None 값은 제외하고 연도 계산
-                    df['지원연도'] = df['등록날짜'].apply(lambda x: x.year if pd.notna(x) else None)
+                    # None 값은 제외하고 연도 계산 (정수형으로 변환)
+                    df['지원연도'] = df['등록날짜'].apply(lambda x: int(x.year) if pd.notna(x) else None)
+                    
+                    # 결측치 제거
+                    df = df.dropna(subset=['지원연도'])
                     
                     # 데이터를 세션에 저장
                     st.session_state['applicant_stats_data'] = df
