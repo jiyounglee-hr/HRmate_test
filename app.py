@@ -4143,9 +4143,11 @@ def main():
             # 연봉 데이터 처리
             if salary_df is not None:
                 # 연봉 데이터와 병합
-                df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
-                # 급여 계산 (연봉/12, 소수점 한자리에서 올림)
-                df['급여'] = np.ceil(df['계약 연봉'].fillna(0) / 12)
+                  df = pd.merge(df, salary_df[['성명', '계약 연봉']], on='성명', how='left')
+                  # 천 단위 구분자로 연봉 표시
+                  df['계약 연봉'] = df['계약 연봉'].fillna(0).apply(lambda x: '{:,.0f}'.format(x))
+                  # 급여 계산 (연봉/12, 소수점 한자리에서 올림) 및 천 단위 구분자 표시
+                  df['급여'] = df['계약 연봉'].str.replace(',', '').astype(float).apply(lambda x: '{:,.0f}'.format(np.ceil(x / 12)))
             else:
                 # 연봉 데이터가 없는 경우 빈 컬럼 추가
                 df['계약 연봉'] = np.nan
@@ -4400,9 +4402,6 @@ def load_salary_data():
         # 연봉 시트 읽기
         df = pd.read_excel(file_bytes, sheet_name='연봉')
         
-        # 디버깅을 위한 데이터 확인
-        st.write("연봉 시트의 컬럼:", df.columns.tolist())
-        st.write("연봉 시트의 처음 5행:", df.head())
         
         # 필요한 컬럼이 있는지 확인
         if '성명' not in df.columns or '계약 연봉' not in df.columns:
